@@ -29,7 +29,7 @@
     "build": "tsc -p tsconfig.build.json",
     "clean": "node -e \"require('fs').rmSync('lib',{recursive:true,force:true})\"",
     "typecheck": "tsc --noEmit && tsc --noEmit -p example && tsc --noEmit -p example-social",
-    "test:api": "node example-shared/test/api.test.cjs",
+    "test:api": "node example-social/test/api.test.cjs",
     "prepack": "npm run clean && npm run build",
     "example": "cd example && expo start",
     "example:trace": "cd example && node scripts/start-trace.mjs",

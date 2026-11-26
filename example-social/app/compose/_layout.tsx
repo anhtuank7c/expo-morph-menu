@@ -13,7 +13,7 @@
 import { Stack } from 'expo-router';
 import { MorphSheetLayout } from 'expo-morph-menu';
 
-import { theme } from '../../theme';
+import { theme } from '../../src/shared/theme';
 
 export default function ComposeLayout() {
   return (

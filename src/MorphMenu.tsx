@@ -186,7 +186,8 @@ export function MorphMenu({
         scrimGate.value = withTiming(1, { duration: 200 });
       }
     },
-    [closeOnDismiss, spring, closeMenuOverride],
+    // Reanimated 4 only reads the dependency list on web; on native it warns.
+    Platform.OS === 'web' ? [closeOnDismiss, spring, closeMenuOverride] : undefined,
   );
 
   // Route gọi khi đã pop xong: chỉ đồng bộ state JS. Không đụng `menu.value`

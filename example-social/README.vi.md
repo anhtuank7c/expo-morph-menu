@@ -37,48 +37,60 @@ npx uri-scheme open murmur://compose/poll --android
 | Chỉnh ảnh | `app/compose/crop.tsx` | Push bên trong sheet, từ màn chọn ảnh |
 | Chat bên trong sheet | `app/compose/thread/[id].tsx` | Push bên trong sheet, từ New message |
 
+## Cấu trúc code
+
+Code được tổ chức theo feature. `app/` chỉ chứa route; mỗi file route re-export một màn hình từ `src/features/<tên>`, còn các layout cấu hình điều hướng và provider.
+
 ```
-app/
-  _layout.tsx              root Stack, MorphProvider, MorphMenu, store
-  (tabs)/_layout.tsx       Tabs với chiều cao nội dung cố định
-  (tabs)/index.tsx         feed
-  (tabs)/search.tsx
-  (tabs)/notifications.tsx
-  (tabs)/messages.tsx
-  post/[id].tsx
-  profile/[handle].tsx
-  chat/[id].tsx
-  compose/_layout.tsx      MorphSheetLayout (sheet)
-  compose/post.tsx
-  compose/photo.tsx        bước 1/2
-  compose/crop.tsx         bước 2/2, push bên trong sheet
-  compose/poll.tsx
-  compose/live.tsx
-  compose/message.tsx      chọn người nhận
-  compose/thread/[id].tsx  chat push bên trong sheet
-  login.tsx                đăng nhập (Stack.Protected)
-  dev.tsx                  màn debug mạng và phiên
-api/
-  server.ts                REST backend giả lập: route trên các bản ghi mẫu
-  seed.ts                  bản ghi ban đầu của server, tài khoản demo
-  types.ts                 cấu trúc response (DTO)
-  murmurApi.ts             endpoint RTK Query, tag, optimistic update
-store/
-  index.ts                 configureStore, listener middleware, focus theo AppState
-  composerSlice.ts         bản nháp của các màn soạn bài (state chỉ ở client)
-components/                Avatar, Media, PostCard, ChatThread, SheetHeader, QueryState
-theme.ts                   màu sắc, chiều cao tab bar
+app/                        route: mỗi màn hình một dòng, cùng các layout
+  _layout.tsx               Stack gốc, Provider, MorphProvider, ComposeMenu
+  (tabs)/_layout.tsx        Tabs với chiều cao nội dung cố định, badge chưa đọc
+  compose/_layout.tsx       MorphSheetLayout (sheet)
+src/
+  core/                     hạ tầng, không chứa code của feature
+    http/                   base query: token, refresh, backoff, idempotency, log request
+    session/                slice auth: token và vòng đời của chúng
+    api/                    API slice của RTK Query (không có endpoint) và kiểu dữ liệu API (dto.ts)
+  backend/                  REST server giả lập; ứng dụng chỉ giao tiếp qua fetch
+  shared/                   theme, định dạng, Avatar, Media, QueryState, SheetHeader, Separator
+  store/                    configureStore, listener, hook có kiểu
+  features/
+    auth/                   đăng nhập, đăng xuất, người dùng hiện tại; LoginScreen
+    posts/                  feed, chi tiết bài viết, like, vote, tạo bài; PostCard, PostList, FeedScreen
+    people/                 tìm kiếm, trang cá nhân, follow; SearchScreen, ProfileScreen, PersonRow
+    notifications/          thông báo, số chưa đọc; NotificationsScreen
+    messages/               hội thoại, thread, gửi tin; MessagesScreen, ChatThread, ChatScreen
+    compose/                menu nổi, slice bản nháp, các màn hình trong sheet
+    live/                   phát trực tiếp; GoLiveScreen
+    devtools/               màn Network
+test/api.test.cjs           kịch bản kiểm thử lớp dữ liệu (npm run test:api)
+docs/DATA-LAYER.vi.md       base query, refresh token, giả lập lỗi
 ```
+
+Một feature có tối đa ba phần:
+
+| Thư mục | Nội dung | Phụ thuộc vào |
+| --- | --- | --- |
+| `api/` | Endpoint thêm bằng `api.injectEndpoints()`, cập nhật cache, hook như `useUnreadMessageCount` | `core` |
+| `model/` | State chỉ có ở client và logic thuần (slice bản nháp, thư viện ảnh) | không có |
+| `ui/` | Màn hình và component | `api`, `model`, `shared`, feature khác |
+
+Các quy tắc giữ cho phụ thuộc chỉ đi một chiều:
+
+- Mỗi feature export API công khai từ `index.ts`. Feature khác và route import từ đó, không import từ một file bên trong feature khác.
+- `core`, `shared` và `backend` không bao giờ import từ `features`.
+- Tag được khai báo một lần trong `core/api/api.ts`, nên mutation của một feature có thể invalidate dữ liệu của feature khác (follow một người làm feed "Following" bị invalidate) mà không cần import.
+- Màn hình kết hợp nhiều feature nằm trong feature sở hữu luồng đó. "New message" dùng tìm kiếm người và tin nhắn, nên nằm trong `compose`, feature phụ thuộc vào cả hai. Đặt nó trong `messages` sẽ tạo phụ thuộc vòng, vì màn trang cá nhân trong `people` đã phụ thuộc vào `messages`.
 
 ## Lớp dữ liệu
 
-Phần tổng quát (mock server, base query có refresh token và backoff, slice `auth` và `network`, màn Network) được mô tả trong [example-shared/README.vi.md](../example-shared/README.vi.md). Ứng dụng này bổ sung:
+Phần tổng quát (mock server, base query có refresh token và backoff, slice `auth` và `network`, màn Network) được mô tả trong [docs/DATA-LAYER.vi.md](docs/DATA-LAYER.vi.md). Ứng dụng này bổ sung:
 
 | State | Vị trí | Ghi chú |
 | --- | --- | --- |
-| Dữ liệu server | Cache của RTK Query (`api/murmurApi.ts`) | Theo endpoint và tham số, dùng chung cho mọi màn hình cần đến |
+| Dữ liệu server | Cache của RTK Query (`src/core/api/api.ts`, endpoint trong `src/features/*/api/`) | Theo endpoint và tham số, dùng chung cho mọi màn hình cần đến |
 | Phiên | Slice `auth` | Điều khiển `Stack.Protected` trong `app/_layout.tsx` |
-| Bản nháp | Slice `composer` | Giữ lại khi đóng sheet, xóa sau khi đăng thành công |
+| Bản nháp | Slice `composer` (`src/features/compose/model/`) | Giữ lại khi đóng sheet, xóa sau khi đăng thành công |
 | Log request | Slice `network` | Hiển thị trên màn Network |
 
 Cách từng mutation cập nhật cache:
@@ -97,7 +109,7 @@ Các tính năng khác của RTK Query được dùng:
 - `getFeed` là infinite query phân trang theo cursor. Mỗi tab là một mục cache riêng.
 - Polling: màn chat đang mở mỗi 2 giây, tab Messages mỗi 5 giây, badge của tab mỗi 10 và 30 giây. Polling dừng khi màn hình cuối cùng dùng dữ liệu đó unmount.
 - `getThread` dùng `merge` để giữ các tin nhắn đang gửi khi có kết quả polling mới.
-- `refetchOnFocus` và `refetchOnReconnect`, nối với `AppState` của React Native trong `store/index.ts`.
+- `refetchOnFocus` và `refetchOnReconnect`, nối với `AppState` của React Native trong `src/store/index.ts`.
 - Khi phiên kết thúc, một listener xóa cache API và bản nháp, để người dùng kế tiếp không thấy dữ liệu của người trước.
 
 ## Các mẫu triển khai trong ví dụ
@@ -107,13 +119,13 @@ Các tính năng khác của RTK Query được dùng:
 Tab bar có chiều cao nội dung cố định, và cùng giá trị đó được truyền cho menu, nên nút nằm phía trên tab bar:
 
 ```tsx
-// theme.ts
+// src/shared/theme.ts
 export const TAB_BAR_HEIGHT = 56;
 
 // app/(tabs)/_layout.tsx
 tabBarStyle: { height: TAB_BAR_HEIGHT + insets.bottom, paddingBottom: insets.bottom }
 
-// app/_layout.tsx
+// src/features/compose/ui/ComposeMenu.tsx
 <MorphMenu bottomOffset={TAB_BAR_HEIGHT} />
 ```
 
@@ -121,12 +133,12 @@ tabBarStyle: { height: TAB_BAR_HEIGHT + insets.bottom, paddingBottom: insets.bot
 
 ### 2. Ẩn nút bên ngoài các tab
 
-Nút hiển thị ở bốn màn hình tab và trong lúc một route soạn bài đang mở. Ở các màn hình được push như chat, nút bị ẩn:
+Nút hiển thị ở bốn màn hình tab và trong lúc một route soạn bài đang mở. Ở các màn hình được push như chat, nút bị ẩn (`src/features/compose/ui/ComposeMenu.tsx`):
 
 ```tsx
 const TAB_PATHS = new Set(['/', '/search', '/notifications', '/messages']);
 
-function FloatingMenu() {
+export function ComposeMenu() {
   const pathname = usePathname();
   const onTab = TAB_PATHS.has(pathname);
   const inSheet = pathname.startsWith('/compose');
@@ -155,7 +167,7 @@ Luồng ảnh có hai bước bên trong sheet: `photo` (chọn) và `crop` (ch�
 
 ### 5. Cùng một màn hình ở hai vị trí
 
-`components/ChatThread.tsx` được dùng bởi hai route:
+`ChatScreen` (`src/features/messages/ui/ChatScreen.tsx`) được dùng bởi hai route:
 
 | Route | Mở từ | Nút back | Nút nổi |
 | --- | --- | --- | --- |
@@ -180,7 +192,27 @@ function CardBackground({ variant, progress }: MorphBackgroundProps) {
 
 ### 7. Hoãn render nội dung
 
-`compose/post.tsx` chỉ mount ô nhập văn bản, và do đó bàn phím, sau khi `useMorphSettled()` trả về `true`. `compose/photo.tsx` chỉ render lưới ảnh sau khi sheet đã mở rộng xong.
+`ComposePostScreen` chỉ mount ô nhập văn bản, và do đó bàn phím, sau khi `useMorphSettled()` trả về `true`. `PhotoPickerScreen` chỉ render lưới ảnh sau khi sheet đã mở rộng xong.
+
+## Hiệu năng render
+
+Mục tiêu là một thay đổi chỉ render lại các component hiển thị nó. Các kỹ thuật được dùng, và vị trí:
+
+| Kỹ thuật | Vị trí | Tác dụng |
+| --- | --- | --- |
+| `React.memo` cho dòng của list | `PostCard`, `ConversationRow`, `NoticeRow`, `MessageBubble`, `PersonRow`, `EntryRow` | RTK Query giữ nguyên object không đổi khi fetch lại (structural sharing), và Immer giữ nguyên item không đổi khi patch cache. Một lần like chỉ đổi một object bài viết, nên chỉ một dòng render lại |
+| `renderItem`, `keyExtractor` và `ItemSeparatorComponent` khai báo ở cấp module | `PostList`, `MessagesScreen`, `NotificationsScreen` | List nhận cùng props ở mỗi lần component cha render. `ItemSeparatorComponent={() => ...}` viết inline là một kiểu component mới ở mỗi lần render, nên React mount lại mọi separator |
+| `selectFromResult` | Badge của tab, tiêu đề chat, `ChatThread`, `ViewerCount`, `ComposePostScreen` | Component chỉ subscribe giá trị nó hiển thị. Mỗi lần poll đổi `isFetching` hai lần kể cả khi dữ liệu không đổi; không có `selectFromResult`, mỗi lần poll đều render lại component subscribe |
+| Selector Redux hẹp | `selectCanSubmitPost`, `selectPostLength`, `selectPollOption(index)`, `selectLastAuthError` | Gõ phím trong bản nháp chỉ render ô nhập và bộ đếm; header chỉ render khi trạng thái "có thể đăng" thay đổi. Gõ trong một lựa chọn của poll chỉ render dòng đó |
+| `useAppStore` trong event handler | Các màn soạn bài | Handler đăng bài đọc bản nháp từ store lúc chạy, nên màn hình không subscribe bản nháp |
+| Mutation dispatch không qua hook | `usePostActions` | Like và vote được dispatch bằng `initiate(arg, { track: false })`. `useSetLikeMutation()` ở mỗi dòng sẽ khiến mỗi dòng subscribe state mutation riêng |
+| State cục bộ trong component lá | `ChatComposer`, `SearchField`, `LiveClock`, `TokenCountdown` | Gõ phím, query có debounce và đồng hồ đếm mỗi giây chỉ render một component nhỏ thay vì cả màn hình |
+| Object `router` thay cho `useRouter()` | `PostCard` và các dòng khác | Các dòng dùng `router` dạng imperative của expo-router, nên không đọc navigation context |
+| Option và hằng số ổn định | `COMPOSE_ITEMS`, `COMPOSE_CONFIG`, `screenOptions` của tab (`useMemo` theo inset), các mảng `EMPTY` | Provider và navigator nhận cùng object giữa các lần render |
+
+Giá trị animation (`progress`, `sheet`, hover) là shared value của Reanimated và chạy trên UI thread, nên bản thân hiệu ứng morph không render component React.
+
+Để kiểm tra số lần render, bật "Highlight updates when components render" trong React DevTools, hoặc ghi lại bằng Profiler. [React Compiler](https://react.dev/learn/react-compiler) có thể tự thêm phần lớn các memoization này (`"experiments": { "reactCompiler": true }` trong `app.json`). Ví dụ này viết tay để từng kỹ thuật hiện rõ trong code.
 
 ## Trace theo frame
 
@@ -192,6 +224,8 @@ EXPO_PUBLIC_MORPH_TRACE=1 npx expo start
 ```
 
 Trên emulator Android 17 (API 37, bundle development, giả lập lỗi ở mức "low"), bước đăng nhập và 8 luồng được chạy bằng script, bao gồm mọi dòng của menu, các màn hình lồng, nút back phần cứng, nút bị ẩn và `useMorphDismiss`, ghi được 270 frame và không có cờ `FLICKER`, `HOLE`, `GHOST` hay `OVERLAP` nào.
+
+Sau khi code được tổ chức lại theo feature, một lần chạy thủ công trên cùng emulator (đăng nhập, like, vote, đăng bài, ảnh, poll, live và chat ở cả hai vị trí) cho ra 271 frame, cũng không có cờ nào.
 
 ## Chưa bao gồm
 

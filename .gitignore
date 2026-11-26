@@ -7,4 +7,4 @@ android/
 .DS_Store
 lib/
 docs/diagrams/preview.*.html
-example-shared/test/.build/
+example-social/test/.build/

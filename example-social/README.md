@@ -37,48 +37,60 @@ npx uri-scheme open murmur://compose/poll --android
 | Edit photo | `app/compose/crop.tsx` | Push inside the sheet, from the photo picker |
 | Chat inside the sheet | `app/compose/thread/[id].tsx` | Push inside the sheet, from New message |
 
+## Code structure
+
+The code is organized by feature. `app/` holds routes only; every route file re-exports a screen from `src/features/<name>`, and the layouts configure navigation and providers.
+
 ```
-app/
-  _layout.tsx              root Stack, MorphProvider, MorphMenu, store
-  (tabs)/_layout.tsx       Tabs with a fixed content height
-  (tabs)/index.tsx         feed
-  (tabs)/search.tsx
-  (tabs)/notifications.tsx
-  (tabs)/messages.tsx
-  post/[id].tsx
-  profile/[handle].tsx
-  chat/[id].tsx
-  compose/_layout.tsx      MorphSheetLayout (the sheet)
-  compose/post.tsx
-  compose/photo.tsx        step 1 of 2
-  compose/crop.tsx         step 2 of 2, pushed inside the sheet
-  compose/poll.tsx
-  compose/live.tsx
-  compose/message.tsx      pick a person
-  compose/thread/[id].tsx  chat pushed inside the sheet
-  login.tsx                sign-in (Stack.Protected)
-  dev.tsx                  network and session debug screen
-api/
-  server.ts                mock REST backend: routes over the seed records
-  seed.ts                  initial server records, demo account
-  types.ts                 response shapes (DTOs)
-  murmurApi.ts             RTK Query endpoints, tags, optimistic updates
-store/
-  index.ts                 configureStore, listener middleware, AppState focus
-  composerSlice.ts         drafts of the compose screens (client-only state)
-components/                Avatar, Media, PostCard, ChatThread, SheetHeader, QueryState
-theme.ts                   colors, tab bar height
+app/                        routes: one line per screen, plus the layouts
+  _layout.tsx               root Stack, Provider, MorphProvider, ComposeMenu
+  (tabs)/_layout.tsx        Tabs with a fixed content height, unread badges
+  compose/_layout.tsx       MorphSheetLayout (the sheet)
+src/
+  core/                     infrastructure, no feature code
+    http/                   base query: tokens, refresh, backoff, idempotency, request log
+    session/                auth slice: tokens and their lifecycle
+    api/                    the RTK Query API slice (no endpoints) and the API types (dto.ts)
+  backend/                  mock REST server; the app reaches it only through fetch
+  shared/                   theme, formatting, Avatar, Media, QueryState, SheetHeader, Separator
+  store/                    configureStore, listeners, typed hooks
+  features/
+    auth/                   login, logout, current user; LoginScreen
+    posts/                  feeds, post detail, like, vote, create; PostCard, PostList, FeedScreen
+    people/                 search, profiles, follow; SearchScreen, ProfileScreen, PersonRow
+    notifications/          notifications, unread count; NotificationsScreen
+    messages/               conversations, threads, sending; MessagesScreen, ChatThread, ChatScreen
+    compose/                floating menu, drafts slice, screens inside the sheet
+    live/                   broadcasts; GoLiveScreen
+    devtools/               Network screen
+test/api.test.cjs           data layer scenarios (npm run test:api)
+docs/DATA-LAYER.md          base query, token refresh, fault injection
 ```
+
+A feature has up to three parts:
+
+| Folder | Contents | Depends on |
+| --- | --- | --- |
+| `api/` | Endpoints added with `api.injectEndpoints()`, cache updates, hooks such as `useUnreadMessageCount` | `core` |
+| `model/` | Client-only state and pure logic (the drafts slice, the photo gallery) | nothing |
+| `ui/` | Screens and components | `api`, `model`, `shared`, other features |
+
+Rules that keep the dependencies one-way:
+
+- Each feature exports its public API from `index.ts`. Other features and routes import from there, never from a file inside another feature.
+- `core`, `shared` and `backend` never import from `features`.
+- Tags are declared once in `core/api/api.ts`, so a mutation in one feature can invalidate data of another (following someone invalidates the "Following" feed) without an import.
+- A screen that combines several features goes in the feature that owns the flow. "New message" uses people search and messages, so it is in `compose`, which depends on both. Placing it in `messages` would create a cycle, because the profile screen in `people` already depends on `messages`.
 
 ## Data layer
 
-The generic parts (mock server, base query with token refresh and backoff, `auth` and `network` slices, Network screen) are described in [example-shared/README.md](../example-shared/README.md). This app adds:
+The generic parts (mock server, base query with token refresh and backoff, `auth` and `network` slices, Network screen) are described in [docs/DATA-LAYER.md](docs/DATA-LAYER.md). This app adds:
 
 | State | Where | Notes |
 | --- | --- | --- |
-| Server data | RTK Query cache (`api/murmurApi.ts`) | Keyed by endpoint and argument, shared by every screen that uses it |
+| Server data | RTK Query cache (`src/core/api/api.ts`, endpoints in `src/features/*/api/`) | Keyed by endpoint and argument, shared by every screen that uses it |
 | Session | `auth` slice | Drives `Stack.Protected` in `app/_layout.tsx` |
-| Drafts | `composer` slice | Survive closing the sheet, cleared after a successful post |
+| Drafts | `composer` slice (`src/features/compose/model/`) | Survive closing the sheet, cleared after a successful post |
 | Request log | `network` slice | Shown on the Network screen |
 
 How each mutation updates the cache:
@@ -97,7 +109,7 @@ Other RTK Query features in use:
 - `getFeed` is an infinite query with cursor pagination. Each tab is its own cache entry.
 - Polling: the open chat every 2 seconds, the Messages tab every 5 seconds, the tab badges every 10 and 30 seconds. Polling stops when the last screen using the data unmounts.
 - `getThread` uses `merge`, so messages that are still sending are kept when a poll result arrives.
-- `refetchOnFocus` and `refetchOnReconnect`, wired to React Native `AppState` in `store/index.ts`.
+- `refetchOnFocus` and `refetchOnReconnect`, wired to React Native `AppState` in `src/store/index.ts`.
 - When the session ends, a listener resets the API cache and the drafts, so the next user does not see the previous user's data.
 
 ## Patterns in this example
@@ -107,13 +119,13 @@ Other RTK Query features in use:
 The tab bar has a fixed content height, and the same value is passed to the menu, so the button sits above the tab bar:
 
 ```tsx
-// theme.ts
+// src/shared/theme.ts
 export const TAB_BAR_HEIGHT = 56;
 
 // app/(tabs)/_layout.tsx
 tabBarStyle: { height: TAB_BAR_HEIGHT + insets.bottom, paddingBottom: insets.bottom }
 
-// app/_layout.tsx
+// src/features/compose/ui/ComposeMenu.tsx
 <MorphMenu bottomOffset={TAB_BAR_HEIGHT} />
 ```
 
@@ -121,12 +133,12 @@ tabBarStyle: { height: TAB_BAR_HEIGHT + insets.bottom, paddingBottom: insets.bot
 
 ### 2. Hiding the button outside the tabs
 
-The button is shown on the four tab screens and while a compose route is open. On pushed screens such as a chat, it is hidden:
+The button is shown on the four tab screens and while a compose route is open. On pushed screens such as a chat, it is hidden (`src/features/compose/ui/ComposeMenu.tsx`):
 
 ```tsx
 const TAB_PATHS = new Set(['/', '/search', '/notifications', '/messages']);
 
-function FloatingMenu() {
+export function ComposeMenu() {
   const pathname = usePathname();
   const onTab = TAB_PATHS.has(pathname);
   const inSheet = pathname.startsWith('/compose');
@@ -155,7 +167,7 @@ The photo flow has two steps inside the sheet: `photo` (pick) and `crop` (edit).
 
 ### 5. The same screen in two places
 
-`components/ChatThread.tsx` is used by two routes:
+`ChatScreen` (`src/features/messages/ui/ChatScreen.tsx`) is used by two routes:
 
 | Route | Opened from | Back button | Floating button |
 | --- | --- | --- | --- |
@@ -180,7 +192,27 @@ function CardBackground({ variant, progress }: MorphBackgroundProps) {
 
 ### 7. Deferred content
 
-`compose/post.tsx` mounts the text input, and so the keyboard, after `useMorphSettled()` returns `true`. `compose/photo.tsx` renders the photo grid only after the sheet has expanded.
+`ComposePostScreen` mounts the text input, and so the keyboard, after `useMorphSettled()` returns `true`. `PhotoPickerScreen` renders the photo grid only after the sheet has expanded.
+
+## Rendering performance
+
+The goal is that a change renders only the components that show it. The techniques used, and where:
+
+| Technique | Where | Effect |
+| --- | --- | --- |
+| `React.memo` on list rows | `PostCard`, `ConversationRow`, `NoticeRow`, `MessageBubble`, `PersonRow`, `EntryRow` | RTK Query keeps unchanged objects when data is refetched (structural sharing), and Immer keeps unchanged items when a cache entry is patched. A like changes one post object, so one row renders |
+| Module-level `renderItem`, `keyExtractor` and `ItemSeparatorComponent` | `PostList`, `MessagesScreen`, `NotificationsScreen` | The list receives the same props on every render of its parent. An inline `ItemSeparatorComponent={() => ...}` is a new component type on every render, so React remounts every separator |
+| `selectFromResult` | Tab badges, chat title, `ChatThread`, `ViewerCount`, `ComposePostScreen` | The component subscribes to the value it shows. A poll toggles `isFetching` twice even when the data is the same; without `selectFromResult` every poll renders the subscriber |
+| Narrow Redux selectors | `selectCanSubmitPost`, `selectPostLength`, `selectPollOption(index)`, `selectLastAuthError` | A keystroke in the post draft renders the input and the counter; the header renders only when "can post" changes. Typing in one poll choice renders only that row |
+| `useAppStore` in event handlers | Compose screens | The submit handler reads the draft from the store when it runs, so the screen does not subscribe to the draft |
+| Mutations dispatched without a hook | `usePostActions` | Like and vote are dispatched with `initiate(arg, { track: false })`. A `useSetLikeMutation()` in every row would subscribe each row to its own mutation state |
+| Local state in leaf components | `ChatComposer`, `SearchField`, `LiveClock`, `TokenCountdown` | Typing, a debounced query, and clocks that tick every second render one small component instead of the screen |
+| `router` object instead of `useRouter()` | `PostCard` and other rows | Rows use the imperative `router` from expo-router, so they do not read navigation context |
+| Stable options and constants | `COMPOSE_ITEMS`, `COMPOSE_CONFIG`, tab `screenOptions` (`useMemo` on the inset), `EMPTY` arrays | Providers and navigators receive the same objects between renders |
+
+Animation values (`progress`, `sheet`, hover) are Reanimated shared values and run on the UI thread, so the morph itself does not render React components.
+
+To check renders, enable "Highlight updates when components render" in React DevTools, or record with the Profiler. [React Compiler](https://react.dev/learn/react-compiler) can add most of these memoizations automatically (`"experiments": { "reactCompiler": true }` in `app.json`). This example writes them by hand so each one is visible in the code.
 
 ## Frame trace
 
@@ -192,6 +224,8 @@ EXPO_PUBLIC_MORPH_TRACE=1 npx expo start
 ```
 
 On an Android 17 emulator (API 37, development bundle, fault injection at "low"), sign-in followed by 8 scripted flows covering every menu row, nested screens, hardware back, the hidden button and `useMorphDismiss` produced 270 traced frames with no `FLICKER`, `HOLE`, `GHOST` or `OVERLAP` flags.
+
+After the code was reorganized into features, a manual run on the same emulator (sign-in, like, vote, post, photo, poll, live, and chat in both places) produced 271 traced frames, also with no flags.
 
 ## Not covered
 
