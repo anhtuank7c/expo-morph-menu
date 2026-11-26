@@ -1,0 +1,11 @@
+# Sau khi đóng full screen với closeMenuOnDismiss = false (mặc định): vỏ đã
+# thu về card và menu VẪN MỞ — dòng bấm được, scrim có mặt.
+appId: host.exp.exponent
+---
+- waitForAnimationToEnd
+- assertNotVisible:
+    id: "morph-close"
+- assertVisible:
+    id: "morph-item-camera"
+- assertVisible:
+    id: "morph-scrim"

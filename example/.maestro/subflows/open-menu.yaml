@@ -1,0 +1,10 @@
+appId: host.exp.exponent
+---
+- tapOn:
+    id: "morph-fab"
+- extendedWaitUntil:
+    visible:
+      id: "morph-item-camera"
+    timeout: 3000
+- assertVisible:
+    id: "morph-scrim"

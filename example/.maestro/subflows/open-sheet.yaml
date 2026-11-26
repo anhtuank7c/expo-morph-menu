@@ -1,0 +1,23 @@
+# ITEM: camera | store | audio | checkin
+# Mở menu nếu chưa mở (sau khi đóng full screen, menu vẫn mở sẵn — chạm vào
+# chỗ FAB lúc đó sẽ trúng dòng "Check In" của card), rồi chọn ITEM.
+appId: host.exp.exponent
+---
+- runFlow:
+    when:
+      notVisible:
+        id: "morph-item-camera"
+    file: open-menu.yaml
+- tapOn:
+    id: "morph-item-${ITEM}"
+- extendedWaitUntil:
+    visible:
+      id: "morph-close"
+    timeout: 5000
+- waitForAnimationToEnd
+# Hồi quy: khi sheet đang mở, overlay không được còn ở trạng thái 'open'
+# (scrim của menu từng phủ lên sheet và nuốt cú chạm nút ×).
+- assertNotVisible:
+    id: "morph-scrim"
+- assertNotVisible:
+    id: "morph-item-camera"

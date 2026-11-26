@@ -1,0 +1,10 @@
+appId: host.exp.exponent
+---
+- waitForAnimationToEnd
+- assertNotVisible:
+    id: "morph-close"
+- assertNotVisible:
+    id: "morph-scrim"
+- assertVisible:
+    id: "morph-fab"
+- assertVisible: "Morphing Menu"

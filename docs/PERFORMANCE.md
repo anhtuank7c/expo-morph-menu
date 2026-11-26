@@ -1,6 +1,6 @@
 # Hiệu năng
 
-Xem kèm trang 3 và 4 của `diagrams/architecture.drawio`.
+Xem kèm [kiến trúc](vi/ARCHITECTURE.md) và trang 2–5 của [`diagrams/expo-morph-menu.vi.drawio`](diagrams/expo-morph-menu.vi.drawio).
 
 ## Trước hết: đặt câu hỏi cho đúng
 
@@ -30,7 +30,7 @@ họ nhả tay** 150–400ms. `useAnimatedReaction` trên `hovered` vốn đã c
 bắn haptic, chỉ cần gắn thêm một việc:
 
 ```tsx
-// components/MorphingMenu.tsx
+// src/MorphMenu.tsx
 const onHover = useCallback((index: number) => {
   const item = ITEMS[index];
   if (!item) return;
@@ -53,7 +53,7 @@ thời gian chờ thật để bạn thấy hiệu quả ngay.
 Trong lúc vỏ đang nở chỉ cần header + skeleton:
 
 ```tsx
-// app/(sheet)/_layout.tsx
+// src/MorphSheetLayout.tsx
 sheet.value = withSpring(1, SPRING, (f) => { 'worklet'; if (f) runOnJS(setSettled)(true); });
 // cờ đi xuống màn hình qua SettledContext
 ```
@@ -71,7 +71,7 @@ và shadow phải dựng lại theo bounds mới ở mỗi frame. Cộng với `
 trên iOS.
 
 ```tsx
-const shadow = restShadow(p); // morph/geometry.ts: 1 ở hai đầu, 0 khi bay
+const shadow = restShadow(p); // src/geometry.ts: 1 ở hai đầu, 0 khi bay
 return { /* ... */ shadowOpacity: 0.18 * shadow, elevation: 10 * shadow };
 ```
 
@@ -124,7 +124,7 @@ Bản đầu bị "card trống rồi giật" khi đóng, rõ nhất ở bản d
   `runOnJS(setAllowLeave)`: chờ một vòng render JS mới hiện card menu.
 
 Giờ thì `handoff` có 3 trạng thái (`HANDOFF.MENU | ROUTE | RETURNING`). Vỏ
-vẽ lại mặt card (`components/MenuFace.tsx`) ở góc dưới-phải: nội dung mờ ở
+vẽ lại mặt card (`src/MenuFace.tsx`) ở góc dưới-phải: nội dung mờ ở
 `p ∈ [0.4, 0.75]`, mặt card hiện ở `p ∈ [0.15, 0.5]`, nên vỏ không bao giờ
 trống. Khi vỏ nhỏ, nội dung bị đẩy lên `insets.top` (chỉ transform), để phần
 lộ ra không phải dải status bar trống. Lúc đóng, vỏ và card overlay chỉ
@@ -132,8 +132,8 @@ crossfade ở đoạn cuối `p ∈ [0, 0.12]`.
 
 ### 3c. Flicker đo bằng trace từng frame · ĐÃ SỬA
 
-`morph/trace.tsx` ghi `menu`, `sheet`, `handoff` và opacity THỰC của overlay
-và vỏ mỗi frame, lấy từ cùng các hàm mà style dùng (`morph/visibility.ts`).
+`src/MorphTrace.tsx` ghi `menu`, `sheet`, `handoff` và opacity THỰC của overlay
+và vỏ mỗi frame, lấy từ cùng các hàm mà style dùng (`src/visibility.ts`).
 Mọi lỗi dưới đây đều đo được trên Android trước khi sửa:
 
 | Triệu chứng | Nguyên nhân | Sửa |
@@ -147,7 +147,7 @@ Mọi lỗi dưới đây đều đo được trên Android trước khi sửa:
 | Rê nhanh rồi nhả: vỏ mọc ở rect card đầy đủ khi card mới nở 79% | Push trước khi card nở xong | Giữ lệnh chọn tới khi `menu ≥ 0.995` |
 | Shadow sáng rồi tắt phụt lúc giao ca | Công tắc `flying ? 0 : 0.18` | `restShadow`: ramp 10% ở hai đầu |
 | (iOS) Card kính nháy khi hiện lại | Animate opacity trên `UIVisualEffectView` | `OVERLAY_BELOW_ROUTE`: không đụng opacity overlay trên iOS |
-| Chữ trên card in đúp, nhoè lúc đóng (ảnh chụp giữa chừng trên AVD) | Crossfade vỏ ↔ overlay ở `p ∈ [0, 0.12]`: hai lớp nửa trong suốt khi vỏ còn to hơn card vài dp; rớt frame làm crossfade thành cú cắt lệch | Bỏ crossfade: CẮT đúng frame `sheet ≤ ARRIVED` (0.005, lệch < 1dp), cả hai lớp đọc cùng `sheet` trên UI thread (`morph/visibility.ts`). Tracer gắn `GHOST` nếu tái phát |
+| Chữ trên card in đúp, nhoè lúc đóng (ảnh chụp giữa chừng trên AVD) | Crossfade vỏ ↔ overlay ở `p ∈ [0, 0.12]`: hai lớp nửa trong suốt khi vỏ còn to hơn card vài dp; rớt frame làm crossfade thành cú cắt lệch | Bỏ crossfade: CẮT đúng frame `sheet ≤ ARRIVED` (0.005, lệch < 1dp), cả hai lớp đọc cùng `sheet` trên UI thread (`src/visibility.ts`). Tracer gắn `GHOST` nếu tái phát |
 
 Kết quả `npm run e2e` (5 flow), ngày 2026-11-26:
 
@@ -195,7 +195,7 @@ và nội dung vẫn phải là view RN thật xếp chồng lên trên.
 
 ## 5. Bề mặt kính
 
-`components/Surface.tsx` chọn theo thứ tự: Liquid Glass thật của iOS 26+
+`src/Surface.tsx` chọn theo thứ tự: Liquid Glass thật của iOS 26+
 (`expo-glass-effect`) → `BlurView` → View đặc.
 
 Blur là hiệu ứng đắt, và đắt hơn nhiều trên Android. Mặc định chỉ bật từ iOS.
