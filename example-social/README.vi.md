@@ -72,7 +72,7 @@ theme.ts                   màu sắc, chiều cao tab bar
 
 ## Lớp dữ liệu
 
-Phần dùng chung (mock server, base query có refresh token và backoff, slice `auth` và `network`, màn Network) được mô tả trong [example-shared/README.vi.md](../example-shared/README.vi.md). Ứng dụng này bổ sung:
+Phần tổng quát (mock server, base query có refresh token và backoff, slice `auth` và `network`, màn Network) được mô tả trong [example-shared/README.vi.md](../example-shared/README.vi.md). Ứng dụng này bổ sung:
 
 | State | Vị trí | Ghi chú |
 | --- | --- | --- |

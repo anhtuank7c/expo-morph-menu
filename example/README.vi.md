@@ -21,7 +21,7 @@ npm run example      # expo start trong example/
 
 Web: mở `http://localhost:8081`, hoặc nhấn `w` trong terminal Metro. Để có viewport cỡ điện thoại, mở `http://localhost:8081/phone.html`, trang này render ứng dụng trong một iframe 390 x 844. Hover chuột lên một dòng có tác dụng như kéo, Esc đóng full screen rồi đến menu, và nút back của trình duyệt chạy animation thu gọn.
 
-Màn hình chính có công tắc chuyển giữa hai biến thể: Default và Custom (slot). Biến thể tùy chỉnh (`components/CustomSlots.tsx`) thay thế mọi slot: nền card, các dòng có phụ đề và chiều cao khác nhau, đường phân cách, nút hình vuông bo góc và scrim làm mờ.
+Màn hình chính mô tả các bước tích hợp, kèm file trong ứng dụng này nơi mỗi bước được thực hiện. Màn hình này cũng có công tắc chuyển giữa hai biến thể: Default và Custom (slot). Biến thể tùy chỉnh (`components/CustomSlots.tsx`) thay thế mọi slot: nền card, các dòng có phụ đề và chiều cao khác nhau, đường phân cách, nút hình vuông bo góc và scrim làm mờ.
 
 Kiểm tra kiểu khi không có thiết bị:
 
@@ -108,17 +108,11 @@ npx uri-scheme open morphmenu://sheet/audio --ios
 
 Phép so sánh cho thấy độ trễ cảm nhận được chủ yếu đến từ việc tải và render nội dung, không phải từ animation.
 
-## Lớp dữ liệu
+## Prefetch
 
-Nội dung của sheet được tải từ một REST API giả lập bằng Redux Toolkit và RTK Query (`api/`, `store/`):
+`data/sheetData.ts` là một nguồn dữ liệu giả với độ trễ 700 ms và cache trong bộ nhớ, được giữ đơn giản có chủ đích. `onHover` của menu gọi `prefetchSheet(key)`, và màn sheet đọc cùng mục cache đó bằng `useSheetData(key)`. Trong ứng dụng của bạn, gọi hàm prefetch của thư viện dữ liệu từ `onHover` (ví dụ `prefetchQuery` của TanStack Query hoặc `util.prefetch` của RTK Query).
 
-- Khi khởi động, `components/SessionGate.tsx` mở một phiên ẩn danh (`POST /auth/device`) và lưu JWT access token cùng refresh token vào slice `auth`. Access token sống 45 giây và được refresh tự động.
-- `GET /sheets/:key` trả về nội dung của một màn sheet, với độ trễ khoảng 700 ms.
-- `onHover` của menu gọi `sheetApi.util.prefetch('getSheet', key)`, nên request bắt đầu ngay khi con trỏ di chuyển trên dòng. Màn sheet đọc cùng mục cache đó bằng `useGetSheetQuery`.
-- Lỗi mạng, 503 và 429 được thử lại theo exponential backoff. Nếu request vẫn lỗi, màn hình hiển thị nút thử lại.
-- Màn hình chính có liên kết tới màn Network: phiên, đếm ngược token, giả lập lỗi và log của mọi lần gửi HTTP.
-
-Mock server, base query và màn Network được dùng chung với ví dụ mạng xã hội và được mô tả trong [example-shared/README.vi.md](../example-shared/README.vi.md). `npm run example:trace` chạy Metro với chế độ giả lập lỗi tắt, để các luồng end-to-end không bị chậm vì thử lại.
+Lớp dữ liệu đầy đủ với Redux Toolkit, RTK Query và refresh JWT có ở [ví dụ mạng xã hội](../example-social/README.vi.md).
 
 ## Tài liệu
 
@@ -146,13 +140,10 @@ src/                       package expo-morph-menu
 example/                   ứng dụng này
   app/_layout.tsx          MorphProvider, Stack gốc, MorphMenu sau navigator
   app/(sheet)/_layout.tsx  MorphSheetLayout với các khai báo Stack.Screen
-  app/(sheet)/[key].tsx    màn hình gốc của nhóm; child.tsx là màn hình lồng nhau
-  app/dev.tsx              màn Network
-  api/server.ts            REST backend giả lập (phiên ẩn danh, nội dung sheet)
-  api/sheetApi.ts          endpoint RTK Query
-  store/index.ts           Redux store
-  components/SessionGate.tsx  mở phiên ẩn danh
-  data/                    item của menu
+  app/(sheet)/[key].tsx    màn hình gốc của nhóm
+  app/(sheet)/child.tsx    màn hình lồng nhau, đóng sheet bằng useMorphDismiss()
+  data/items.tsx           item của menu
+  data/sheetData.ts        nguồn dữ liệu giả có prefetch
   .maestro/, scripts/      kiểm thử end-to-end
 ```
 

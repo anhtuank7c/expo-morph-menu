@@ -7,4 +7,5 @@ appId: host.exp.exponent
     id: "morph-scrim"
 - assertVisible:
     id: "morph-fab"
-- assertVisible: "Morphing Menu"
+- assertVisible:
+    id: "home-title"

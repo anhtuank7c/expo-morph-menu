@@ -9,11 +9,14 @@ name: Màn con rồi đóng
     env:
       ITEM: checkin
 - extendedWaitUntil:
-    visible: "Mở màn hình con"
+    visible:
+      id: "open-child"
     timeout: 5000
-- tapOn: "Mở màn hình con"
+- tapOn:
+    id: "open-child"
 - extendedWaitUntil:
-    visible: "Màn hình con"
+    visible:
+      id: "child-screen"
     timeout: 5000
 - pressKey: back          # về màn gốc của sheet (native-stack)
 - extendedWaitUntil:

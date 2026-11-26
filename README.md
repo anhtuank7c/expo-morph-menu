@@ -314,10 +314,10 @@ npm run build          # compile to lib/
 
 | Example | Shows |
 | --- | --- |
-| [example/](example/README.md) | The menu on a single screen, default and custom slots, prefetching with RTK Query, Maestro end-to-end tests with the frame trace |
+| [example/](example/README.md) | The menu on a single screen with the integration steps, default and custom slots, prefetching on hover, Maestro end-to-end tests with the frame trace. No state management library |
 | [example-social/](example-social/README.md) | A social app with tabs and sign-in: button above the tab bar, hidden on pushed screens, multi-step flows and a chat inside the sheet, `useMorphDismiss`, Redux Toolkit with optimistic updates |
 
-Both examples load data from a mock REST API that runs in the app (JWT refresh, retries with backoff, fault injection): [example-shared/README.md](example-shared/README.md).
+The social example loads data from a mock REST API that runs in the app (JWT refresh, retries with backoff, fault injection): [example-shared/README.md](example-shared/README.md).
 
 ## Platform status
 

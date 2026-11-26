@@ -4,16 +4,16 @@ import type { MorphIcon, MorphItem } from 'expo-morph-menu';
 type Demo = {
   key: string;
   label: string;
-  /** Icon trong header của màn sheet (example tự vẽ). */
+  /** Icon in the header of the sheet screen (drawn by this app). */
   glyph: keyof typeof Ionicons.glyphMap;
   tint: string;
-  /** Icon trong menu — minh hoạ đủ dạng MorphIcon. */
+  /** Icon in the menu. The four items use the different MorphIcon forms. */
   icon: MorphIcon;
-  /** Chỉ slot Item tuỳ biến dùng (dòng cao hơn). */
+  /** Used only by the custom Item slot (taller rows). */
   subtitle?: string;
 };
 
-/** Dạng hàm: icon nhận đúng `size` và `color` theo theme/config. */
+/** Function form: receives `size` and `color` from the theme and config. */
 const ion =
   (name: keyof typeof Ionicons.glyphMap): MorphIcon =>
   ({ size, color }) => <Ionicons name={name} size={size} color={color} />;
@@ -25,28 +25,28 @@ const DEMO: Demo[] = [
     glyph: 'camera',
     tint: '#3a3a3c',
     icon: ion('camera'),
-    subtitle: 'Chụp ảnh, quay video',
+    subtitle: 'Photos and video',
   },
   {
     key: 'store',
     label: 'Store',
     glyph: 'logo-apple-appstore',
     tint: '#0a84ff',
-    // Dạng element: tự đặt size/color.
+    // Element form: sets its own size and color.
     icon: <Ionicons name="logo-apple-appstore" size={15} color="#fff" />,
   },
-  { key: 'audio', label: 'Audio', glyph: 'mic', tint: '#ff453a', icon: ion('mic'), subtitle: 'Ghi âm' },
+  { key: 'audio', label: 'Audio', glyph: 'mic', tint: '#ff453a', icon: ion('mic'), subtitle: 'Voice memo' },
   {
     key: 'checkin',
     label: 'Check In',
     glyph: 'locate',
     tint: '#ffd60a',
-    // Dạng ảnh PNG đơn sắc: được tô màu bằng colors.iconForeground.
+    // Image form: a single-color PNG tinted with colors.iconForeground.
     icon: require('../assets/target.png'),
   },
 ];
 
-/** Các dòng của menu: mỗi dòng mở route `/(sheet)/[key]`. */
+/** Menu rows. Each row opens the route `/(sheet)/[key]`. */
 export const ITEMS: MorphItem[] = DEMO.map((d) => ({
   key: d.key,
   label: d.label,

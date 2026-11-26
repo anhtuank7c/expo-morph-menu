@@ -1,39 +1,26 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Link, useLocalSearchParams } from 'expo-router';
-import { useRef } from 'react';
+import { MorphCloseButton, useMorph, useMorphSettled } from 'expo-morph-menu';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Skeleton } from '../../components/Skeleton';
-import { MorphCloseButton, useMorph, useMorphSettled } from 'expo-morph-menu';
-
 import { findDemo } from '../../data/items';
-import { selectIsSignedIn } from '../../../example-shared/store/authSlice';
-import { useGetSheetQuery } from '../../api/sheetApi';
-import { useAppSelector } from '../../store';
+import { useSheetData } from '../../data/sheetData';
 
-/**
- * Loads the sheet data through RTK Query. If the menu's onHover already
- * prefetched it, the cache entry exists and the wait is close to 0 ms.
- * `waitedMs` measures how long this screen waited after it mounted.
- */
-function useSheetData(key: string) {
-  const mountedAt = useRef(Date.now()).current;
-  const signedIn = useAppSelector(selectIsSignedIn);
-  const { data, fulfilledTimeStamp, error, refetch } = useGetSheetQuery(key, { skip: !signedIn });
-  const waitedMs = data && fulfilledTimeStamp ? Math.max(0, fulfilledTimeStamp - mountedAt) : null;
-  return { data: data ?? null, waitedMs, error, refetch };
-}
-
-/** Gợi ý cách đóng, khớp với cử chỉ đang bật trong config. */
-function dismissHint(d: { edgeSwipe: boolean; dragDown: boolean }) {
+/** Lists the ways to close this screen that are enabled in the config. */
+function closeHint(d: { edgeSwipe: boolean; dragDown: boolean }) {
   const ways = [
-    d.edgeSwipe && 'vuốt từ cạnh trái',
-    d.dragDown && 'kéo xuống',
-    Platform.OS === 'android' ? 'nút × hoặc back cứng' : 'nút ×',
+    'the close button',
+    Platform.OS === 'android' && 'the back button',
+    Platform.OS === 'web' && 'Esc or the browser back button',
+    d.edgeSwipe && 'a swipe from the left edge',
+    d.dragDown && 'dragging down',
   ].filter(Boolean);
-  return `Đóng bằng ${ways.join(', ')}. Deep link chạy được vì đây là route thật.`;
+  return `Close with ${ways.join(', ')}. Every way runs the same collapse animation back into the card.`;
 }
+
+const PREFETCHED_MS = 80;
 
 export default function SheetRoot() {
   const { key } = useLocalSearchParams<{ key: string }>();
@@ -41,16 +28,17 @@ export default function SheetRoot() {
   const insets = useSafeAreaInsets();
   const settled = useMorphSettled();
   const { config } = useMorph();
-  const { data, waitedMs, error, refetch } = useSheetData(item.key);
+  const { data, waitedMs } = useSheetData(item.key);
 
-  // Chỉ dựng nội dung khi vỏ đã đứng yên VÀ dữ liệu đã về.
+  // Render the content once the container has stopped moving and the data is here.
   const ready = settled && data !== null;
+  const prefetched = waitedMs !== null && waitedMs < PREFETCHED_MS;
 
   return (
     <View style={styles.root}>
       <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
-        {/* Icon lấy từ closeIcon của MorphProvider (app/_layout.tsx). */}
-        <MorphCloseButton accessibilityLabel="Đóng" />
+        {/* The icon comes from `closeIcon` on MorphProvider (app/_layout.tsx). */}
+        <MorphCloseButton accessibilityLabel="Close" />
         <View style={styles.title}>
           <View style={[styles.icon, { backgroundColor: item.tint }]}>
             <Ionicons name={item.glyph} size={15} color="#fff" />
@@ -63,51 +51,48 @@ export default function SheetRoot() {
       {ready ? (
         <ScrollView
           testID="sheet-content"
-          // Vỏ giờ phủ tới tận mép đáy, nên chừa chỗ cho home indicator /
-          // thanh điều hướng để dòng cuối không bị che.
+          // The container reaches the bottom edge, so leave room for the home indicator.
           contentContainerStyle={[styles.body, { paddingBottom: 24 + insets.bottom }]}
         >
-          <Text style={styles.lead}>{data.headline}</Text>
+          <Text style={styles.route}>/(sheet)/[key]?key={item.key}</Text>
+          <Text style={styles.para}>{data.summary}</Text>
 
           <View style={styles.badge}>
             <Ionicons
-              name={waitedMs !== null && waitedMs < 80 ? 'flash' : 'hourglass-outline'}
+              name={prefetched ? 'flash' : 'hourglass-outline'}
               size={14}
-              color={waitedMs !== null && waitedMs < 80 ? '#30d158' : '#8e8e93'}
+              color={prefetched ? '#30d158' : '#8e8e93'}
             />
             <Text style={styles.badgeText}>
-              {waitedMs !== null && waitedMs < 80
-                ? `Chờ ${waitedMs}ms — đã nạp trước khi rê tay`
-                : `Chờ ${waitedMs}ms — không có pha rê để tranh thủ`}
+              {prefetched
+                ? `Waited ${waitedMs} ms. Loading started on hover.`
+                : `Waited ${waitedMs} ms. Loading started when the screen opened.`}
             </Text>
           </View>
 
-          {data.paragraphs.map((p, i) => (
-            <Text key={i} style={styles.para}>
-              {p}
-            </Text>
-          ))}
+          <Text style={styles.heading}>What happened</Text>
+          <Text style={styles.para}>
+            1. The row's href was pushed with expo-router. This screen is a regular route, so a deep
+            link opens it as well.
+          </Text>
+          <Text style={styles.para}>
+            2. MorphSheetLayout, the layout of the (sheet) group, animated the container from the
+            card to full screen.
+          </Text>
+          <Text style={styles.para}>
+            3. This screen rendered a skeleton until useMorphSettled() returned true and the data
+            arrived.
+          </Text>
 
-          <Link
-            href={{ pathname: '/(sheet)/child', params: { from: item.key } }}
-            asChild
-          >
-            <Pressable style={styles.cta}>
-              <Text style={styles.ctaText}>Mở màn hình con</Text>
+          <Link href={{ pathname: '/(sheet)/child', params: { from: item.label } }} asChild>
+            <Pressable style={styles.cta} testID="open-child">
+              <Text style={styles.ctaText}>Open a nested screen</Text>
               <Ionicons name="chevron-forward" size={16} color="#fff" />
             </Pressable>
           </Link>
 
-          <Text style={styles.note}>{dismissHint(config.dismiss)}</Text>
+          <Text style={styles.note}>{closeHint(config.dismiss)}</Text>
         </ScrollView>
-      ) : error && settled ? (
-        // The base query already retried with backoff; offer a manual retry.
-        <View style={styles.errorBox}>
-          <Text style={styles.para}>Không tải được dữ liệu. Kiểm tra kết nối rồi thử lại.</Text>
-          <Pressable style={styles.cta} onPress={() => refetch()} testID="sheet-retry">
-            <Text style={styles.ctaText}>Thử lại</Text>
-          </Pressable>
-        </View>
       ) : (
         <Skeleton />
       )}
@@ -134,8 +119,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   ghost: { width: 32 },
-  body: { padding: 24, gap: 16, alignItems: 'flex-start' },
-  lead: { fontSize: 20, fontWeight: '700', color: '#1c1c1e' },
+  body: { padding: 24, gap: 14, alignItems: 'flex-start' },
+  route: {
+    fontFamily: Platform.select({ ios: 'Menlo', default: 'monospace' }),
+    fontSize: 12,
+    color: '#8e8e93',
+  },
+  heading: { fontSize: 17, fontWeight: '700', color: '#1c1c1e', marginTop: 6 },
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -159,5 +149,4 @@ const styles = StyleSheet.create({
   },
   ctaText: { color: '#fff', fontSize: 15, fontWeight: '600' },
   note: { fontSize: 13, color: '#8e8e93', lineHeight: 19 },
-  errorBox: { padding: 24, gap: 16, alignItems: 'flex-start' },
 });

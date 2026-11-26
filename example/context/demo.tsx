@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react';
 
 export type UiVariant = 'default' | 'custom';
 
-/** Chọn bộ giao diện demo ở màn Home (mặc định / tuỳ biến bằng slot). */
+/** UI variant selected on the home screen: default or custom slots. */
 export const DemoContext = createContext<{
   variant: UiVariant;
   setVariant: (v: UiVariant) => void;

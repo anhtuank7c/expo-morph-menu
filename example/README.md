@@ -21,7 +21,7 @@ The app runs in Expo Go (tested on Android). Liquid Glass and blur on iOS requir
 
 Web: open `http://localhost:8081`, or press `w` in the Metro terminal. For a phone-sized viewport, open `http://localhost:8081/phone.html`, which renders the app in a 390 x 844 iframe. Mouse hover over a row acts as a drag, Esc dismisses the full screen and then the menu, and the browser back button runs the collapse animation.
 
-The home screen has a switch between two variants: Default and Custom (slots). The custom variant (`components/CustomSlots.tsx`) replaces every slot: card background, rows with subtitles and different heights, separators, a rounded square button and a blurred scrim.
+The home screen describes the integration steps, with the file in this app where each step is done. It also has a switch between two variants: Default and Custom (slots). The custom variant (`components/CustomSlots.tsx`) replaces every slot: card background, rows with subtitles and different heights, separators, a rounded square button and a blurred scrim.
 
 Type checking without a device:
 
@@ -108,17 +108,11 @@ npx uri-scheme open morphmenu://sheet/audio --ios
 
 The comparison shows that the perceived delay comes mostly from loading and rendering the content, not from the animation.
 
-## Data layer
+## Prefetching
 
-The sheet content is loaded from a mock REST API with Redux Toolkit and RTK Query (`api/`, `store/`):
+`data/sheetData.ts` is a fake data source with 700 ms of latency and an in-memory cache, kept small on purpose. The menu's `onHover` calls `prefetchSheet(key)`, and the sheet screen reads the same cache entry with `useSheetData(key)`. In your app, call your data library's prefetch function from `onHover` instead (for example TanStack Query `prefetchQuery` or RTK Query `util.prefetch`).
 
-- At startup, `components/SessionGate.tsx` opens an anonymous session (`POST /auth/device`) and stores the JWT access and refresh tokens in the `auth` slice. The access token lives 45 seconds and is refreshed automatically.
-- `GET /sheets/:key` returns the content of a sheet screen, with about 700 ms of latency.
-- The menu's `onHover` calls `sheetApi.util.prefetch('getSheet', key)`, so the request starts while the pointer moves over the row. The sheet screen reads the same cache entry with `useGetSheetQuery`.
-- Network errors, 503 and 429 are retried with exponential backoff. If the request still fails, the screen shows a retry button.
-- The home screen links to the Network screen: session, token countdown, fault injection and a log of every HTTP attempt.
-
-The mock server, the base query and the Network screen are shared with the social example and documented in [example-shared/README.md](../example-shared/README.md). `npm run example:trace` starts Metro with fault injection off, so the end-to-end flows are not slowed down by retries.
+For a full data layer with Redux Toolkit, RTK Query and JWT refresh, see the [social example](../example-social/README.md).
 
 ## Documentation
 
@@ -146,13 +140,10 @@ src/                       expo-morph-menu package
 example/                   this app
   app/_layout.tsx          MorphProvider, root Stack, MorphMenu after the navigator
   app/(sheet)/_layout.tsx  MorphSheetLayout with Stack.Screen declarations
-  app/(sheet)/[key].tsx    root screen of the group; child.tsx is a nested screen
-  app/dev.tsx              Network screen
-  api/server.ts            mock REST backend (anonymous session, sheet content)
-  api/sheetApi.ts          RTK Query endpoints
-  store/index.ts           Redux store
-  components/SessionGate.tsx  opens the anonymous session
-  data/                    menu items
+  app/(sheet)/[key].tsx    root screen of the group
+  app/(sheet)/child.tsx    nested screen, closes the sheet with useMorphDismiss()
+  data/items.tsx           menu items
+  data/sheetData.ts        fake data source with prefetching
   .maestro/, scripts/      end-to-end tests
 ```
 

@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import { MorphSheetLayout } from 'expo-morph-menu';
 
-/** Mọi route trong nhóm (sheet) nở ra từ card menu và thu về lại card. */
+/** Every route in the (sheet) group expands from the menu card and collapses back into it. */
 export default function SheetLayout() {
   return (
     <MorphSheetLayout>

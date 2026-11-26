@@ -72,7 +72,7 @@ theme.ts                   colors, tab bar height
 
 ## Data layer
 
-The shared parts (mock server, base query with token refresh and backoff, `auth` and `network` slices, Network screen) are described in [example-shared/README.md](../example-shared/README.md). This app adds:
+The generic parts (mock server, base query with token refresh and backoff, `auth` and `network` slices, Network screen) are described in [example-shared/README.md](../example-shared/README.md). This app adds:
 
 | State | Where | Notes |
 | --- | --- | --- |

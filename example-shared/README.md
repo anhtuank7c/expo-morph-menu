@@ -1,10 +1,10 @@
-# Shared data layer for the examples
+# Data layer of the social example
 
 **English** | [Tiếng Việt](README.vi.md)
 
-Both example apps load their data the way a production app talks to a REST API: Redux Toolkit, RTK Query, JWT access and refresh tokens, retries with exponential backoff. The backend is a mock that runs inside the app, so the examples work offline and need no server. Only the `fetch` function is replaced; the client code is the same code you would point at a real API.
+The social example loads its data the way a production app talks to a REST API: Redux Toolkit, RTK Query, JWT access and refresh tokens, retries with exponential backoff. The backend is a mock that runs inside the app, so the app works offline and needs no server. Only the `fetch` function is replaced; the client code is the same code you would point at a real API.
 
-None of this is part of the `expo-morph-menu` package. It exists so the examples show the menu in a realistic app.
+None of this is part of the `expo-morph-menu` package. It exists so the example shows the menu in a realistic app. The code is in its own folder so it can be read and tested apart from the screens. The basic example (`example/`) does not use it.
 
 ## Files
 
@@ -19,7 +19,7 @@ None of this is part of the `expo-morph-menu` package. It exists so the examples
 | `ui/NetworkPanel.tsx` | Debug screen: session, token countdown, fault injection, request log |
 | `test/api.test.cjs` | Scenario tests (`npm run test:api`) |
 
-Each app adds its own routes (`api/server.ts`), endpoints (`createApi`) and store.
+The app adds its own routes (`api/server.ts`), endpoints (`createApi`) and store.
 
 ## Request lifecycle
 
@@ -56,9 +56,9 @@ request ──> 401 token_expired
 - Single flight: concurrent requests that receive `401` share one refresh call. Sending several refreshes in parallel would also trigger the server's reuse detection.
 - Rotation: every refresh returns a new refresh token and invalidates the old one.
 - Reuse detection: presenting an already used refresh token revokes the whole session (all tokens from the same login). A retry within 10 seconds of a lost refresh response receives the same new pair instead.
-- When the refresh is rejected, the `auth` slice moves to `signedOut` with a reason. A listener in each app's store clears the RTK Query cache, and in the social example `Stack.Protected` returns to the login screen.
+- When the refresh is rejected, the `auth` slice moves to `signedOut` with a reason. A listener in the app's store clears the RTK Query cache, and `Stack.Protected` returns to the login screen.
 
-Access tokens live 60 seconds in the social example and 45 seconds in the basic example, so refreshes happen while you use the apps.
+Access tokens live 60 seconds, so refreshes happen while you use the app.
 
 ## Fault injection
 
@@ -71,11 +71,11 @@ The mock server simulates these faults, with probabilities per request:
 | `429 Too Many Requests` with `Retry-After: 1` | 3% | 8% | Retry after 1 second |
 | Lost response after a write was committed | 4% | 10% | Retry with the same idempotency key, the server replays the stored response |
 
-The default level is `low`. Change it on the Network screen, or start Metro with `EXPO_PUBLIC_API_CHAOS=off|low|high`. The basic example's end-to-end runner sets `off`.
+The default level is `low`. Change it on the Network screen, or start Metro with `EXPO_PUBLIC_API_CHAOS=off|low|high`.
 
 ## Network screen
 
-Both apps include the shared Network screen (`ui/NetworkPanel.tsx`):
+The Network screen (`ui/NetworkPanel.tsx`) shows:
 
 - Session status, user id, access token countdown, number of refreshes, last error.
 - "Expire access token": the next request receives `401 token_expired`, and the log shows the refresh and the repeated request.

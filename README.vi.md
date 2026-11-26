@@ -314,10 +314,10 @@ npm run build          # biên dịch ra lib/
 
 | Ví dụ | Nội dung |
 | --- | --- |
-| [example/](example/README.vi.md) | Menu trên một màn hình, slot mặc định và tùy biến, prefetch bằng RTK Query, kiểm thử end-to-end bằng Maestro với trace theo frame |
+| [example/](example/README.vi.md) | Menu trên một màn hình kèm các bước tích hợp, slot mặc định và tùy biến, prefetch khi hover, kiểm thử end-to-end bằng Maestro với trace theo frame. Không dùng thư viện quản lý state |
 | [example-social/](example-social/README.vi.md) | Ứng dụng mạng xã hội có tab và đăng nhập: nút nằm trên tab bar, ẩn ở các màn hình được push, luồng nhiều bước và chat bên trong sheet, `useMorphDismiss`, Redux Toolkit với optimistic update |
 
-Cả hai ví dụ tải dữ liệu từ một REST API giả lập chạy trong ứng dụng (refresh JWT, thử lại theo backoff, giả lập lỗi): [example-shared/README.vi.md](example-shared/README.vi.md).
+Ví dụ mạng xã hội tải dữ liệu từ một REST API giả lập chạy trong ứng dụng (refresh JWT, thử lại theo backoff, giả lập lỗi): [example-shared/README.vi.md](example-shared/README.vi.md).
 
 ## Trạng thái nền tảng
 

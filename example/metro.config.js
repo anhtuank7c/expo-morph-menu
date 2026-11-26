@@ -1,7 +1,7 @@
 /**
- * App ví dụ dùng `expo-morph-menu` từ mã nguồn ở thư mục cha (../src), và
- * dùng chung node_modules của thư mục cha. KHÔNG `npm install` trong example/:
- * hai bản react / reanimated là lỗi khó hiểu đầu tiên bạn sẽ gặp.
+ * The example app uses `expo-morph-menu` from the source in the parent folder
+ * (../src) and shares the parent's node_modules. Do not run `npm install` in
+ * example/: two copies of react or reanimated cause hard-to-trace errors.
  */
 const path = require('path');
 const { getDefaultConfig } = require('expo/metro-config');

@@ -1,9 +1,9 @@
 /**
- * Ví dụ slot: thay toàn bộ phần nhìn thấy bằng UI "của dự án".
+ * Slot example: every visible part is replaced with the app's own UI.
  *
- * Mọi slot ở đây đều THUẦN (cùng props → cùng hình) và không tự animate kích
- * thước — đúng hợp đồng trong expo-morph-menu. Trạng thái hover đọc từ
- * SharedValue `hovered`, animate bằng Reanimated.
+ * Every slot here is pure (same props, same output) and does not animate its
+ * own size, as the slot contract of expo-morph-menu requires. The hover state
+ * is read from the `hovered` shared value and animated with Reanimated.
  */
 
 import { Ionicons } from '@expo/vector-icons';
@@ -82,7 +82,7 @@ export const CUSTOM_COMPONENTS: MorphComponents = {
   Separator,
   Trigger,
   Scrim,
-  // Item tự vẽ trạng thái hover nên tắt lớp highlight mặc định.
+  // The Item slot draws its own hover state, so the default highlight is turned off.
   Highlight: null,
 };
 
@@ -92,7 +92,7 @@ export const CUSTOM_CONFIG: MorphConfigInput = {
   colors: { light: { iconForeground: '#fff' }, dark: { iconForeground: '#fff' } },
 };
 
-/** Dòng có subtitle cao hơn. Hàm thuần theo dữ liệu item. */
+/** Rows with a subtitle are taller. A pure function of the item data. */
 export const customItemHeight = (item: MorphItem) => (item.data?.subtitle ? 58 : 46);
 
 const styles = StyleSheet.create({

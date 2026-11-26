@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-/** Giữ chỗ trong lúc vỏ đang nở, để không phải mount nội dung nặng giữa animation. */
+/** Placeholder while the container expands, so heavy content does not mount during the animation. */
 export function Skeleton() {
   return (
     <View style={styles.root}>
