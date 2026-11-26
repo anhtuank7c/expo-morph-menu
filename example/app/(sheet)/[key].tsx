@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Link, useLocalSearchParams } from 'expo-router';
+import { useRef } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -7,7 +8,22 @@ import { Skeleton } from '../../components/Skeleton';
 import { MorphCloseButton, useMorph, useMorphSettled } from 'expo-morph-menu';
 
 import { findDemo } from '../../data/items';
-import { useSheetData } from '../../data/sheetData';
+import { selectIsSignedIn } from '../../../example-shared/store/authSlice';
+import { useGetSheetQuery } from '../../api/sheetApi';
+import { useAppSelector } from '../../store';
+
+/**
+ * Loads the sheet data through RTK Query. If the menu's onHover already
+ * prefetched it, the cache entry exists and the wait is close to 0 ms.
+ * `waitedMs` measures how long this screen waited after it mounted.
+ */
+function useSheetData(key: string) {
+  const mountedAt = useRef(Date.now()).current;
+  const signedIn = useAppSelector(selectIsSignedIn);
+  const { data, fulfilledTimeStamp, error, refetch } = useGetSheetQuery(key, { skip: !signedIn });
+  const waitedMs = data && fulfilledTimeStamp ? Math.max(0, fulfilledTimeStamp - mountedAt) : null;
+  return { data: data ?? null, waitedMs, error, refetch };
+}
 
 /** Gợi ý cách đóng, khớp với cử chỉ đang bật trong config. */
 function dismissHint(d: { edgeSwipe: boolean; dragDown: boolean }) {
@@ -25,7 +41,7 @@ export default function SheetRoot() {
   const insets = useSafeAreaInsets();
   const settled = useMorphSettled();
   const { config } = useMorph();
-  const { data, waitedMs } = useSheetData(item.key);
+  const { data, waitedMs, error, refetch } = useSheetData(item.key);
 
   // Chỉ dựng nội dung khi vỏ đã đứng yên VÀ dữ liệu đã về.
   const ready = settled && data !== null;
@@ -84,6 +100,14 @@ export default function SheetRoot() {
 
           <Text style={styles.note}>{dismissHint(config.dismiss)}</Text>
         </ScrollView>
+      ) : error && settled ? (
+        // The base query already retried with backoff; offer a manual retry.
+        <View style={styles.errorBox}>
+          <Text style={styles.para}>Không tải được dữ liệu. Kiểm tra kết nối rồi thử lại.</Text>
+          <Pressable style={styles.cta} onPress={() => refetch()} testID="sheet-retry">
+            <Text style={styles.ctaText}>Thử lại</Text>
+          </Pressable>
+        </View>
       ) : (
         <Skeleton />
       )}
@@ -135,4 +159,5 @@ const styles = StyleSheet.create({
   },
   ctaText: { color: '#fff', fontSize: 15, fontWeight: '600' },
   note: { fontSize: 13, color: '#8e8e93', lineHeight: 19 },
+  errorBox: { padding: 24, gap: 16, alignItems: 'flex-start' },
 });

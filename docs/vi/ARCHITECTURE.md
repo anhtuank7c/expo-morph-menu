@@ -1,189 +1,243 @@
 # Kiến trúc
 
-> Sơ đồ: [`../diagrams/expo-morph-menu.vi.drawio`](../diagrams/expo-morph-menu.vi.drawio) (7 trang, trang tổng quan nằm cuối). Mở bằng [app.diagrams.net](https://app.diagrams.net), draw.io desktop hoặc extension "Draw.io Integration" của VS Code. Số trang nhắc tới bên dưới là của file này.
->
-> English: [`../en/ARCHITECTURE.md`](../en/ARCHITECTURE.md)
+[English](../en/ARCHITECTURE.md) | **Tiếng Việt**
 
-`expo-morph-menu` biến một nút nổi thành card menu, rồi biến một dòng menu thành một **route full screen của expo-router** — và khi đóng thì thu màn đó về lại card. Tài liệu này giải thích package được dựng thế nào và vì sao.
+Liên quan: [Hướng dẫn tích hợp](INTEGRATION.md), [Tùy biến UI](CUSTOM-UI.md), [Hiệu năng](PERFORMANCE.md)
 
-## 1. Ranh giới: cái gì là route, cái gì không
+Nguồn sơ đồ: [`expo-morph-menu.vi.drawio`](../diagrams/expo-morph-menu.vi.drawio), 7 trang. Số trang trong tài liệu này tương ứng với file đó.
 
-Cách dễ nhất để dựng interaction này là một `Animated.View` lớn morph từ nút sang card rồi sang full screen. Nhìn thì đúng, nhưng "màn hình" đó không tồn tại với hệ thống điều hướng: không có màn con, không có back cứng Android, không URL, không deep link, không khôi phục trạng thái.
+`expo-morph-menu` mở rộng một nút nổi thành card menu, và mở rộng một dòng menu thành một route expo-router dạng full screen. Khi route bị đóng, nó thu gọn trở lại thành card. Tài liệu này mô tả cấu trúc của package và lý do của các quyết định thiết kế chính.
 
-Package vạch ranh giới khác đi:
+## Mục lục
 
-| Thành phần | Là route? | Lý do |
+1. [Ranh giới route](#1-ranh-giới-route)
+2. [Các module](#2-các-module)
+3. [Trạng thái dùng chung](#3-trạng-thái-dùng-chung)
+4. [Trình tự mở](#4-trình-tự-mở)
+5. [Trình tự đóng](#5-trình-tự-đóng)
+6. [Chuyển giao: hoán đổi trong một frame](#6-chuyển-giao-hoán-đổi-trong-một-frame)
+7. [Container toàn màn hình](#7-container-toàn-màn-hình)
+8. [Thao tác nhập và cử chỉ](#8-thao-tác-nhập-và-cử-chỉ)
+9. [Đặc thù trên web](#9-đặc-thù-trên-web)
+10. [Hình học](#10-hình-học)
+11. [Nguyên tắc hiệu năng](#11-nguyên-tắc-hiệu-năng)
+12. [Trace theo frame](#12-trace-theo-frame)
+13. [Các phương án đã cân nhắc](#13-các-phương-án-đã-cân-nhắc)
+14. [Hạn chế đã biết](#14-hạn-chế-đã-biết)
+
+## 1. Ranh giới route
+
+Một cách triển khai đơn giản là dùng một `Animated.View` duy nhất, animate từ nút sang card rồi sang full screen. View đó không phải là một đích điều hướng: nó không có màn hình con, không xử lý nút back trên Android, không có URL, không có deep link và không khôi phục trạng thái.
+
+Package chia tương tác thành hai phần:
+
+| Phần | Triển khai bằng | Lý do |
 | --- | --- | --- |
-| Nút → card menu | **Không** — overlay (`MorphMenu`) | Affordance tạm thời, như context menu. Không ai deep link vào một menu đang mở. Nhưng nó vẫn phải nuốt back cứng Android / phím Esc. |
-| Card → full screen | **Có** — một nhóm route thật (`MorphSheetLayout`) | Là điểm đến: cần URL, màn con, điều hướng lùi, khôi phục trạng thái. |
+| Từ nút đến card menu | Overlay (lớp phủ) (`MorphMenu`), không phải route | Một thành phần UI tồn tại ngắn, tương tự context menu. Nó không có URL. Nó vẫn xử lý nút back trên Android và phím Esc |
+| Từ card đến full screen | Nhóm route (`MorphSheetLayout`) | Một đích điều hướng cần URL, màn hình con, điều hướng back và khôi phục trạng thái |
 
-Mọi thứ khác là hệ quả của ranh giới này. Overlay và route không import nhau; chúng chỉ gặp nhau ở `MorphProvider` (trang 1).
+Overlay và nhóm route không import lẫn nhau. Chúng chỉ giao tiếp qua `MorphProvider` (trang 1).
 
 ![Kiến trúc](../diagrams/svg/vi/1-architecture.svg)
 
-## 2. Các khối
+## 2. Các module
 
-| Module | Vai trò |
+| Module | Trách nhiệm |
 | --- | --- |
-| `MorphProvider` | Context: shared value, cấu hình đã resolve, màu (sáng/tối), item, bố cục dòng, slot, callback. |
-| `MorphMenu` | Overlay: vùng bấm của nút + cử chỉ Pan, card animate, scrim, các dòng. Đặt **sau** navigator gốc. |
-| `MorphSheetLayout` | Layout cho nhóm route morph: vỏ animate, `Stack` lồng có kích thước cố định, cử chỉ đóng, `usePreventRemove`. |
-| `morphSheetScreenOptions` | Options của nhóm đó ở stack gốc: `transparentModal`, `animation: 'none'`, tắt cử chỉ native, nền trong suốt. |
-| `MenuFace` / `DefaultItem` | Các dòng menu — vẽ trong card **và** trên vỏ lúc đang morph. |
-| `MorphCloseButton` | Nút đóng cho các màn trong sheet (`router.back()`), icon tuỳ biến được. |
-| `useMorphSettled()` | `true` khi full screen đã nở xong — hoãn phần nặng tới lúc đó. |
-| `useMorphProgress()` | `{ menu, sheet }` chỉ đọc, để animate UI của riêng bạn. |
-| `MorphTrace` | Gỡ lỗi: ghi từng frame và đánh dấu lỗi giao ca. |
+| `MorphProvider` | Context: shared value, cấu hình đã resolve, màu sáng và tối, item, layout dòng, slot, callback |
+| `MorphMenu` | Overlay: vùng chạm của nút với Pan gesture, card có animation, scrim, các dòng. Được render sau root navigator |
+| `MorphSheetLayout` | Layout của nhóm route: container có animation, `Stack` bên trong có kích thước cố định, cử chỉ đóng, `usePreventRemove` |
+| `morphSheetScreenOptions` | Option cho nhóm trong root stack: `transparentModal`, `animation: 'none'`, không có header của root stack, tắt cử chỉ native, nền trong suốt |
+| `MenuFace` / `DefaultItem` | Các dòng menu, được render trong card và trong container trong lúc chuyển tiếp |
+| `MorphCloseButton` | Nút đóng cho các màn hình sheet. Gọi `router.back()` |
+| `useMorphSettled()` | Trả về `true` sau khi màn hình full screen đã mở rộng xong |
+| `useMorphDismiss()` | Đóng toàn bộ sheet từ bất kỳ màn hình nào trong nhóm. `MorphSheetLayout` đăng ký hàm `goBack` của root navigator vào provider, và giá trị `closeMenu` (tùy chọn) ghi đè `closeMenuOnDismiss` cho riêng lần đóng đó |
+| `useMorphProgress()` | Shared value chỉ đọc `{ menu, sheet }` |
+| `MorphTrace` | Component debug ghi log mọi frame và đánh dấu các lỗi chuyển giao (hand-off) |
 
-Mã nguồn nằm trong `src/`: `config.ts` (mặc định, màu), `geometry.ts` (rect, vị trí dòng), `visibility.ts` (ai đang hiện), `constants.ts`, `shadow.ts`, `Surface.tsx` + `optional.ts` (kính/blur/haptics, đều tuỳ chọn), `web.ts`.
+File nguồn trong `src/`:
 
-## 3. Trạng thái chung
+| File | Nội dung |
+| --- | --- |
+| `config.ts` | Cấu hình mặc định và bảng màu |
+| `geometry.ts` | Hình chữ nhật, offset của dòng, hit testing |
+| `visibility.ts` | Độ mờ (opacity) của card và container, dùng chung cho style và `MorphTrace` |
+| `constants.ts` | Các trạng thái chuyển giao và ngưỡng tiến trình (progress) |
+| `shadow.ts` | Style bóng đổ theo từng platform |
+| `Surface.tsx`, `optional.ts` | Liquid Glass, blur và haptics, chỉ được load khi đã cài |
+| `web.ts` | Xử lý bàn phím trên web |
 
-Bốn shared value của Reanimated nối hai nửa:
+## 3. Trạng thái dùng chung
 
-| Giá trị | Ai sở hữu | Ý nghĩa |
+Bốn shared value của Reanimated kết nối overlay và nhóm route:
+
+| Giá trị | Được ghi bởi | Ý nghĩa |
 | --- | --- | --- |
-| `menu` | overlay | 0 → 1: nút nở thành card |
-| `sheet` | route | 0 → 1: card nở thành full screen |
-| `origin` | overlay ghi, route đọc | rect của card lúc chọn dòng |
-| `handoff` | cả hai | ai đang hiện card: `MENU`, `ROUTE` hoặc `RETURNING` |
+| `menu` | Overlay | Từ 0 đến 1: nút mở rộng thành card |
+| `sheet` | Nhóm route | Từ 0 đến 1: card mở rộng thành full screen |
+| `origin` | Overlay (nhóm route đọc) | Khung bao của card tại thời điểm chọn |
+| `handoff` | Cả hai | Bên nào đang render card: `MENU`, `ROUTE` hoặc `RETURNING` |
 
-`origin` giữ cho hai nửa độc lập: deep link thẳng vào một route sheet thì không có origin, vỏ nở từ một rect dự phòng ở giữa màn.
+`origin` giữ cho hai phần độc lập với nhau. Một deep link vào route sheet không có origin, nên container mở rộng từ một hình chữ nhật dự phòng ở giữa màn hình.
 
-`handoff` quyết định chất lượng cảm nhận. Route mount bất đồng bộ; nếu overlay mờ đi chỉ theo tiến trình thì thỉnh thoảng sẽ lọt một frame trống. Overlay chỉ biến mất khi route đã thật sự có mặt trên màn.
+`handoff` điều khiển việc hiển thị trong lúc chuyển tiếp. Route được mount bất đồng bộ. Nếu overlay bị ẩn chỉ dựa vào tiến trình, thỉnh thoảng sẽ có một frame không render cả card lẫn route. Overlay chỉ bị ẩn sau khi route đã render frame đầu tiên.
 
-## 4. Luồng mở (trang 2)
+## 4. Trình tự mở
 
-![Luồng mở](../diagrams/svg/vi/2-opening.svg)
+Trang 2.
 
-1. Nhấn nút → `menu` spring về 1, mode `open`. Vùng bấm giữ hoạt động trong lúc còn nhấn (xem §8).
-2. Rê qua các dòng (hover chuột trên web) → dòng được tô sáng, gọi `onHover(item)` — sớm hơn lúc nhả tay 150–400 ms, thời điểm lý tưởng để prefetch.
-3. Nhả tay trên một dòng, hoặc chạm một dòng. Nếu card chưa nở xong (`menu < 0.995`), lệnh chọn chờ — push sớm thì vỏ sẽ nở từ một rect mà card chưa tới.
-4. `origin = rect card`, `handoff = MENU`, `onSelect(item)`, `router.push(item.href)`.
-5. Route mount, không animation. Frame đầu của nó là vỏ đúng bằng rect của card, đã vẽ sẵn các dòng menu (`MenuFace`) — pixel giống hệt.
-6. `handoff = ROUTE` (native: `onLayout` của vỏ; web: `useLayoutEffect`) → card overlay ẩn đi. Mắt không thấy gì thay đổi.
-7. `sheet` spring về 1: vỏ lớn dần, nội dung hiện lên, mặt menu mờ đi.
-8. Spring xong → `useMorphSettled()` thành `true`.
+![Trình tự mở](../diagrams/svg/vi/2-opening.svg)
 
-Mọi bước hình ảnh chạy trên UI thread. JS chỉ push route và gọi callback.
+1. Nhấn vào nút sẽ animate `menu` lên 1 và đặt chế độ thành `open`. Vùng chạm vẫn hoạt động cho đến khi kết thúc lần nhấn (xem [mục 8](#8-thao-tác-nhập-và-cử-chỉ)).
+2. Di chuyển con trỏ qua các dòng (hover chuột trên web) sẽ highlight dòng đó và gọi `onHover(item)`.
+3. Người dùng thả con trỏ trên một dòng, hoặc chạm vào một dòng. Nếu card chưa mở rộng xong (`menu < 0.995`), việc chọn được hoãn đến khi card mở rộng xong. Nếu không, container sẽ bắt đầu từ khung bao mà card chưa đạt tới.
+4. Overlay đặt `origin` bằng khung bao của card và `handoff` thành `MENU`, gọi `onSelect(item)`, sau đó gọi `router.push(item.href)`.
+5. Route được mount mà không có transition native. Frame đầu tiên của nó là container tại khung bao của card, render cùng các dòng menu (`MenuFace`).
+6. Route đặt `handoff` thành `ROUTE` (native: trong `onLayout` của container; web: trong `useLayoutEffect`), và card của overlay bị ẩn. Các pixel trên màn hình không thay đổi.
+7. `sheet` animate lên 1. Container mở rộng, nội dung màn hình hiện dần và các dòng menu mờ dần.
+8. Khi spring kết thúc, `useMorphSettled()` trả về `true`.
 
-## 5. Luồng đóng (trang 3)
+Mọi cập nhật hiển thị đều chạy trên UI thread. JavaScript chỉ push route và gọi các callback.
 
-![Luồng đóng](../diagrams/svg/vi/3-closing.svg)
+## 5. Trình tự đóng
 
-Mọi đường đóng — nút đóng / `router.back()`, back cứng Android, back của trình duyệt, Esc trên web, vuốt cạnh trái hay kéo xuống trên iOS — đều thành một hành động "gỡ route", và `usePreventRemove` chặn nó. Vì vậy morph ngược nằm ở đúng một chỗ:
+Trang 3.
 
-1. `handoff = RETURNING`, `sheet` spring về 0 (từ chỗ cử chỉ để lại — không giật).
-2. Vỏ thu nhỏ; nội dung mờ đi; mặt menu hiện dần.
-3. Ở frame có `sheet ≤ 0.005` (`ARRIVED`), vỏ lệch card dưới 1 dp: **cắt** — vỏ opacity 0, card opacity 1, trong cùng một frame UI.
-4. `closeMenuOnDismiss = false` (mặc định): scrim hiện lại, menu vẫn mở. `true`: card thu tiếp về nút.
-5. Spring xong → `sheetDismissed()` đồng bộ state JS của overlay, `onSheetDismissed(item)`, rồi `repeat()` cho hành động điều hướng gốc chạy tiếp.
+![Trình tự đóng](../diagrams/svg/vi/3-closing.svg)
 
-`handoff` cố ý giữ `RETURNING` kể cả sau unmount: Android gỡ view native bất đồng bộ, đặt lại nó sẽ làm vỏ cũ hiện thêm một frame. Lần chọn kế tiếp mới đặt lại.
+Mọi cách đóng đều trở thành một action remove của điều hướng, và `usePreventRemove` chặn action đó: nút đóng hoặc `router.back()`, nút back phần cứng trên Android, nút back của trình duyệt, phím Esc trên web, và cử chỉ vuốt từ mép trái hoặc kéo xuống trên iOS. Vì vậy animation thu gọn chỉ được triển khai ở một chỗ:
 
-## 6. Vì sao giao ca là một cú cắt, không phải crossfade (trang 4)
+1. `handoff` được đặt thành `RETURNING` và `sheet` animate về 0, bắt đầu từ giá trị hiện tại, nên một cử chỉ đã di chuyển container sẽ không gây ra bước nhảy.
+2. Container thu gọn, nội dung màn hình mờ dần và các dòng menu hiện dần.
+3. Ở frame đầu tiên mà `sheet <= 0.005` (`ARRIVED`), khung bao của container lệch so với card không quá 1 dp. Trong frame đó, opacity của container trở thành 0 và opacity của card trở thành 1.
+4. Với `closeMenuOnDismiss: false` (mặc định), scrim hiện lại và menu vẫn mở. Với `true`, card thu gọn về nút.
+5. Khi spring kết thúc, `sheetDismissed()` cập nhật React state của overlay, `onSheetDismissed(item)` được gọi, và action điều hướng ban đầu tiếp tục.
 
-![Máy trạng thái: handoff và mode của menu](../diagrams/svg/vi/4-states.svg)
+`handoff` giữ giá trị `RETURNING` sau khi route unmount. Android xóa view native bất đồng bộ, và nếu reset giá trị sớm hơn thì container sẽ hiện thêm một frame. Lần chọn tiếp theo sẽ reset giá trị này.
 
-Một phiên bản trước crossfade vỏ và card trong 12 % cuối của tiến trình. Ảnh chụp giữa lúc đóng cho thấy hai bản menu nửa trong suốt lệch nhau vài dp — chữ in đúp, nhoè, mắt đọc thành một cú nháy. Cắt trong một frame ở thời điểm hai lớp trùng nhau tới từng pixel thì không thấy gì; và vì cả hai lớp đọc cùng một giá trị `sheet` trong cùng frame UI, rớt frame cũng không tách được chúng.
+## 6. Chuyển giao: hoán đổi trong một frame
 
-**Thứ tự lớp khác nhau theo platform:**
+Trang 4.
 
-- **iOS:** `transparentModal` được present đè lên root view, nên route che overlay. Card không cần ẩn — và không được ẩn bằng opacity: view Liquid Glass / blur (`UIVisualEffectView`) vẽ sai khi alpha < 1.
-- **Android & web:** các màn nằm chung cây view và overlay khai báo sau navigator, nên nó ở trên và phải ẩn khi route chiếm màn.
+![Máy trạng thái: handoff và chế độ menu](../diagrams/svg/vi/4-states.svg)
 
-## 7. Vỏ: nội dung kích thước cố định (trang 5)
+Một phiên bản trước đây crossfade container và card trong 12% cuối của tiến trình. Một ảnh chụp màn hình giữa lúc đóng cho thấy hai bản sao trong suốt một phần của menu lệch nhau vài dp, với chữ bị nhân đôi. Phiên bản hiện tại hoán đổi hai lớp trong một frame, tại thời điểm khung bao của chúng trùng nhau. Cả hai lớp đọc cùng một giá trị `sheet` trong cùng một frame UI, nên một frame bị rớt (dropped frame) không thể làm chúng lệch nhau.
 
-![Vỏ full screen: các lớp và dòng thời gian](../diagrams/svg/vi/5-shell.svg)
+Thứ tự lớp phụ thuộc vào nền tảng:
+
+- iOS: một `transparentModal` được hiển thị phía trên root view, nên route che overlay. Card không bị ẩn. Việc ẩn card cũng được tránh vì `UIVisualEffectView` (được Liquid Glass và blur sử dụng) không render đúng khi opacity nhỏ hơn 1.
+- Android và web: các màn hình và overlay dùng chung một cây view, và overlay được khai báo sau navigator, nên nó nằm trên cùng. Overlay phải bị ẩn khi route đang hiển thị.
+
+## 7. Container toàn màn hình
+
+Trang 5.
+
+![Container toàn màn hình: các lớp và timeline](../diagrams/svg/vi/5-shell.svg)
 
 ```tsx
-<Animated.View style={shell}>                       // x, y, width, height, bo góc đổi mỗi frame
-  <Animated.View style={{ width: W, height: H }}>   // CỐ ĐỊNH, absolute
-    <Stack />                                        // không bao giờ bị đo lại
+<Animated.View style={shell}>                       // x, y, width, height và radius thay đổi mỗi frame
+  <Animated.View style={{ width: W, height: H }}>   // kích thước cố định, định vị tuyệt đối
+    <Stack />                                        // không tính layout lại trong lúc animation
   </Animated.View>
 </Animated.View>
 ```
 
-Nếu `Stack` lồng co giãn theo vỏ, mỗi frame kéo theo một lần layout cả cây màn hình. Ruột kích thước cố định, bị `overflow: hidden` cắt bớt, thì chỉ còn một node phải đo lại. Đây cũng là lý do các màn con trong sheet là **native stack thật** (animation push native, vuốt back native, back cứng Android).
+Nếu `Stack` bên trong thay đổi kích thước cùng container, mỗi frame sẽ kích hoạt một lượt tính layout trên toàn bộ cây màn hình. Với một view bên trong có kích thước cố định và bị cắt bởi `overflow: hidden`, chỉ node container được tính layout lại. Vì navigator bên trong là một native stack thông thường, các màn hình con dùng animation push native, cử chỉ vuốt back native và nút back trên Android.
 
-Các lớp trong vỏ và lúc chúng thay đổi (tiến trình 0 = card, 1 = full screen):
+Các lớp bên trong container và khoảng animation của chúng (tiến trình 0 là card, 1 là full screen):
 
-| Lớp | Khoảng | Thay đổi |
+| Lớp | Khoảng tiến trình | Thay đổi |
 | --- | --- | --- |
-| slot `Background` (variant `sheet`) | 0 → 0.4 | opacity 1 → 0 |
-| màu nền vỏ | 0 → 0.4 | màu card → `colors.sheetBackground` |
-| `MenuFace` (các dòng, neo góc card) | 0.15 → 0.5 | opacity 1 → 0 |
-| nội dung của bạn | 0.4 → 0.75 | opacity 0 → 1 |
-| nội dung của bạn | 0 → 1 | translateY −`insets.top` → 0 |
-| bóng | 0 → 0.1 và 0.9 → 1 | tăng/giảm dần; tắt khi đang bay |
+| Slot `Background` (variant `sheet`) | Từ 0 đến 0.4 | Opacity từ 1 về 0 |
+| Màu nền của container | Từ 0 đến 0.4 | Từ màu card sang `colors.sheetBackground` |
+| `MenuFace` (các dòng neo vào góc card) | Từ 0.15 đến 0.5 | Opacity từ 1 về 0 |
+| Nội dung màn hình | Từ 0.4 đến 0.75 | Opacity từ 0 lên 1 |
+| Nội dung màn hình | Từ 0 đến 1 | translateY từ `-insets.top` về 0 |
+| Bóng đổ | Từ 0 đến 0.1 và từ 0.9 đến 1 | Hiện dần và mờ dần. Tắt ở khoảng giữa |
 
-Nội dung neo góc trên-trái của vỏ; ở cỡ card, phần lộ ra sẽ là dải status bar trống, nên lúc còn nhỏ nó được đẩy lên `insets.top`.
+Nội dung được neo vào góc trên bên trái của container. Ở kích thước card, phần nhìn thấy được sẽ là vùng status bar trống, nên nội dung được dịch lên trên một khoảng `insets.top` khi container còn nhỏ.
 
-Kích thước lấy từ `useSafeAreaFrame()`, không phải `useWindowDimensions()`: trên Android edge-to-edge, "window" không tính thanh điều hướng và vỏ sẽ dừng trước mép đáy.
+Kích thước lấy từ `useSafeAreaFrame()`, không phải `useWindowDimensions()`. Với chế độ edge-to-edge trên Android, kích thước cửa sổ không bao gồm thanh điều hướng, và container sẽ không chạm tới mép dưới.
 
-## 8. Thao tác và cử chỉ
+## 8. Thao tác nhập và cử chỉ
 
-| | iOS | Android | Web |
+| Thao tác | iOS | Android | Web |
 | --- | --- | --- | --- |
-| Mở menu | chạm / nhấn | chạm / nhấn | click / nhấn |
-| Chọn | chạm dòng, hoặc giữ nút rồi rê | như iOS | click dòng, hoặc giữ rồi rê |
-| Prefetch (`onHover`) | khi rê | khi rê | khi rê hoặc hover |
-| Đóng menu | chạm scrim | chạm scrim, back cứng | click scrim, Esc |
-| Đóng full screen | nút đóng, vuốt cạnh¹, kéo xuống¹ | nút đóng, back cứng | nút đóng, Esc², back trình duyệt |
+| Mở menu | Chạm hoặc nhấn | Chạm hoặc nhấn | Nhấp chuột hoặc nhấn |
+| Chọn một dòng | Chạm vào dòng, hoặc nhấn giữ và kéo từ nút | Giống iOS | Nhấp chuột vào dòng, hoặc nhấn giữ và kéo |
+| `onHover` | Trong lúc kéo | Trong lúc kéo | Trong lúc kéo hoặc hover chuột |
+| Đóng menu | Chạm vào scrim | Chạm vào scrim, nút back phần cứng | Nhấp chuột vào scrim, phím Esc |
+| Đóng full screen | Nút đóng, vuốt từ mép trái (1), kéo xuống (1) | Nút đóng, nút back phần cứng | Nút đóng, phím Esc (2), nút back của trình duyệt |
 
-¹ `config.dismiss` — mặc định bật trên iOS, tắt trên Android. Vuốt cạnh chỉ bật ở màn gốc của sheet; ở màn con, cạnh trái thuộc về vuốt back native.
-² Chỉ ở màn gốc của sheet.
+(1) Được điều khiển bởi `config.dismiss`. Mặc định bật trên iOS và tắt trên Android. Vuốt từ mép trái chỉ hoạt động ở màn hình gốc của nhóm. Ở các màn hình con, mép trái được dùng cho cử chỉ vuốt back native.
+(2) Chỉ ở màn hình gốc của nhóm.
 
-Chạm rồi nhả tại chỗ không bao giờ chọn dòng: nút nằm trong dòng cuối của card, giữ tay hơi lâu là sẽ mở nhầm dòng đó.
+Một lần chạm được thả tại chỗ không bao giờ chọn dòng. Nút nằm bên trong vùng của dòng cuối cùng trong card, và nếu không có quy tắc này thì một lần chạm hơi lâu sẽ chọn dòng đó.
 
-**Ai nhận chạm** (trang 4, bên phải): ở mode `route`, overlay không nhận chạm và không nghe back — nếu không, ở nơi overlay nằm trên, scrim của nó sẽ nuốt nút đóng của bạn.
+Xử lý chạm (trang 4, phía bên phải): ở chế độ `route`, overlay không nhận chạm và không xử lý sự kiện back. Trên các platform mà overlay nằm trên cùng, nếu không có quy tắc này thì scrim của overlay sẽ chặn các lần chạm vào nút đóng.
 
-## 9. Riêng cho web
+## 9. Đặc thù trên web
 
-Mỗi điểm dưới đây đều tìm ra khi test trên Chrome, và package đã xử lý:
+Các vấn đề sau được phát hiện trong quá trình kiểm thử trên Chrome. Package xử lý từng vấn đề:
 
-- **Giữ pointer.** Gesture Handler bỏ qua `setPointerCapture` khi view của gesture có `role="button"`. Không giữ pointer thì cú giữ-và-rê rời khỏi nút sẽ không bao giờ đưa `pointerup` về nút, gesture kẹt luôn. Trên web, role được chuyển xuống một phần tử con.
-- **Vùng bấm trong lúc nhấn.** Phần tử bị đổi sang `pointer-events: none` giữa chừng không nhận `pointerup`; vùng bấm của nút giữ hoạt động tới khi nhả.
-- **Thời điểm giao ca.** `onLayout` (ResizeObserver) về trễ vài frame trên web; route giao ca trong `useLayoutEffect`.
-- **Không hỏi "Leave site?".** `usePreventRemove` sẽ chặn cả việc rời trang suốt lúc full screen mở. Package gọi `disablePrevention()` của hook khi có `beforeunload`, từ một listener đăng ký trước listener của React Navigation.
-- **Bóng.** React Native Web chỉ dựng đúng `box-shadow` khi mọi thuộc tính `shadow*` nằm chung một style; với `shadowOpacity` animate riêng thì không, nên trên web package tự viết `box-shadow`.
-- Esc để đóng, hover chuột gọi `onHover`, không bôi đen chữ khi kéo.
+- Pointer capture: Gesture Handler không gọi `setPointerCapture` khi view của gesture có `role="button"`. Không có pointer capture, một thao tác kéo ra khỏi nút sẽ không bao giờ gửi `pointerup` tới nút, và gesture không kết thúc. Trên web, role được đặt trên một phần tử bên trong.
+- Vùng chạm trong lúc nhấn: một phần tử chuyển sang `pointer-events: none` trong lúc nhấn sẽ không nhận `pointerup`. Nút giữ vùng chạm cho đến khi kết thúc lần nhấn.
+- Thời điểm chuyển giao: trên web, `onLayout` được triển khai bằng `ResizeObserver` và đến trễ vài frame. Vì vậy route đặt `handoff` trong `useLayoutEffect`.
+- Hộp thoại "Leave site?": `usePreventRemove` chặn việc unload trang khi full screen đang mở. Package gọi `disablePrevention()`, do hook trả về, trong một listener `beforeunload` được đăng ký trước listener của React Navigation.
+- Bóng đổ: React Native Web chỉ tạo `box-shadow` đúng khi tất cả thuộc tính `shadow*` nằm trong cùng một style object. Với `shadowOpacity` có animation thì điều này không đúng, nên trên web package đặt trực tiếp `boxShadow`.
+- Phím Esc dùng để đóng, hover chuột kích hoạt `onHover`, và việc chọn văn bản bị tắt trong lúc kéo.
 
 ## 10. Hình học
 
-Mọi rect đều **tính trước, không đo** (`geometry.ts`): đo là bất đồng bộ, frame đầu sẽ sai. Chiều cao dòng lấy từ `layout.rowHeight` hoặc `itemHeight(item, index)`; `listLayout()` đổi chúng thành vị trí từng dòng, dùng cho card, mặt menu trên vỏ, dò dòng khi rê (`rowAt`) và highlight. `anchor` lật toàn bộ cho `bottom-left`.
+Mọi hình chữ nhật đều được tính toán, không đo (`geometry.ts`). Việc đo là bất đồng bộ, nên frame đầu tiên sẽ dùng giá trị sai. Chiều cao dòng lấy từ `layout.rowHeight` hoặc `itemHeight(item, index)`. `listLayout()` chuyển chúng thành offset của dòng, được dùng bởi card, bởi các dòng menu bên trong container, bởi hit testing khi kéo (`rowAt`) và bởi highlight. Với `anchor: 'bottom-left'`, mọi vị trí được lật theo chiều ngang.
 
 ## 11. Nguyên tắc hiệu năng
 
-- Không gì về hình ảnh phải chờ JS: callback của spring và `useAnimatedReaction` lái giao ca trên UI thread. Menu phản ứng đúng frame vỏ tới nơi thay vì chờ spring dừng hẳn (nó lắc ~7 frame quanh 0).
-- Phần nặng của màn mount sau `useMorphSettled()`; nội dung không bao giờ bị gỡ lúc bắt đầu animation đóng.
-- Bóng tắt khi bounds đổi mỗi frame.
-- `MorphProvider` memo cấu hình theo nội dung, nên `config={{…}}` viết inline không làm consumer render lại.
+- Cập nhật hiển thị không chờ JavaScript. Callback của spring và `useAnimatedReaction` chạy chuyển giao trên UI thread. Menu phản hồi ngay trong frame mà container chạm tới card, thay vì chờ spring dừng hẳn, việc này mất thêm khoảng 7 frame dao động quanh 0.
+- Nội dung màn hình tốn chi phí được mount sau khi `useMorphSettled()` trả về `true`. Nội dung không bị unmount khi animation thu gọn bắt đầu.
+- Bóng đổ bị tắt khi khung bao thay đổi mỗi frame.
+- `MorphProvider` memoize cấu hình theo giá trị, nên một object inline `config={{...}}` không làm các consumer render lại.
 
-Số đo và lịch sử từng lần sửa: [`../PERFORMANCE.md`](../PERFORMANCE.md).
+Số liệu đo và lịch sử của từng bản sửa: [Hiệu năng](PERFORMANCE.md).
 
-## 12. Quan sát
+## 12. Trace theo frame
 
-`<MorphTrace enabled />` ghi một dòng mỗi frame có thay đổi:
+`<MorphTrace enabled />` ghi một dòng log cho mỗi frame có giá trị thay đổi:
 
 ```
 [morph] f=56 m=1.000 s=0.002 h=2 ov=1.00 sh=0.00 handoff
 ```
 
-`m`/`s` = tiến trình, `h` = trạng thái giao ca, `ov`/`sh` = opacity thực của card/vỏ (tính bằng đúng các hàm mà style dùng). Nhãn: `handoff` (đổi chỗ có chủ đích), `FLICKER` (mọi cú nhảy khác > 0.5 trong một frame), `HOLE` (không gì hiện khi route còn trên màn), `GHOST` (hai lớp cùng hiện một phần khi chưa trùng nhau), `OVERLAP` (card còn đè lên vỏ đang chuyển động), `DROP(n)` (frame mất n ms). Bộ chạy E2E của app ví dụ trượt khi có bất kỳ nhãn lỗi nào — xem [`INTEGRATION.md`](INTEGRATION.md#kiểm-thử).
+| Trường | Ý nghĩa |
+| --- | --- |
+| `f` | Số thứ tự frame |
+| `m`, `s` | Tiến trình `menu` và `sheet` |
+| `h` | Trạng thái `handoff` |
+| `ov`, `sh` | Opacity được render của card và container, tính bằng cùng các hàm dùng cho style |
 
-## 13. Các hướng đã cân nhắc
+| Cờ | Điều kiện |
+| --- | --- |
+| `handoff` | Lần hoán đổi dự kiến giữa card và container |
+| `FLICKER` | Bất kỳ thay đổi opacity nào khác lớn hơn 0.5 trong một frame |
+| `HOLE` | Không lớp nào hiển thị trong khi route đang hiện |
+| `GHOST` | Cả hai lớp đều hiển thị một phần trong khi khung bao của chúng khác nhau |
+| `OVERLAP` | Card vẫn che một container đang di chuyển |
+| `DROP(n)` | Frame mất `n` ms |
 
-- **Thư viện shared element / zoom transition** (ví dụ `react-native-screen-transitions`): ít code hơn, nhưng thêm dependency và thường là stack chạy bằng JS. Đáng chọn nếu cả app cần nhiều transition tuỳ biến.
-- **Shared element transition của Reanimated:** gọn nhất về code và giữ native stack, nhưng tương tác với cử chỉ back bị `usePreventRemove` chặn — đúng cơ chế package này dựa vào. Kiểm tra tình trạng của bản Reanimated bạn dùng trước khi chọn.
-- **Một overlay cho mọi thứ:** loại — xem §1.
+Bộ chạy kiểm thử end-to-end (E2E) của ứng dụng ví dụ báo lỗi khi gặp bất kỳ cờ lỗi nào. Xem [Hướng dẫn tích hợp: Kiểm thử](INTEGRATION.md#kiểm-thử).
 
-Các nền tảng native làm cùng một ý: ẩn nguồn và đích, animate một view thứ ba giữa hai bounds, rồi tráo lại. `matchedTransitionSource` + `.navigationTransition(.zoom)` của SwiftUI là câu trả lời của Apple cho "morph nhưng vẫn là route"; `SharedTransitionLayout` của Compose giữ cả hai đầu trong một cây, như package này.
+## 13. Các phương án đã cân nhắc
 
-## 14. Giới hạn đã biết
+- Thư viện shared element hoặc zoom transition, ví dụ `react-native-screen-transitions`: ít code hơn, nhưng thêm một dependency và thường dùng stack chạy bằng JavaScript. Phù hợp khi toàn bộ ứng dụng cần transition tùy biến.
+- Shared element transition của Reanimated: ít code, và giữ được native stack. Tính năng này tương tác với các cử chỉ back bị chặn bởi `usePreventRemove`, mà package này phụ thuộc vào. Hãy kiểm tra trạng thái của tính năng trong phiên bản Reanimated bạn dùng trước khi sử dụng.
+- Một overlay duy nhất cho toàn bộ tương tác: bị loại vì các lý do ở [mục 1](#1-ranh-giới-route).
 
-- **Chưa kiểm trên thiết bị iOS** (vuốt cạnh, Liquid Glass, blur). Android và web có E2E và trace từng frame.
-- **Xoay màn hình khi đang mở:** `origin` là toạ độ tuyệt đối; xoay lúc sheet mở thì rect cũ sai. Khoá xoay cho nhóm route, hoặc lưu kèm `W/H` rồi quy đổi.
-- **Một menu cho cả app:** `origin` là một rect đơn. Nhiều menu cần một map nhỏ theo route.
-- **Trợ năng:** các dòng có role `menuitem`, mọi thao tác rê đều có cách thay thế bằng chạm; chưa có thông báo mở/đóng cho trình đọc màn hình.
-- **Lồng sâu hơn:** nếu stack lồng có tab hoặc modal riêng, xem lại chỗ `usePreventRemove` bắn (chỉ khi stack lồng ở màn gốc).
+Các platform native dùng cách tiếp cận tương tự: ẩn nguồn và đích, animate một view trung gian giữa hai khung bao, sau đó hiện đích. Trên iOS, SwiftUI cung cấp `matchedTransitionSource` cùng `.navigationTransition(.zoom)` cho transition giữa một view và một đích điều hướng. Trong Jetpack Compose, `SharedTransitionLayout` giữ cả hai đầu trong một cây, giống như package này.
+
+## 14. Hạn chế đã biết
+
+- iOS chưa được kiểm chứng trên thiết bị thật. Vuốt từ mép, Liquid Glass và blur chưa được kiểm thử. Android và web được bao phủ bởi kiểm thử end-to-end và trace theo frame.
+- Xoay màn hình khi full screen đang mở: `origin` lưu tọa độ tuyệt đối và trở nên không hợp lệ sau khi xoay. Hãy khóa hướng màn hình cho nhóm, hoặc lưu kích thước màn hình cùng hình chữ nhật rồi quy đổi.
+- Một menu cho mỗi ứng dụng: `origin` là một hình chữ nhật duy nhất. Nhiều menu sẽ cần một map với key là route.
+- Khả năng truy cập: các dòng dùng role `menuitem` và mọi thao tác kéo đều có cách thay thế bằng chạm. Chưa triển khai thông báo cho trình đọc màn hình khi mở và đóng.
+- Lồng sâu hơn: nếu stack bên trong chứa tab hoặc modal riêng, hãy kiểm tra thời điểm `usePreventRemove` được kích hoạt. Nó chỉ được kích hoạt khi stack bên trong đang ở màn hình gốc.

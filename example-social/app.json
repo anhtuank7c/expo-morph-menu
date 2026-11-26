@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "Murmur",
+    "slug": "murmur-example",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "murmur",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "dev.example.murmur"
+    },
+    "android": {
+      "package": "dev.example.murmur",
+      "edgeToEdgeEnabled": true
+    },
+    "plugins": [
+      "expo-router"
+    ]
+  }
+}

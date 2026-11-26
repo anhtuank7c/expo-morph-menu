@@ -1,23 +1,31 @@
 # Hướng dẫn tích hợp
 
-> English: [`../en/INTEGRATION.md`](../en/INTEGRATION.md) · Kiến trúc: [`ARCHITECTURE.md`](ARCHITECTURE.md) · Tuỳ biến UI: [`CUSTOM-UI.md`](CUSTOM-UI.md)
+[English](../en/INTEGRATION.md) | **Tiếng Việt**
 
-Hướng dẫn này đưa một app expo-router có sẵn tới morph menu chạy được chỉ với ba file, rồi đi qua cấu hình, hành vi theo platform, kiểm thử và xử lý sự cố.
+Liên quan: [Kiến trúc](ARCHITECTURE.md), [UI tùy biến](CUSTOM-UI.md), [Hiệu năng](PERFORMANCE.md)
+
+Hướng dẫn này thêm menu vào một app expo-router có sẵn với ba file, sau đó mô tả cấu hình, hành vi theo nền tảng, kiểm thử và xử lý sự cố.
 
 ## Yêu cầu
 
-| | Phiên bản |
+| Dependency | Phiên bản |
 | --- | --- |
-| Expo SDK | 58+ |
-| expo-router | 58+ |
-| react-native-reanimated | 4+ (kèm `react-native-worklets`) |
-| react-native-gesture-handler | 3+ |
-| react-native-safe-area-context | 5+ |
-| react-native-screens | 4+ |
+| Expo SDK | 58 trở lên |
+| expo-router | 58 trở lên |
+| react-native-reanimated | 4 trở lên, kèm `react-native-worklets` |
+| react-native-gesture-handler | 3 trở lên |
+| react-native-safe-area-context | 5 trở lên |
+| react-native-screens | 4 trở lên |
 
-Tuỳ chọn, tự được dùng khi đã cài: `expo-haptics` (rung nhẹ), `expo-glass-effect` (Liquid Glass trên iOS 26+), `expo-blur` (card blur trên iOS). Thiếu cũng không lỗi gì.
+Các peer dependency tùy chọn được phát hiện lúc chạy. Nếu một package chưa được cài, tính năng liên quan sẽ bị tắt:
 
-Đã kiểm trên Android (emulator, Android 9 và 17) và web (Chrome). iOS chưa được kiểm trên thiết bị.
+| Package | Tính năng |
+| --- | --- |
+| `expo-haptics` | Phản hồi rung (haptic) |
+| `expo-glass-effect` | Bề mặt card dạng Liquid Glass trên iOS 26 trở lên |
+| `expo-blur` | Bề mặt card làm mờ (blur) trên iOS |
+
+Tình trạng nền tảng: đã kiểm thử trên Android emulator (Android 9 và 17) và trên Chrome desktop. Chưa được xác minh trên thiết bị iOS.
 
 ## Cài đặt
 
@@ -26,15 +34,15 @@ npx expo install expo-morph-menu \
   expo-router react-native-reanimated react-native-worklets \
   react-native-gesture-handler react-native-safe-area-context react-native-screens
 
-# tuỳ chọn
+# optional
 npx expo install expo-haptics expo-blur expo-glass-effect
 ```
 
-`babel.config.js` phải dùng `babel-preset-expo` (mặc định trong project Expo). Preset này bật plugin worklets mà Reanimated cần. Package phát hành kèm mã nguồn TypeScript cho Metro (điều kiện export `react-native`), nên cấu hình Babel của bạn biên dịch luôn các worklet của nó.
+`babel.config.js` phải dùng `babel-preset-expo`, đây là mặc định trong các dự án Expo. Preset này bật plugin worklets mà Reanimated yêu cầu. Package phát hành mã nguồn TypeScript dưới export condition `react-native`, nên Metro biên dịch các worklet của package bằng cấu hình Babel của bạn.
 
 ![Kiến trúc](../diagrams/svg/vi/1-architecture.svg)
 
-## Bước 1 — root layout
+## Bước 1: root layout
 
 ```tsx
 // app/_layout.tsx
@@ -78,15 +86,15 @@ export default function RootLayout() {
 }
 ```
 
-Thứ tự quan trọng:
+Thứ tự component:
 
-- `SafeAreaProvider` và `GestureHandlerRootView` nằm **ngoài** `MorphProvider`.
-- `<MorphMenu />` đặt **sau** `Stack` gốc, bên trong `MorphProvider` — đây là overlay, phải vẽ đè lên các màn.
-- Nhóm sheet nhận `morphSheetScreenOptions` (`transparentModal`, `animation: 'none'`, `gestureEnabled: false`, nền trong suốt). Package tự lái animation; thêm transition native lên trên sẽ giành nhau.
+- `SafeAreaProvider` và `GestureHandlerRootView` bao ngoài `MorphProvider`.
+- `<MorphMenu />` được render bên trong `MorphProvider` và sau `Stack` gốc. Đây là một overlay (lớp phủ) và phải được vẽ phía trên các màn hình.
+- Nhóm route sheet dùng `morphSheetScreenOptions`: `presentation: 'transparentModal'`, `animation: 'none'`, `headerShown: false`, `gestureEnabled: false` và nền trong suốt. Header bên trong sheet do Stack bên trong cung cấp. Package tự chạy animation của mình, và một transition native sẽ xung đột với animation đó.
 
-## Bước 2 — nhóm route sheet
+## Bước 2: nhóm route sheet
 
-Mọi route trong nhóm này nở ra từ card menu và thu về lại card.
+Mọi route trong nhóm này mở rộng từ card menu và thu gọn trở lại vào card.
 
 ```tsx
 // app/(sheet)/_layout.tsx
@@ -97,8 +105,8 @@ export default function SheetLayout() {
   return (
     <MorphSheetLayout>
       <Stack.Screen name="[key]" options={{ headerShown: false }} />
-      {/* các màn khác được push native bên trong sheet */}
-      <Stack.Screen name="details" options={{ title: 'Chi tiết' }} />
+      {/* các màn hình được push bên trong full screen dùng native stack */}
+      <Stack.Screen name="details" options={{ title: 'Details' }} />
     </MorphSheetLayout>
   );
 }
@@ -106,14 +114,14 @@ export default function SheetLayout() {
 
 Props của `MorphSheetLayout`:
 
-| Prop | |
+| Prop | Mô tả |
 | --- | --- |
-| `children` | các khai báo `<Stack.Screen>` của nhóm |
-| `screenOptions` | gộp vào mặc định của Stack lồng (nền = `colors.sheetBackground`, nút back tối giản) |
+| `children` | Các khai báo `<Stack.Screen>` của nhóm |
+| `screenOptions` | Được gộp vào mặc định của Stack bên trong (nền `colors.sheetBackground`, nút back tối giản) |
 
-Đặt tên nhóm thế nào cũng được; chỉ cần `href` của các item trỏ vào trong nhóm đó.
+Tên nhóm có thể đặt tùy ý. `href` của mỗi item phải trỏ tới một route bên trong nhóm.
 
-## Bước 3 — các màn
+## Bước 3: các màn hình
 
 ```tsx
 // app/(sheet)/[key].tsx
@@ -137,39 +145,39 @@ export default function SheetScreen() {
 }
 ```
 
-- **Đóng:** `MorphCloseButton` gọi `router.back()`. Mọi đường khác cũng được — `router.back()` từ nút của bạn, back cứng Android, back của trình duyệt, Esc trên web, và trên iOS là vuốt cạnh / kéo xuống. Tất cả đều chạy morph ngược.
-- **`useMorphSettled()`** thành `true` khi vỏ đã nở xong. Mount một danh sách nặng giữa animation là nguồn giật phổ biến nhất.
-- **Safe area:** vỏ phủ cả màn kể cả thanh hệ thống; chừa `insets.top` cho header và `insets.bottom` cho nội dung cuộn.
+- Đóng: `MorphCloseButton` gọi `router.back()`. Các cách đóng khác hoạt động giống vậy và chạy animation thu gọn: một nút tự viết gọi `router.back()`, nút back phần cứng trên Android, nút back của trình duyệt, phím Esc trên web, và các cử chỉ vuốt từ mép trái và kéo xuống trên iOS.
+- Render trì hoãn: `useMorphSettled()` trả về `true` sau khi container toàn màn hình đã mở rộng xong. Mount một cây component lớn trong lúc animation có thể gây frame bị rớt (dropped frame).
+- Safe area: container phủ toàn bộ màn hình, kể cả các thanh hệ thống. Áp dụng `insets.top` cho header và `insets.bottom` cho nội dung cuộn được.
 
-Props của `MorphCloseButton`: `icon`, `size` (32), `iconSize`, `color`, `backgroundColor`, `tintImage`, `style`, cùng mọi prop của `Pressable`. Gọi `e.preventDefault()` trong `onPress` để chặn `router.back()` mặc định.
+Props của `MorphCloseButton`: `icon`, `size` (mặc định `32`), `iconSize`, `color`, `backgroundColor`, `tintImage`, `style`, và mọi prop của `Pressable`. Gọi `e.preventDefault()` trong `onPress` để bỏ qua `router.back()` mặc định.
 
-## Item
+## Các item của menu
 
 ```ts
 type MorphItem = {
-  key: string;                 // duy nhất; cũng là hậu tố của testID
+  key: string;                     // duy nhất, cũng được dùng trong test ID
   label: string;
-  href: Href;                  // một route trong nhóm sheet
-  icon?: MorphIcon;            // element, ảnh, hoặc ({ size, color }) => node
-  iconTint?: boolean;          // tô màu ảnh PNG đơn sắc (mặc định true)
-  tint?: string;               // vòng tròn sau icon; bỏ trống thì không vẽ
+  href: Href;                      // một route bên trong nhóm sheet
+  icon?: MorphIcon;                // React element, image source, hoặc ({ size, color }) => node
+  iconTint?: boolean;              // tô màu ảnh đơn sắc (mặc định true)
+  tint?: string;                   // màu nền của vòng tròn icon; bỏ trống để không có vòng tròn
   accessibilityLabel?: string;
-  data?: Record<string, unknown>; // dữ liệu tuỳ ý cho slot Item của bạn
+  data?: Record<string, unknown>;  // dữ liệu tùy ý cho slot Item tùy biến
 };
 ```
 
-Giữ `items` ổn định (hằng số module hoặc `useMemo`). Icon:
+Giữ mảng `items` ổn định về tham chiếu, dưới dạng hằng số cấp module hoặc dùng `useMemo`.
 
 ```tsx
-icon: <Ionicons name="camera" size={15} color="#fff" />          // element
-icon: require('./camera.png')                                     // ảnh trong bundle (được tô màu)
-icon: { uri: 'https://example.com/camera.png' }                   // ảnh từ mạng
+icon: <Ionicons name="camera" size={15} color="#fff" />             // React element
+icon: require('./camera.png')                                        // ảnh đóng gói, được tô màu
+icon: { uri: 'https://example.com/camera.png' }                      // ảnh từ xa
 icon: ({ size, color }) => <CameraSvg width={size} color={color} />  // theo theme
 ```
 
 ## Cấu hình
 
-Chỉ truyền những gì bạn đổi; còn lại dùng mặc định theo platform.
+Chỉ truyền các giá trị cần ghi đè. Các giá trị khác dùng mặc định của từng nền tảng.
 
 ```tsx
 <MorphProvider
@@ -185,77 +193,127 @@ Chỉ truyền những gì bạn đổi; còn lại dùng mặc định theo pla
 />
 ```
 
-| Khoá | Mặc định (iOS / Android / web) | Ghi chú |
+| Khóa | Mặc định (iOS / Android / web) | Mô tả |
 | --- | --- | --- |
-| `closeMenuOnDismiss` | `false` | `false`: đóng full screen xong menu vẫn mở. `true`: thu về nút. |
-| `anchor` | `'bottom-right'` | hoặc `'bottom-left'` |
-| `layout.fabSize` | `56` | |
-| `layout.cardWidth` | `236` | |
-| `layout.rowHeight` | `46` | chiều cao dòng mặc định (xem `itemHeight`) |
-| `layout.padding` | `10` | đệm trên/dưới của danh sách |
-| `layout.margin` | `20` | khoảng cách tới mép màn hình (+ safe area dưới) |
-| `layout.iconSize` | `15` | cỡ icon dòng; vòng tròn tint = `iconSize + 11` |
-| `layout.separatorHeight` | `1` | chỉ dùng khi có slot `Separator` |
-| `radius.card` / `radius.sheet` / `radius.fab` | `28` / `0` / tròn | `fab: null` = tròn |
-| `shadow` | opacity 0.18, radius 18, offsetY 8 / elevation 10 | iOS & web dùng color/opacity/radius/offsetY; Android dùng elevation |
-| `dismiss.edgeSwipe` | `true` / `false` / `false` | vuốt cạnh trái, chỉ ở màn gốc của sheet |
-| `dismiss.dragDown` | `true` / `false` / `false` | |
-| `spring` | `{ duration: 460, dampingRatio: 0.85 }` | tôn trọng Reduce Motion |
-| `haptics` | `true` | cần `expo-haptics` |
-| `surface` | `'auto'` | `'glass'`, `'blur'`, `'solid'` — auto: Liquid Glass (iOS 26+) → blur (iOS) → nền đặc |
-| `colorScheme` | `'auto'` | `'light'`, `'dark'` |
-| `backdropOpacity` | `0.25` | độ tối phía sau full screen |
+| `closeMenuOnDismiss` | `false` | `false`: menu vẫn mở sau khi đóng màn hình full screen. `true`: menu thu gọn vào nút |
+| `anchor` | `'bottom-right'` | Hoặc `'bottom-left'` |
+| `layout.fabSize` | `56` | Kích thước nút |
+| `layout.cardWidth` | `236` | Chiều rộng card |
+| `layout.rowHeight` | `46` | Chiều cao dòng mặc định, xem `itemHeight` |
+| `layout.padding` | `10` | Padding trên và dưới của danh sách |
+| `layout.margin` | `20` | Khoảng cách tới các cạnh màn hình, cộng thêm vào inset safe area phía dưới |
+| `layout.iconSize` | `15` | Kích thước icon của dòng. Vòng tròn tint có kích thước `iconSize + 11` |
+| `layout.separatorHeight` | `1` | Chỉ dùng khi có slot `Separator` |
+| `radius.card` / `radius.sheet` / `radius.fab` | `28` / `0` / `null` | `fab: null` render một hình tròn |
+| `shadow` | opacity `0.18`, radius `18`, offsetY `8` / elevation `10` | iOS và web dùng color, opacity, radius và offsetY. Android dùng elevation |
+| `dismiss.edgeSwipe` | `true` / `false` / `false` | Vuốt từ mép trái, chỉ trên màn hình gốc của nhóm |
+| `dismiss.dragDown` | `true` / `false` / `false` | Kéo xuống để đóng |
+| `spring` | `{ duration: 460, dampingRatio: 0.85 }` | Tôn trọng thiết lập Reduce Motion |
+| `haptics` | `true` | Cần `expo-haptics` |
+| `surface` | `'auto'` | `'glass'`, `'blur'` hoặc `'solid'`. `'auto'` chọn lần lượt Liquid Glass (iOS 26+), rồi blur (iOS), rồi solid |
+| `colorScheme` | `'auto'` | `'light'` hoặc `'dark'` |
+| `backdropOpacity` | `0.25` | Độ mờ đục của backdrop phía sau full screen |
 | `colors.light` / `colors.dark` | `LIGHT_COLORS` / `DARK_COLORS` | `surface`, `sheetBackground`, `text`, `scrim`, `backdrop`, `highlight`, `fabIcon`, `closeBackground`, `closeIcon`, `iconForeground` |
 
-Nếu các màn của bạn chỉ có giao diện sáng, đặt `colorScheme: 'light'` — nếu không, hệ điều hành/trình duyệt ở chế độ tối sẽ cho nút đóng icon màu sáng trên nền trắng của bạn.
+Nếu các màn hình của bạn chỉ hỗ trợ theme sáng, hãy đặt `colorScheme: 'light'`. Nếu không, khi hệ thống dùng theme tối, nút đóng sẽ dùng icon sáng trên màn hình sáng.
 
-Các prop khác của `MorphProvider`: `components` và `itemHeight` (xem [Tuỳ biến UI](CUSTOM-UI.md)), `fabIcon`, `closeIcon`.
+Các prop khác của `MorphProvider`: `components` và `itemHeight` (xem [UI tùy biến](CUSTOM-UI.md)), `fabIcon`, `closeIcon`.
 
 ## Callback
 
-| Prop | Khi nào |
+| Prop | Được gọi khi |
 | --- | --- |
-| `onHover(item)` | ngón tay rê lên một dòng (hoặc chuột hover trên web) |
-| `onSelect(item)` | đã chọn một dòng, ngay trước `router.push` |
-| `onOpen()` / `onClose()` | menu bắt đầu mở / đóng |
-| `onSheetDismissed(item)` | full screen đã đóng xong |
+| `onHover(item)` | Con trỏ di chuyển lên một dòng: kéo ngón tay trên thiết bị cảm ứng, hover chuột trên web |
+| `onSelect(item)` | Một dòng được chọn, trước `router.push` |
+| `onOpen()` / `onClose()` | Menu bắt đầu mở hoặc đóng |
+| `onSheetDismissed(item)` | Full screen đã thu gọn xong |
 
-Prefetch trong `onHover` — người dùng còn đang chọn, dữ liệu đã trên đường về:
+`onHover` chạy trước khi người dùng nhả con trỏ, nên có thể dùng để bắt đầu tải dữ liệu của màn hình đích:
 
 ```tsx
 const queryClient = useQueryClient();
+
 <MorphProvider
   items={items}
-  onHover={(item) => queryClient.prefetchQuery({ queryKey: ['sheet', item.key], queryFn: () => fetchSheet(item.key) })}
+  onHover={(item) =>
+    queryClient.prefetchQuery({ queryKey: ['sheet', item.key], queryFn: () => fetchSheet(item.key) })
+  }
 />
 ```
 
-## Hành vi theo platform
+## Hành vi theo nền tảng
 
-| | iOS | Android | Web |
+| Hành vi | iOS | Android | Web |
 | --- | --- | --- | --- |
-| Bề mặt card (auto) | Liquid Glass (26+) hoặc blur | nền đặc | nền đặc |
-| Đóng full screen | nút đóng, vuốt cạnh, kéo xuống | nút đóng, back cứng | nút đóng, Esc, back trình duyệt |
-| Đóng menu | scrim | scrim, back cứng | scrim, Esc |
-| `onHover` | khi rê | khi rê | khi rê, hover chuột |
-| Haptics | ✓ | ✓ | — |
+| Bề mặt card (`'auto'`) | Liquid Glass (iOS 26+) hoặc blur | Solid | Solid |
+| Đóng full screen | Nút đóng, vuốt từ mép trái, kéo xuống | Nút đóng, nút back phần cứng | Nút đóng, Esc, nút back của trình duyệt |
+| Đóng menu | Chạm vào scrim | Chạm vào scrim, nút back phần cứng | Nhấp chuột vào scrim, Esc |
+| `onHover` | Kéo | Kéo | Kéo, hover chuột |
+| Haptics | Có | Có | Không |
 
-Ghi chú web: tải lại hoặc đóng tab khi full screen đang mở không hỏi "Leave site?"; giữ-và-rê chạy được bằng chuột; không bôi đen chữ khi kéo.
+Web: tải lại hoặc đóng tab khi full screen đang mở không hiển thị hộp thoại "Leave site?". Nhấn giữ và kéo hoạt động với chuột, và việc chọn văn bản bị tắt trong lúc kéo.
+
+## Tab và các màn hình được push
+
+Khi root navigator chứa một tab navigator, hãy đặt nút phía trên tab bar và ẩn nút ở những màn hình không dùng đến. Props của `MorphMenu`:
+
+| Prop | Mặc định | Mô tả |
+| --- | --- | --- |
+| `bottomOffset` | `0` | Khoảng cách thêm tính từ mép dưới, cộng với inset dưới của safe area và `layout.margin`. Truyền chiều cao của tab bar, không gồm inset |
+| `hidden` | `false` | Ẩn nút (thu nhỏ và mờ dần, không nhận chạm). Nếu menu đang mở thì menu được đóng trước. Bị bỏ qua khi một route sheet đang hiển thị, vì card là nơi sheet thu gọn về |
+| `fabAccessibilityLabel` | `'Open menu'` | Nhãn của nút cho trình đọc màn hình |
+
+```tsx
+const TAB_PATHS = new Set(['/', '/search', '/notifications', '/messages']);
+
+function FloatingMenu() {
+  const pathname = usePathname();
+  const visible = TAB_PATHS.has(pathname) || pathname.startsWith('/compose');
+  return <MorphMenu hidden={!visible} bottomOffset={TAB_BAR_HEIGHT} />;
+}
+```
+
+Đặt chiều cao cố định cho phần nội dung của tab bar (ví dụ `tabBarStyle: { height: TAB_BAR_HEIGHT + insets.bottom, paddingBottom: insets.bottom }`) để truyền cùng giá trị đó cho `bottomOffset`. Một ứng dụng hoàn chỉnh có tab nằm trong [`example-social/`](../../example-social/README.vi.md).
+
+## Đóng bằng code
+
+`router.back()` ở một màn hình lồng bên trong sheet chỉ pop màn hình đó. `useMorphDismiss()` đóng toàn bộ sheet từ bất kỳ màn hình nào trong nhóm, đi qua cùng luồng với các cách đóng khác:
+
+```tsx
+import { useMorphDismiss } from 'expo-morph-menu';
+
+const dismiss = useMorphDismiss();
+
+dismiss();                      // thu gọn về card; menu theo closeMenuOnDismiss
+dismiss({ closeMenu: true });   // thu gọn về card, rồi về nút
+dismiss({ closeMenu: false });  // thu gọn về card và giữ menu mở
+```
+
+Cách dùng thường gặp: giữ `closeMenuOnDismiss: false` để thao tác hủy quay về menu đang mở, và gọi `dismiss({ closeMenu: true })` sau khi gửi thành công.
 
 ## Deep link
 
-Route của sheet là route bình thường, nên `myapp://camera` (hoặc `/camera` trên web) mở thẳng được. Không có card để nở từ đó, vỏ nở từ một rect ở giữa màn. Đóng thì quay về màn bên dưới.
+Các route sheet là route thông thường, nên `myapp://camera` (hoặc `/camera` trên web) mở chúng trực tiếp. Khi không có card để mở rộng từ đó, container mở rộng từ một hình chữ nhật ở giữa màn hình.
+
+Deep link có thể làm sheet trở thành route đầu tiên của root navigator, không có màn hình nào bên dưới để quay về. Hãy export `unstable_settings` từ root layout để expo-router đặt route trang chủ bên dưới:
+
+```tsx
+// app/_layout.tsx
+export const unstable_settings = { anchor: 'index' }; // hoặc '(tabs)'
+```
+
+Nếu không có thiết lập này, thao tác đóng sheet không có tác dụng, và một cảnh báo được ghi ra log ở bản development.
 
 ## Kiểm thử
 
-testID ổn định:
+Test ID:
 
 | ID | Phần tử |
 | --- | --- |
-| `morph-fab` | vùng bấm của nút |
-| `morph-scrim` | scrim sau menu đang mở |
-| `morph-item-<key>` | một dòng |
-| `morph-close` | `MorphCloseButton` (mặc định) |
+| `morph-fab` | Vùng chạm của nút |
+| `morph-scrim` | Scrim phía sau menu đang mở |
+| `morph-item-<key>` | Dòng của menu |
+| `morph-close` | `MorphCloseButton` (test ID mặc định) |
 
 Ví dụ Maestro:
 
@@ -263,21 +321,23 @@ Ví dụ Maestro:
 - tapOn: { id: "morph-fab" }
 - tapOn: { id: "morph-item-camera" }
 - tapOn: { id: "morph-close" }
-- assertVisible: { id: "morph-item-camera" }   # menu vẫn mở (closeMenuOnDismiss: false)
+- assertVisible: { id: "morph-item-camera" }   # the menu stays open (closeMenuOnDismiss: false)
 ```
 
-Để bắt lỗi hình ảnh (nháy, nhân đôi, khung trống), render `<MorphTrace enabled={__DEV__ && myFlag} />` bên trong `MorphProvider` và tìm `FLICKER`, `HOLE`, `GHOST`, `OVERLAP` trong các dòng log `[morph]`. App ví dụ trong repo có sẵn bộ chạy Maestro + logcat đầy đủ (`example/scripts/e2e.mjs`).
+Ảnh chụp màn hình không bắt được một cách đáng tin cậy các lỗi chỉ xuất hiện trong một frame. Để phát hiện chúng, render `<MorphTrace enabled={__DEV__ && myFlag} />` bên trong `MorphProvider` và tìm các cờ `FLICKER`, `HOLE`, `GHOST` và `OVERLAP` trong các dòng log `[morph]`. App ví dụ có một trình chạy Maestro và logcat (`example/scripts/e2e.mjs`) báo lỗi khi gặp các cờ này.
 
 ## Xử lý sự cố
 
-| Triệu chứng | Nguyên nhân / cách sửa |
+| Triệu chứng | Nguyên nhân và cách khắc phục |
 | --- | --- |
-| Menu vẽ sau các màn / không hiện | `<MorphMenu />` phải đặt sau `Stack` gốc, bên trong `MorphProvider`. |
-| "useMorph() must be used inside &lt;MorphProvider&gt;" | `MorphSheetLayout`, `MorphCloseButton` hoặc một hook nằm ngoài provider. |
-| Full screen trượt vào bằng animation native | Nhóm route thiếu `options={morphSheetScreenOptions}`. |
-| Hở một dải ở đáy full screen (Android) | Đừng bọc app trong container có kích thước riêng; package dùng `useSafeAreaFrame()`, cần `SafeAreaProvider` ở gốc. |
-| Nội dung giật khi mở | Mount phần nặng sau `useMorphSettled()`. |
-| Thấy bóng mờ của menu khi đóng | `Item`/`Background` tuỳ biến không thuần hoặc không đục — xem [Tuỳ biến UI › hợp đồng](CUSTOM-UI.md#hợp-đồng). |
-| Nút đóng gần như vô hình ở chế độ tối | Các màn chỉ có giao diện sáng: đặt `colorScheme: 'light'`, hoặc làm theme cho màn. |
-| "Hai bản React" / lỗi hook trong monorepo | Bảo đảm Metro chỉ resolve một bản `react`, `react-native-reanimated` và `expo-router`. |
-| Lỗi worklet ("… is not a worklet") | `babel.config.js` phải dùng `babel-preset-expo`; xoá cache Metro (`expo start -c`). |
+| Menu bị che phía sau các màn hình | `<MorphMenu />` phải nằm trong `MorphProvider` và sau `Stack` gốc |
+| Lỗi "useMorph() must be used inside &lt;MorphProvider&gt;" | `MorphSheetLayout`, `MorphCloseButton` hoặc một hook được render bên ngoài provider |
+| Full screen xuất hiện với transition native | `<Stack.Screen>` của nhóm thiếu `options={morphSheetScreenOptions}` |
+| Khoảng trống ở đáy full screen (Android) | Không bọc app trong một container có kích thước cố định. Package dùng `useSafeAreaFrame()`, hook này cần `SafeAreaProvider` ở gốc |
+| Nội dung bị nhảy hoặc rớt frame khi mở | Mount nội dung nặng sau khi `useMorphSettled()` trả về `true` |
+| Một bản sao trong suốt một phần của menu xuất hiện khi đóng | Một `Item` hoặc `Background` tùy biến không thuần (pure) hoặc không đục (không trong suốt). Xem [UI tùy biến: hợp đồng của slot](CUSTOM-UI.md#hợp-đồng-của-slot) |
+| Không thấy icon của nút đóng ở chế độ tối | Các màn hình chỉ hỗ trợ theme sáng. Đặt `colorScheme: 'light'` hoặc thêm theme tối cho các màn hình |
+| Lỗi "Invalid hook call" hoặc React bị trùng lặp trong monorepo | Cấu hình Metro để resolve một bản duy nhất của `react`, `react-native-reanimated` và `expo-router` |
+| Đóng sheet mở bằng deep link không có tác dụng | Sheet là route duy nhất trên root navigator. Export `unstable_settings = { anchor: ... }` từ root layout. Xem [Deep link](#deep-link) |
+| Nút che tab bar | Truyền chiều cao tab bar cho `<MorphMenu bottomOffset={...} />`. Xem [Tab và các màn hình được push](#tab-và-các-màn-hình-được-push) |
+| Lỗi worklet như "... is not a worklet" | `babel.config.js` phải dùng `babel-preset-expo`. Xóa cache Metro bằng `npx expo start -c` |

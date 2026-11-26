@@ -19,6 +19,8 @@ const cli = require.resolve('expo/bin/cli');
 const child = spawn(process.execPath, [cli, 'start', ...process.argv.slice(2)], {
   cwd: exampleDir,
   stdio: 'inherit',
-  env: { ...process.env, EXPO_PUBLIC_MORPH_TRACE: '1' },
+  // API faults off: the end-to-end flows assert timing-sensitive UI. Use the
+  // Network screen (or EXPO_PUBLIC_API_CHAOS=low) to test retries by hand.
+  env: { ...process.env, EXPO_PUBLIC_MORPH_TRACE: '1', EXPO_PUBLIC_API_CHAOS: process.env.EXPO_PUBLIC_API_CHAOS ?? 'off' },
 });
 child.on('exit', (code) => process.exit(code ?? 0));

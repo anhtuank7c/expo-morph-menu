@@ -1,3 +1,4 @@
+import { Link } from 'expo-router';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -50,6 +51,17 @@ export default function Home() {
         ))}
       </View>
 
+      <Text style={styles.caption}>API giả lập</Text>
+      <View style={styles.card}>
+        <Text style={styles.step}>
+          Dữ liệu của màn full screen được tải bằng RTK Query từ một REST API giả lập: JWT access token
+          hết hạn sau 45 giây và được refresh tự động, lỗi mạng được thử lại theo exponential backoff.
+        </Text>
+        <Link href="/dev" style={styles.link} testID="open-dev">
+          Mở màn Network
+        </Link>
+      </View>
+
       <Text style={styles.caption}>Deep link</Text>
       <View style={styles.card}>
         <Text style={styles.code}>npx uri-scheme open morphmenu://sheet/audio --ios</Text>
@@ -67,6 +79,7 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
+  link: { color: '#0a84ff', fontSize: 15, fontWeight: '600' },
   root: { flex: 1, backgroundColor: '#fff' },
   title: { fontSize: 32, fontWeight: '800', color: '#1c1c1e' },
   caption: { fontSize: 13, fontWeight: '700', color: '#8e8e93', marginTop: 6 },

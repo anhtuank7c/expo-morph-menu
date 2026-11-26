@@ -1,189 +1,243 @@
 # Architecture
 
-> Diagrams: [`../diagrams/expo-morph-menu.en.drawio`](../diagrams/expo-morph-menu.en.drawio) (7 pages: the overview is the last one). Open with [app.diagrams.net](https://app.diagrams.net), draw.io desktop or the VS Code "Draw.io Integration" extension. Page numbers below refer to that file.
->
-> Tiếng Việt: [`../vi/ARCHITECTURE.md`](../vi/ARCHITECTURE.md)
+**English** | [Tiếng Việt](../vi/ARCHITECTURE.md)
 
-`expo-morph-menu` turns a floating button into a menu card, and a menu row into a full-screen **expo-router route** — then shrinks that screen back into the card when it closes. This document explains how it is built and why.
+Related: [Integration guide](INTEGRATION.md), [Custom UI](CUSTOM-UI.md), [Performance](PERFORMANCE.md)
 
-## 1. The boundary: what is a route and what is not
+Diagram source: [`expo-morph-menu.en.drawio`](../diagrams/expo-morph-menu.en.drawio), 7 pages. Page numbers in this document refer to that file.
 
-The easiest way to build this interaction is one big `Animated.View` that morphs from button to card to full screen. It looks right, but the "screen" doesn't exist for navigation: no child screens, no Android back, no URL, no deep link, no state restoration.
+`expo-morph-menu` expands a floating button into a menu card, and expands a menu row into a full-screen expo-router route. When the route is dismissed, it collapses back into the card. This document describes the structure of the package and the reasons behind the main design decisions.
 
-The package draws the line differently:
+## Contents
 
-| Part | Route? | Why |
+1. [Route boundary](#1-route-boundary)
+2. [Modules](#2-modules)
+3. [Shared state](#3-shared-state)
+4. [Opening sequence](#4-opening-sequence)
+5. [Closing sequence](#5-closing-sequence)
+6. [Hand-off: single-frame swap](#6-hand-off-single-frame-swap)
+7. [Full-screen container](#7-full-screen-container)
+8. [Input and gestures](#8-input-and-gestures)
+9. [Web specifics](#9-web-specifics)
+10. [Geometry](#10-geometry)
+11. [Performance principles](#11-performance-principles)
+12. [Frame trace](#12-frame-trace)
+13. [Alternatives considered](#13-alternatives-considered)
+14. [Known limitations](#14-known-limitations)
+
+## 1. Route boundary
+
+A simple implementation uses one `Animated.View` that animates from button to card to full screen. That view is not a navigation destination: it has no child screens, no Android back handling, no URL, no deep link and no state restoration.
+
+The package splits the interaction into two parts:
+
+| Part | Implemented as | Reason |
 | --- | --- | --- |
-| Button → menu card | **No** — an overlay (`MorphMenu`) | A transient affordance, like a context menu. Nobody deep-links into an open menu. It must still consume Android back / Esc. |
-| Card → full screen | **Yes** — a real route group (`MorphSheetLayout`) | A destination: needs a URL, child screens, back navigation, restoration. |
+| Button to menu card | Overlay (`MorphMenu`), not a route | A short-lived UI element, similar to a context menu. It has no URL. It still handles Android back and Esc |
+| Card to full screen | Route group (`MorphSheetLayout`) | A navigation destination that needs a URL, child screens, back navigation and state restoration |
 
-Everything else follows from this boundary. The overlay and the route never import each other; they meet only in `MorphProvider` (page 1).
+The overlay and the route group do not import each other. They communicate only through `MorphProvider` (page 1).
 
 ![Architecture](../diagrams/svg/en/1-architecture.svg)
 
-## 2. Building blocks
+## 2. Modules
 
-| Module | Role |
+| Module | Responsibility |
 | --- | --- |
-| `MorphProvider` | Context: shared values, resolved config, colors (light/dark), items, row layout, slots, callbacks. |
-| `MorphMenu` | The overlay: button hit area + Pan gesture, the animated card, scrim, rows. Rendered **after** the root navigator. |
-| `MorphSheetLayout` | Layout for the route group that morphs: animated shell, fixed-size inner `Stack`, dismiss gestures, `usePreventRemove`. |
-| `morphSheetScreenOptions` | Options for that group in the root stack: `transparentModal`, `animation: 'none'`, no native gesture, transparent background. |
-| `MenuFace` / `DefaultItem` | The menu rows — drawn in the card **and** on the shell while it morphs. |
-| `MorphCloseButton` | Close button for sheet screens (`router.back()`), customizable icon. |
-| `useMorphSettled()` | `true` once the full screen finished growing — defer heavy content until then. |
-| `useMorphProgress()` | Read-only `{ menu, sheet }` shared values for your own animations. |
-| `MorphTrace` | Debugging: logs every frame and flags hand-off defects. |
+| `MorphProvider` | Context: shared values, resolved config, light and dark colors, items, row layout, slots, callbacks |
+| `MorphMenu` | Overlay: button hit area with a Pan gesture, animated card, scrim, rows. Rendered after the root navigator |
+| `MorphSheetLayout` | Layout of the route group: animated container, fixed-size inner `Stack`, dismiss gestures, `usePreventRemove` |
+| `morphSheetScreenOptions` | Options for the group in the root stack: `transparentModal`, `animation: 'none'`, no root header, native gesture disabled, transparent background |
+| `MenuFace` / `DefaultItem` | Menu rows, rendered in the card and in the container during the transition |
+| `MorphCloseButton` | Close button for sheet screens. Calls `router.back()` |
+| `useMorphSettled()` | Returns `true` after the full screen has finished expanding |
+| `useMorphDismiss()` | Closes the whole sheet from any screen in the group. `MorphSheetLayout` registers its root-navigator `goBack` in the provider, and an optional `closeMenu` value overrides `closeMenuOnDismiss` for that one dismissal |
+| `useMorphProgress()` | Read-only shared values `{ menu, sheet }` |
+| `MorphTrace` | Debug component that logs every frame and flags hand-off defects |
 
-Source files live in `src/`: `config.ts` (defaults, colors), `geometry.ts` (rects, row offsets), `visibility.ts` (who is visible), `constants.ts`, `shadow.ts`, `Surface.tsx` + `optional.ts` (glass/blur/haptics, all optional), `web.ts`.
+Source files in `src/`:
+
+| File | Contents |
+| --- | --- |
+| `config.ts` | Default config and color palettes |
+| `geometry.ts` | Rectangles, row offsets, hit testing |
+| `visibility.ts` | Opacity of the card and the container, shared by styles and `MorphTrace` |
+| `constants.ts` | Hand-off states and progress thresholds |
+| `shadow.ts` | Platform-specific shadow styles |
+| `Surface.tsx`, `optional.ts` | Liquid Glass, blur and haptics, loaded only when installed |
+| `web.ts` | Keyboard handling on web |
 
 ## 3. Shared state
 
-Four Reanimated shared values connect the two halves:
+Four Reanimated shared values connect the overlay and the route group:
 
-| Value | Owner | Meaning |
+| Value | Written by | Meaning |
 | --- | --- | --- |
-| `menu` | overlay | 0 → 1: button grows into the card |
-| `sheet` | route | 0 → 1: card grows into the full screen |
-| `origin` | overlay writes, route reads | the card's rect at the moment of selection |
-| `handoff` | both | who currently shows the card: `MENU`, `ROUTE` or `RETURNING` |
+| `menu` | Overlay | 0 to 1: the button expands into the card |
+| `sheet` | Route group | 0 to 1: the card expands into the full screen |
+| `origin` | Overlay (read by the route group) | Bounds of the card at the moment of selection |
+| `handoff` | Both | Which side currently renders the card: `MENU`, `ROUTE` or `RETURNING` |
 
-`origin` is what keeps the halves independent: a deep link straight into a sheet route has no origin, so the shell grows from a centered fallback rect instead.
+`origin` keeps the two parts independent. A deep link into a sheet route has no origin, so the container expands from a centered fallback rectangle.
 
-`handoff` decides perceived quality. Routes mount asynchronously; if the overlay faded out by progress alone there would occasionally be an empty frame. It disappears only when the route is really on screen.
+`handoff` controls visibility during the transition. Routes mount asynchronously. If the overlay were hidden based on progress alone, a frame could occasionally render neither the card nor the route. The overlay is hidden only after the route has rendered its first frame.
 
-## 4. Opening (page 2)
+## 4. Opening sequence
+
+Page 2.
 
 ![Opening sequence](../diagrams/svg/en/2-opening.svg)
 
-1. Press on the button → `menu` springs to 1, mode `open`. The hit area stays active while the press is down (see §8).
-2. Sliding over rows (mouse hover on web) highlights them and calls `onHover(item)` — 150–400 ms before release, the ideal moment to prefetch.
-3. Release on a row, or tap one. If the card hasn't finished growing (`menu < 0.995`), the selection waits for it — pushing early would grow the shell from a rect the card hasn't reached yet.
-4. `origin = card rect`, `handoff = MENU`, `onSelect(item)`, `router.push(item.href)`.
-5. The route mounts with no animation. Its first frame is the shell at exactly the card's rect, already showing the menu rows (`MenuFace`) — identical pixels.
-6. `handoff = ROUTE` (native: the shell's `onLayout`; web: `useLayoutEffect`) → the overlay card hides. Nothing visibly changes.
-7. `sheet` springs to 1: the shell grows, content fades in, the menu face fades out.
-8. Spring finished → `useMorphSettled()` becomes `true`.
+1. A press on the button animates `menu` to 1 and sets the mode to `open`. The hit area stays active until the press ends (see [section 8](#8-input-and-gestures)).
+2. Moving the pointer over rows (mouse hover on web) highlights them and calls `onHover(item)`.
+3. The user releases the pointer on a row, or taps a row. If the card has not finished expanding (`menu < 0.995`), the selection is deferred until it has. Otherwise the container would start from bounds the card has not reached.
+4. The overlay sets `origin` to the card bounds and `handoff` to `MENU`, calls `onSelect(item)`, then calls `router.push(item.href)`.
+5. The route mounts without a native transition. Its first frame is the container at the card bounds, rendering the same menu rows (`MenuFace`).
+6. The route sets `handoff` to `ROUTE` (native: in the container's `onLayout`; web: in `useLayoutEffect`), and the overlay card is hidden. The pixels on screen do not change.
+7. `sheet` animates to 1. The container expands, the screen content fades in and the menu rows fade out.
+8. When the spring finishes, `useMorphSettled()` returns `true`.
 
-All visual steps run on the UI thread. JS only pushes the route and reports callbacks.
+All visual updates run on the UI thread. JavaScript only pushes the route and calls the callbacks.
 
-## 5. Closing (page 3)
+## 5. Closing sequence
+
+Page 3.
 
 ![Closing sequence](../diagrams/svg/en/3-closing.svg)
 
-Every dismiss path — your close button / `router.back()`, Android hardware back, browser back, Esc on web, iOS edge swipe or drag down — becomes a navigation "remove", which `usePreventRemove` blocks. The reverse morph therefore lives in exactly one place:
+Every dismiss path becomes a navigation remove action, which `usePreventRemove` intercepts: the close button or `router.back()`, Android hardware back, browser back, Esc on web, and the left-edge swipe or drag-down gesture on iOS. The collapse animation is therefore implemented in one place:
 
-1. `handoff = RETURNING`, `sheet` springs to 0 (from wherever a gesture left it — no jump).
-2. The shell shrinks; content fades out; the menu face fades in.
-3. On the frame where `sheet ≤ 0.005` (`ARRIVED`), the shell is within 1 dp of the card: **cut** — shell opacity 0, card opacity 1, same UI frame.
-4. `closeMenuOnDismiss = false` (default): the scrim fades back, the menu stays open. `true`: the card collapses to the button.
-5. Spring finished → `sheetDismissed()` syncs the overlay's JS state, `onSheetDismissed(item)`, then `repeat()` lets the original navigation action continue.
+1. `handoff` is set to `RETURNING` and `sheet` animates to 0, starting from its current value, so a gesture that already moved the container does not cause a jump.
+2. The container collapses, the screen content fades out and the menu rows fade in.
+3. On the first frame where `sheet <= 0.005` (`ARRIVED`), the container bounds are within 1 dp of the card. In that frame, the container opacity becomes 0 and the card opacity becomes 1.
+4. With `closeMenuOnDismiss: false` (default), the scrim fades back in and the menu stays open. With `true`, the card collapses into the button.
+5. When the spring finishes, `sheetDismissed()` updates the overlay's React state, `onSheetDismissed(item)` is called, and the original navigation action continues.
 
-`handoff` deliberately stays `RETURNING` after unmount: Android removes native views asynchronously, and resetting it would show the old shell for one more frame. The next selection resets it.
+`handoff` keeps the value `RETURNING` after the route unmounts. Android removes native views asynchronously, and resetting the value earlier would show the container for one more frame. The next selection resets it.
 
-## 6. Why the hand-off is a cut, not a crossfade (page 4)
+## 6. Hand-off: single-frame swap
+
+Page 4.
 
 ![State machines: handoff and menu mode](../diagrams/svg/en/4-states.svg)
 
-An earlier version crossfaded shell and card over the last 12 % of progress. A mid-close screenshot showed two half-transparent copies of the menu a few dp apart — doubled, blurred text, read by the eye as a flicker. A single-frame cut at a point where both layers are pixel-identical is invisible, and because both layers read the same `sheet` value in the same UI frame, dropped frames cannot separate them.
+An earlier version crossfaded the container and the card over the last 12% of progress. A screenshot taken mid-close showed two semi-transparent copies of the menu a few dp apart, with doubled text. The current version swaps the two layers in a single frame, at the point where their bounds match. Both layers read the same `sheet` value in the same UI frame, so a dropped frame cannot desynchronize them.
 
-**Layering differs per platform:**
+Layer order depends on the platform:
 
-- **iOS:** a `transparentModal` is presented above the root view, so the route covers the overlay. The card never needs to hide — and must not: Liquid Glass / blur views (`UIVisualEffectView`) render incorrectly at alpha < 1.
-- **Android & web:** screens live in the same view tree and the overlay is declared after the navigator, so it is on top and must hide while the route owns the screen.
+- iOS: a `transparentModal` is presented above the root view, so the route covers the overlay. The card is not hidden. Hiding it is also avoided because `UIVisualEffectView` (used by Liquid Glass and blur) does not render correctly with opacity below 1.
+- Android and web: screens and the overlay share one view tree, and the overlay is declared after the navigator, so it is on top. It must be hidden while the route is visible.
 
-## 7. The shell: fixed-size content (page 5)
+## 7. Full-screen container
 
-![Full-screen shell: layers and timeline](../diagrams/svg/en/5-shell.svg)
+Page 5.
+
+![Full-screen container: layers and timeline](../diagrams/svg/en/5-shell.svg)
 
 ```tsx
-<Animated.View style={shell}>                       // x, y, width, height, radius change every frame
-  <Animated.View style={{ width: W, height: H }}>   // FIXED, absolutely positioned
-    <Stack />                                        // never re-laid out
+<Animated.View style={shell}>                       // x, y, width, height and radius change every frame
+  <Animated.View style={{ width: W, height: H }}>   // fixed size, absolutely positioned
+    <Stack />                                        // not laid out again during the animation
   </Animated.View>
 </Animated.View>
 ```
 
-If the inner `Stack` resized with the shell, every frame would trigger a layout pass over the whole screen tree. With a fixed-size interior clipped by `overflow: hidden`, only one node is re-measured. This is also why child screens inside the sheet are a **real native stack** (native push animation, native back swipe, Android back).
+If the inner `Stack` were resized with the container, each frame would trigger a layout pass over the whole screen tree. With a fixed-size inner view clipped by `overflow: hidden`, only the container node is laid out again. Because the inner navigator is a regular native stack, child screens use the native push animation, the native back swipe and Android back.
 
-Layers inside the shell, and when they change (progress 0 = card, 1 = full screen):
+Layers inside the container and their animation ranges (progress 0 is the card, 1 is the full screen):
 
-| Layer | Range | Change |
+| Layer | Progress range | Change |
 | --- | --- | --- |
-| `Background` slot (variant `sheet`) | 0 → 0.4 | opacity 1 → 0 |
-| shell background color | 0 → 0.4 | card color → `colors.sheetBackground` |
-| `MenuFace` (rows, anchored to the card corner) | 0.15 → 0.5 | opacity 1 → 0 |
-| your content | 0.4 → 0.75 | opacity 0 → 1 |
-| your content | 0 → 1 | translateY −`insets.top` → 0 |
-| shadow | 0 → 0.1 and 0.9 → 1 | ramps; off in mid-flight |
+| `Background` slot (variant `sheet`) | 0 to 0.4 | Opacity 1 to 0 |
+| Container background color | 0 to 0.4 | Card color to `colors.sheetBackground` |
+| `MenuFace` (rows anchored to the card corner) | 0.15 to 0.5 | Opacity 1 to 0 |
+| Screen content | 0.4 to 0.75 | Opacity 0 to 1 |
+| Screen content | 0 to 1 | translateY from `-insets.top` to 0 |
+| Shadow | 0 to 0.1 and 0.9 to 1 | Fades in and out. Disabled in between |
 
-The content is anchored to the shell's top-left; at card size the visible part would be the empty status-bar strip, so it is shifted up by `insets.top` while small.
+The content is anchored to the top-left corner of the container. At card size, the visible part would be the empty status bar area, so the content is shifted up by `insets.top` while the container is small.
 
-Sizes come from `useSafeAreaFrame()`, not `useWindowDimensions()`: on Android edge-to-edge the "window" excludes the navigation bar and the shell would stop short of the bottom edge.
+Dimensions come from `useSafeAreaFrame()`, not `useWindowDimensions()`. With Android edge-to-edge, the window dimensions exclude the navigation bar, and the container would not reach the bottom edge.
 
 ## 8. Input and gestures
 
-| | iOS | Android | Web |
+| Action | iOS | Android | Web |
 | --- | --- | --- | --- |
-| Open menu | tap / press | tap / press | click / press |
-| Select | tap row, or press-and-drag from the button | same | click row, or press-and-drag |
-| Prefetch (`onHover`) | while dragging | while dragging | while dragging or hovering |
-| Close menu | tap scrim | tap scrim, hardware back | click scrim, Esc |
-| Close full screen | close button, edge swipe¹, drag down¹ | close button, hardware back | close button, Esc², browser back |
+| Open the menu | Tap or press | Tap or press | Click or press |
+| Select a row | Tap a row, or press and drag from the button | Same as iOS | Click a row, or press and drag |
+| `onHover` | During a drag | During a drag | During a drag or mouse hover |
+| Close the menu | Tap the scrim | Tap the scrim, hardware back | Click the scrim, Esc |
+| Dismiss the full screen | Close button, left-edge swipe (1), drag down (1) | Close button, hardware back | Close button, Esc (2), browser back |
 
-¹ `config.dismiss` — defaults: on for iOS, off for Android. Edge swipe is enabled only on the sheet's root screen; on child screens the left edge belongs to the native back swipe.
-² Only on the sheet's root screen.
+(1) Controlled by `config.dismiss`. Enabled by default on iOS and disabled on Android. The left-edge swipe is active only on the root screen of the group. On child screens, the left edge is used by the native back swipe.
+(2) Only on the root screen of the group.
 
-A tap that is released in place never selects a row: the button sits inside the card's last row, and a slightly long press would otherwise open it.
+A tap released in place never selects a row. The button is located inside the area of the card's last row, and a slightly long tap would otherwise select that row.
 
-**Touch ownership** (page 4, right): in mode `route` the overlay takes no touches and does not listen to back — otherwise, where the overlay is on top, its scrim would swallow your close button.
+Touch handling (page 4, right side): in mode `route`, the overlay does not receive touches and does not handle back events. On platforms where the overlay is on top, its scrim would otherwise intercept taps on the close button.
 
 ## 9. Web specifics
 
-Each of these was found by testing in Chrome and is handled by the package:
+The following issues were found during testing in Chrome. The package handles each of them:
 
-- **Pointer capture.** Gesture Handler skips `setPointerCapture` when the gesture view has `role="button"`. Without capture, a press-and-drag that leaves the button never delivers `pointerup` to it and the gesture stays stuck. On web the role sits on an inner element instead.
-- **Hit area during a press.** An element switched to `pointer-events: none` mid-press never receives `pointerup`; the button's hit area stays active until the press ends.
-- **Hand-off timing.** `onLayout` (ResizeObserver) arrives frames late on web; the route hands off in `useLayoutEffect` instead.
-- **No "Leave site?" prompt.** `usePreventRemove` would block page unload while the full screen is open. The package calls the hook's `disablePrevention()` on `beforeunload`, from a listener registered before React Navigation's.
-- **Shadows.** React Native Web only builds a correct `box-shadow` when all `shadow*` props are in one style; with an animated `shadowOpacity` they aren't, so the package writes `box-shadow` itself on web.
-- Esc closes, mouse hover drives `onHover`, text isn't selected while dragging.
+- Pointer capture: Gesture Handler does not call `setPointerCapture` when the gesture view has `role="button"`. Without pointer capture, a drag that leaves the button never delivers `pointerup` to it, and the gesture does not end. On web, the role is set on an inner element.
+- Hit area during a press: an element that switches to `pointer-events: none` during a press does not receive `pointerup`. The button keeps its hit area until the press ends.
+- Hand-off timing: `onLayout` is implemented with `ResizeObserver` on web and arrives several frames late. The route sets `handoff` in `useLayoutEffect` instead.
+- "Leave site?" dialog: `usePreventRemove` blocks page unload while the full screen is open. The package calls `disablePrevention()`, returned by the hook, in a `beforeunload` listener that is registered before the React Navigation listener.
+- Shadows: React Native Web generates a correct `box-shadow` only when all `shadow*` properties are in the same style object. With an animated `shadowOpacity` they are not, so the package sets `boxShadow` directly on web.
+- Esc dismisses, mouse hover triggers `onHover`, and text selection is disabled during a drag.
 
 ## 10. Geometry
 
-All rects are **computed, never measured** (`geometry.ts`): measuring is asynchronous and the first frame would be wrong. Row heights come from `layout.rowHeight` or `itemHeight(item, index)`; `listLayout()` turns them into row offsets used by the card, the shell's menu face, drag hit-testing (`rowAt`) and the highlight. `anchor` mirrors everything for `bottom-left`.
+All rectangles are computed, not measured (`geometry.ts`). Measurement is asynchronous, so the first frame would use incorrect values. Row heights come from `layout.rowHeight` or `itemHeight(item, index)`. `listLayout()` converts them to row offsets, which are used by the card, by the menu rows inside the container, by drag hit testing (`rowAt`) and by the highlight. With `anchor: 'bottom-left'`, all positions are mirrored horizontally.
 
 ## 11. Performance principles
 
-- Nothing visual waits for JS: spring callbacks and `useAnimatedReaction` drive the hand-off on the UI thread. The menu reacts the frame the shell arrives instead of waiting for the spring to settle (it wobbles ~7 frames around 0).
-- Heavy screen content mounts after `useMorphSettled()`; content is never unmounted at the start of the close animation.
-- Shadows are off while bounds change every frame.
-- `MorphProvider` memoizes config by content, so an inline `config={{…}}` doesn't re-render consumers.
+- Visual updates do not wait for JavaScript. Spring callbacks and `useAnimatedReaction` run the hand-off on the UI thread. The menu reacts in the frame where the container reaches the card, instead of waiting for the spring to settle, which takes about 7 more frames of oscillation around 0.
+- Expensive screen content is mounted after `useMorphSettled()` returns `true`. Content is not unmounted when the collapse animation starts.
+- Shadows are disabled while the bounds change every frame.
+- `MorphProvider` memoizes the config by value, so an inline `config={{...}}` object does not re-render consumers.
 
-Measurements and the history of each fix: [`../PERFORMANCE.md`](../PERFORMANCE.md) (Vietnamese).
+Measurements and the history of each fix: [Performance](PERFORMANCE.md).
 
-## 12. Observability
+## 12. Frame trace
 
-`<MorphTrace enabled />` logs one line per changed frame:
+`<MorphTrace enabled />` logs one line for each frame in which a value changed:
 
 ```
 [morph] f=56 m=1.000 s=0.002 h=2 ov=1.00 sh=0.00 handoff
 ```
 
-`m`/`s` = progress, `h` = hand-off state, `ov`/`sh` = actual opacity of card/shell (computed with the same functions the styles use). Flags: `handoff` (intended swap), `FLICKER` (any other jump > 0.5 in one frame), `HOLE` (nothing visible while the route is up), `GHOST` (both partially visible while misaligned), `OVERLAP` (card still covering a moving shell), `DROP(n)` (frame took n ms). The example app's E2E runner fails on any defect flag — see [`INTEGRATION.md`](INTEGRATION.md#testing).
+| Field | Meaning |
+| --- | --- |
+| `f` | Frame number |
+| `m`, `s` | `menu` and `sheet` progress |
+| `h` | `handoff` state |
+| `ov`, `sh` | Rendered opacity of the card and the container, computed by the same functions as the styles |
+
+| Flag | Condition |
+| --- | --- |
+| `handoff` | The expected swap between card and container |
+| `FLICKER` | Any other opacity change greater than 0.5 within one frame |
+| `HOLE` | Neither layer is visible while the route is shown |
+| `GHOST` | Both layers are partially visible while their bounds differ |
+| `OVERLAP` | The card still covers a moving container |
+| `DROP(n)` | The frame took `n` ms |
+
+The end-to-end runner of the example app fails on any defect flag. See [Integration guide: Testing](INTEGRATION.md#testing).
 
 ## 13. Alternatives considered
 
-- **A shared-element / zoom transition library** (e.g. `react-native-screen-transitions`): less code, but adds a dependency and typically a JS-driven stack. Worth it if the whole app needs custom transitions.
-- **Reanimated shared element transitions:** the leanest in code and keeps the native stack, but interacts with `usePreventRemove`-blocked back gestures — the very mechanism this package relies on. Check the current status of your Reanimated version before choosing it.
-- **One overlay for everything:** rejected — see §1.
+- Shared element or zoom transition library, for example `react-native-screen-transitions`: less code, but adds a dependency and usually a JavaScript-based stack. Suitable when the whole app needs custom transitions.
+- Reanimated shared element transitions: little code, and the native stack is kept. They interact with back gestures blocked by `usePreventRemove`, which this package depends on. Check the status of the feature in your Reanimated version before using it.
+- A single overlay for the whole interaction: rejected for the reasons in [section 1](#1-route-boundary).
 
-What native platforms do is the same idea: hide source and destination, animate a third view between the two bounds, swap back. SwiftUI's `matchedTransitionSource` + `.navigationTransition(.zoom)` is Apple's answer to "morph, but still a route"; Compose's `SharedTransitionLayout` keeps both ends in one tree, like this package does.
+Native platforms use a similar approach: hide the source and the destination, animate an intermediate view between the two bounds, then show the destination. On iOS, SwiftUI provides `matchedTransitionSource` with `.navigationTransition(.zoom)` for transitions between a view and a navigation destination. In Jetpack Compose, `SharedTransitionLayout` keeps both ends in one tree, as this package does.
 
 ## 14. Known limitations
 
-- **iOS is not yet verified on a device** (edge swipe, Liquid Glass, blur). Android and web are covered by E2E and frame traces.
-- **Rotation while open:** `origin` is absolute; rotating with the sheet open makes it stale. Lock orientation for the group, or store `W/H` with the rect and convert.
-- **One menu per app:** `origin` is a single rect. Several menus would need a small map keyed by route.
-- **Accessibility:** rows have `menuitem` roles and every drag action has a tap alternative; open/close announcements for screen readers are not implemented yet.
-- **Deeper nesting:** if the inner stack contains tabs or its own modals, re-check where `usePreventRemove` fires (only when the inner stack is at its root).
+- iOS has not been verified on a device. Edge swipe, Liquid Glass and blur are untested. Android and web are covered by end-to-end tests and frame traces.
+- Rotation while the full screen is open: `origin` stores absolute coordinates and becomes invalid after rotation. Lock the orientation for the group, or store the screen dimensions with the rectangle and convert it.
+- One menu per app: `origin` is a single rectangle. Multiple menus would require a map keyed by route.
+- Accessibility: rows use the `menuitem` role and every drag action has a tap alternative. Screen reader announcements for opening and closing are not implemented.
+- Deeper nesting: if the inner stack contains tabs or its own modals, verify when `usePreventRemove` fires. It fires only when the inner stack is at its root screen.

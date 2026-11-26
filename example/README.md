@@ -1,169 +1,169 @@
-# expo-morph-menu — app ví dụ
+# expo-morph-menu example app
 
-App demo của package `expo-morph-menu` (mã nguồn ở `../src`). Hướng dẫn
-dùng package: xem [README ở thư mục gốc](../README.md).
+**English** | [Tiếng Việt](README.vi.md)
 
-Dựng lại interaction "Expandable Floating Menu" của SwiftUI bằng Expo, nhưng
-với điều hướng thật: màn full-screen là một route, bên trong push được màn con,
-back cứng Android và deep link đều chạy.
+Demo app for the `expo-morph-menu` package. The app imports the package source from `../src`. Package usage is documented in the [root README](../README.md).
 
-![Nút nổi → card menu → route full-screen → màn con, và đường quay về](../docs/diagrams/svg/vi/0-overview.svg)
+The app implements an expandable floating menu where the full screen is an expo-router route: it supports nested screens, Android hardware back and deep links.
 
-## Chạy
+![Floating button, card menu, full-screen route and child screen, with the dismiss path](../docs/diagrams/svg/en/0-overview.svg)
 
-Mọi lệnh chạy từ **thư mục gốc** của repo. `example/` dùng chung
-`node_modules` của thư mục gốc và đọc package thẳng từ `../src` (xem
-`metro.config.js`) — **đừng** `npm install` riêng trong `example/`.
+## Running the app
+
+Run all commands from the repository root. `example/` uses the root `node_modules` and resolves the package from `../src` (see `metro.config.js`). Do not run `npm install` inside `example/`.
 
 ```bash
-npm install          # ở thư mục gốc
-npm run example      # expo start trong example/
+npm install          # in the repository root
+npm run example      # expo start in example/
 ```
 
-Chạy được bằng Expo Go (đã thử trên Android). Muốn Liquid Glass / blur thật
-trên iOS thì dùng development build: `cd example && npx expo run:ios`.
+The app runs in Expo Go (tested on Android). Liquid Glass and blur on iOS require a development build: `cd example && npx expo run:ios`.
 
-Web: mở `http://localhost:8081` (hoặc nhấn `w` trong terminal Metro). Khổ
-điện thoại: `http://localhost:8081/phone.html` (app trong iframe 390×844, không
-cần thu nhỏ cửa sổ). Hover
-chuột lên dòng = rê tay; Esc đóng full screen rồi đóng menu; nút back của trình
-duyệt cũng chạy morph ngược.
+Web: open `http://localhost:8081`, or press `w` in the Metro terminal. For a phone-sized viewport, open `http://localhost:8081/phone.html`, which renders the app in a 390 x 844 iframe. Mouse hover over a row acts as a drag, Esc dismisses the full screen and then the menu, and the browser back button runs the collapse animation.
 
-Màn Home có nút chuyển **Giao diện: Mặc định / Tuỳ biến (slot)**. Bản tuỳ biến
-(`components/CustomSlots.tsx`) thay mọi slot: nền card, dòng có subtitle cao
-khác nhau, vạch ngăn, nút + vuông, scrim blur.
+The home screen has a switch between two variants: Default and Custom (slots). The custom variant (`components/CustomSlots.tsx`) replaces every slot: card background, rows with subtitles and different heights, separators, a rounded square button and a blurred scrim.
 
-Kiểm tra nhanh mà không cần chạy máy:
+Type checking without a device:
 
 ```bash
-npm run typecheck    # package + app ví dụ
+npm run typecheck    # package and example app
 ```
 
-### E2E + kiểm tra flicker (Android, Maestro)
+## End-to-end tests (Android, Maestro)
 
-`.maestro/` có 6 flow: mở/đóng menu (scrim, back cứng); mở full screen rồi
-đóng bằng nút ×, back cứng, kéo xuống (Android: không đóng), qua màn con; và
-vuốt cạnh trái (chỉ iOS, chưa chạy thử). Mọi flow đóng full screen đều kiểm
-menu **vẫn mở** sau đó (`closeMenuOnDismiss = false`). Maestro chỉ kiểm hành
-vi; flicker nằm dưới tầm screenshot nên được bắt bằng trace từng frame
-(`src/MorphTrace.tsx`), in ra logcat rồi `example/scripts/e2e.mjs` quét.
+`.maestro/` contains 6 flows:
+
+| Flow | Scenario |
+| --- | --- |
+| `01-menu-open-close` | Open and close the menu (scrim, hardware back) |
+| `02-sheet-close-button` | Open the full screen, dismiss with the close button |
+| `03-sheet-hardware-back` | Dismiss with hardware back |
+| `04-sheet-drag-down` | Drag down (on Android the full screen stays open) |
+| `05-sheet-child-then-close` | Push a child screen, go back, dismiss |
+| `06-ios-edge-swipe` | Left-edge swipe (iOS only, not run yet) |
+
+Each flow that dismisses the full screen asserts that the menu is still open afterwards (`closeMenuOnDismiss: false`).
+
+Maestro checks behavior only. Single-frame defects are not visible in screenshots, so they are detected with the frame trace (`src/MorphTrace.tsx`), written to logcat and scanned by `example/scripts/e2e.mjs`.
 
 ```bash
-npm run example:trace  # Metro với EXPO_PUBLIC_MORPH_TRACE=1 (terminal 1)
-npm run e2e            # Maestro + quét trace          (terminal 2)
-npm run e2e -- .maestro/02-sheet-close-button.yaml   # một flow
+npm run example:trace                                  # terminal 1: Metro with EXPO_PUBLIC_MORPH_TRACE=1
+npm run e2e                                            # terminal 2: Maestro and trace scan
+npm run e2e -- .maestro/02-sheet-close-button.yaml     # a single flow
 ```
 
-Trượt khi một flow trượt HOẶC trace có `FLICKER` / `HOLE` / `GHOST` / `OVERLAP`; trace đầy
-đủ ở `e2e-trace.log`, kèm số frame rớt (`DROP`). Cần: thiết bị trong `adb
-devices` có Expo Go, Maestro (`~/.maestro/maestro/bin`), Java 17+ (`JAVA_HOME`,
-mặc định thử JBR của Android Studio). Script tự dùng IP LAN cho `exp://…`.
+The run fails if a flow fails or if the trace contains `FLICKER`, `HOLE`, `GHOST` or `OVERLAP`. The full trace, including dropped frames (`DROP`), is written to `e2e-trace.log`.
 
-| Biến | Dùng khi |
-|---|---|
-| `ANDROID_SERIAL` | có nhiều thiết bị, ví dụ `emulator-5554` |
-| `METRO_PORT` | Metro không ở 8081, ví dụ chạy song song `npm run example:trace -- --port 8082` |
-| `METRO_URL` | đặt hẳn URL Expo Go |
+Requirements: a device listed by `adb devices` with Expo Go installed, Maestro (`~/.maestro/maestro/bin`), and Java 17 or later (`JAVA_HOME`; the script falls back to the Android Studio JBR). The script uses the LAN IP address for the `exp://` URL.
 
-Đo độ mượt thật thì dùng bundle production — rớt frame ở bản dev gần như vô nghĩa:
+| Variable | Use |
+| --- | --- |
+| `ANDROID_SERIAL` | Select a device when several are connected, for example `emulator-5554` |
+| `METRO_PORT` | Metro is not on port 8081, for example `npm run example:trace -- --port 8082` |
+| `METRO_URL` | Set the Expo Go URL explicitly |
+
+Measure frame timing with a production bundle. Dropped frames in a development bundle are not representative:
 
 ```bash
 npm run example:trace -- --port 8083 --no-dev --minify
 ANDROID_SERIAL=emulator-5554 METRO_PORT=8083 npm run e2e
 ```
 
-Expo Go cache bundle production: nếu trace cho thấy code cũ, xoá dữ liệu Expo
-Go (`adb shell pm clear host.exp.exponent`) rồi chạy lại.
+Expo Go caches production bundles. If the trace shows outdated code, clear the Expo Go data (`adb shell pm clear host.exp.exponent`) and run again.
 
-### Cấu hình
+## Configuration
 
-`src/config.ts` — mặc định theo platform, ghi đè qua `MorphProvider`
-(`example/app/_layout.tsx`):
+Defaults are defined per platform in `src/config.ts` and overridden through `MorphProvider` in `example/app/_layout.tsx`:
 
 ```tsx
 <MorphProvider
   config={{
-    closeMenuOnDismiss: true,          // mặc định false: đóng full screen xong menu vẫn mở
+    closeMenuOnDismiss: true,          // default false: the menu stays open after the full screen is dismissed
     radius: Platform.select({ ios: { card: 28 }, android: { card: 16 } }),
-    shadow: { elevation: 6 },          // Android: elevation; iOS: color/opacity/radius/offsetY
-    dismiss: { dragDown: false },      // iOS mặc định: edgeSwipe + dragDown; Android: không cử chỉ
+    shadow: { elevation: 6 },          // Android: elevation. iOS: color, opacity, radius, offsetY
+    dismiss: { dragDown: false },      // iOS default: edgeSwipe and dragDown. Android: no gestures
   }}
 >
 ```
 
-| | iOS | Android |
-|---|---|---|
+| Option | iOS | Android |
+| --- | --- | --- |
 | `closeMenuOnDismiss` | `false` | `false` |
 | `radius.card` / `radius.sheet` | 28 / 0 | 28 / 0 |
 | `shadow` | opacity 0.18, radius 18, offsetY 8 | elevation 10 |
-| `dismiss.edgeSwipe` | ✓ (chỉ ở màn gốc của sheet) | — (cạnh trái là back của hệ thống) |
-| `dismiss.dragDown` | ✓ | — |
-| Nút × / back cứng | nút × | nút × + back cứng |
+| `dismiss.edgeSwipe` | Enabled, on the root screen of the group only | Disabled (the left edge is the system back gesture) |
+| `dismiss.dragDown` | Enabled | Disabled |
+| Close button and hardware back | Close button | Close button, hardware back |
 
-Deep link vào thẳng route detail:
+Deep link to a detail route:
 
 ```bash
 npx uri-scheme open morphmenu://sheet/audio --ios
 ```
 
-## Hai cách thử để thấy khác biệt
+## Comparing the two selection methods
 
-1. **Giữ "+" rồi rê xuống một dòng và nhả.** Dữ liệu được nạp từ lúc ngón tay
-   rê qua, nên màn mở ra đã có sẵn nội dung — badge sẽ ghi "chờ 0ms".
-2. **Chạm "+" rồi chạm nhanh một dòng.** Không có pha rê để tranh thủ, bạn sẽ
-   thấy skeleton và badge ghi thời gian chờ thật.
+1. Press and hold "+", drag to a row, and release. Data loading starts while the pointer moves over the row, so the screen usually opens with content already loaded. The badge shows the wait time, typically 0 ms.
+2. Tap "+", then tap a row quickly. There is no hover phase to start loading early, so the screen shows a placeholder first, and the badge shows the actual wait time.
 
-Đó là minh hoạ sống của luận điểm chính: nút thắt không nằm ở animation mà ở
-chi phí dựng nội dung.
+The comparison shows that the perceived delay comes mostly from loading and rendering the content, not from the animation.
 
-## Tài liệu
+## Data layer
 
-![Kiến trúc](../docs/diagrams/svg/vi/1-architecture.svg)
+The sheet content is loaded from a mock REST API with Redux Toolkit and RTK Query (`api/`, `store/`):
 
-| File | Nội dung |
+- At startup, `components/SessionGate.tsx` opens an anonymous session (`POST /auth/device`) and stores the JWT access and refresh tokens in the `auth` slice. The access token lives 45 seconds and is refreshed automatically.
+- `GET /sheets/:key` returns the content of a sheet screen, with about 700 ms of latency.
+- The menu's `onHover` calls `sheetApi.util.prefetch('getSheet', key)`, so the request starts while the pointer moves over the row. The sheet screen reads the same cache entry with `useGetSheetQuery`.
+- Network errors, 503 and 429 are retried with exponential backoff. If the request still fails, the screen shows a retry button.
+- The home screen links to the Network screen: session, token countdown, fault injection and a log of every HTTP attempt.
+
+The mock server, the base query and the Network screen are shared with the social example and documented in [example-shared/README.md](../example-shared/README.md). `npm run example:trace` starts Metro with fault injection off, so the end-to-end flows are not slowed down by retries.
+
+## Documentation
+
+| Document | Contents |
 | --- | --- |
-| [`docs/vi/ARCHITECTURE.md`](../docs/vi/ARCHITECTURE.md) ([EN](../docs/en/ARCHITECTURE.md)) | Ranh giới route, luồng mở/đóng, giao ca, vỏ-ruột, riêng cho web |
-| [`docs/vi/INTEGRATION.md`](../docs/vi/INTEGRATION.md) ([EN](../docs/en/INTEGRATION.md)) | Cài đặt, cấu hình, kiểm thử, xử lý sự cố |
-| [`docs/vi/CUSTOM-UI.md`](../docs/vi/CUSTOM-UI.md) ([EN](../docs/en/CUSTOM-UI.md)) | Slot, hợp đồng của slot, công thức cho các bộ UI |
-| [`docs/PERFORMANCE.md`](../docs/PERFORMANCE.md) | Các điểm tối ưu, cách đo, số liệu |
-| [`docs/diagrams/`](../docs/diagrams/) | 7 trang sơ đồ draw.io, bản EN và VI |
+| [Architecture](../docs/en/ARCHITECTURE.md) | Route boundary, opening and closing sequences, hand-off, web specifics |
+| [Integration guide](../docs/en/INTEGRATION.md) | Installation, configuration, testing, troubleshooting |
+| [Custom UI](../docs/en/CUSTOM-UI.md) | Slots, slot contract, examples for UI kits |
+| [Performance](../docs/en/PERFORMANCE.md) | Optimizations, measurement methods, test results |
+| [Diagrams](../docs/README.md) | 7 draw.io pages, English and Vietnamese |
 
-Mở file `.drawio` bằng app.diagrams.net hoặc extension Draw.io Integration
-trong VS Code.
-
-## Cấu trúc
+## Project structure
 
 ```
-src/                       ← package expo-morph-menu
-  index.ts                 API public
-  MorphProvider.tsx        shared value + config + items + callback
-  MorphMenu.tsx            overlay FAB → card, hit-test, onHover
-  MorphSheetLayout.tsx     vỏ morph + Stack lồng (dùng làm _layout của nhóm route)
-  MenuFace.tsx             mặt menu dùng chung cho overlay và vỏ
-  Surface.tsx, optional.ts Liquid Glass → blur → nền đặc; haptics tuỳ chọn
-  config.ts                mặc định theo platform + màu sáng/tối
+src/                       expo-morph-menu package
+  index.ts                 public API
+  MorphProvider.tsx        shared values, config, items, callbacks
+  MorphMenu.tsx            overlay: button, card, hit testing, onHover
+  MorphSheetLayout.tsx     animated container and nested Stack (layout of the route group)
+  MenuFace.tsx             menu rows shared by the overlay and the container
+  Surface.tsx, optional.ts Liquid Glass, blur or solid surface; optional haptics
+  config.ts                platform defaults, light and dark colors
   geometry.ts, visibility.ts, constants.ts
-  MorphTrace.tsx           trace từng frame (gỡ lỗi / e2e)
-example/                   ← app này
-  app/_layout.tsx          MorphProvider + Stack gốc + MorphMenu NGOÀI navigator
-  app/(sheet)/_layout.tsx  <MorphSheetLayout> + Stack.Screen
-  app/(sheet)/[key].tsx    màn gốc của sheet; child.tsx: màn con
-  data/                    danh sách menu, dữ liệu giả có prefetch
-  .maestro/, scripts/      e2e
+  MorphTrace.tsx           per-frame trace for debugging and end-to-end tests
+example/                   this app
+  app/_layout.tsx          MorphProvider, root Stack, MorphMenu after the navigator
+  app/(sheet)/_layout.tsx  MorphSheetLayout with Stack.Screen declarations
+  app/(sheet)/[key].tsx    root screen of the group; child.tsx is a nested screen
+  app/dev.tsx              Network screen
+  api/server.ts            mock REST backend (anonymous session, sheet content)
+  api/sheetApi.ts          RTK Query endpoints
+  store/index.ts           Redux store
+  components/SessionGate.tsx  opens the anonymous session
+  data/                    menu items
+  .maestro/, scripts/      end-to-end tests
 ```
 
-## Phiên bản
+## Versions
 
-Expo SDK 58 · React Native 0.88 · React 19.3 · Reanimated 4.7 ·
-Gesture Handler 3.3 · react-native-screens 4.30.
+Expo SDK 58, React Native 0.88, React 19.3, Reanimated 4.7, Gesture Handler 3.3, react-native-screens 4.30.
 
-Nếu bạn nâng hoặc hạ SDK, chạy `cd example && npx expo install --fix` để Expo
-tự chỉnh các native module về đúng phiên bản của SDK đó.
+After changing the SDK version, run `cd example && npx expo install --fix` to align native module versions with the SDK.
 
-## Đã kiểm chứng tới đâu
+## Verification status
 
-- `npm run typecheck` sạch (package + app ví dụ).
-- E2E Maestro trên Android, AVD Pixel API 37 (Android 17): 6/6 flow pass
-  (flow iOS tự bỏ qua), trace không có FLICKER / HOLE / GHOST. MEmu (Android 9)
-  chỉ mới chạy ở bản trước khi tách package. Số liệu ở `docs/PERFORMANCE.md`.
-- **Chưa chạy trên iOS** (cần máy Mac): vuốt cạnh trái, Liquid Glass, blur.
+- `npm run typecheck` passes for the package and the example app.
+- Maestro end-to-end tests on an Android 17 emulator (API 37): 6 of 6 flows pass (the iOS flow is skipped), and the trace contains no `FLICKER`, `HOLE` or `GHOST` flags. MEmu (Android 9) was tested only with the build before the package was extracted. Numbers: [Performance](../docs/en/PERFORMANCE.md#6-test-results).
+- Not run on iOS yet (requires a Mac): left-edge swipe, Liquid Glass, blur.

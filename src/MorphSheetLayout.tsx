@@ -70,6 +70,9 @@ const FLING_VELOCITY = 900;
 export const morphSheetScreenOptions = {
   presentation: 'transparentModal',
   animation: 'none',
+  // Headers belong to the inner Stack. A header from the root navigator would
+  // sit above the animated container and not move with it.
+  headerShown: false,
   gestureEnabled: false,
   contentStyle: { backgroundColor: 'transparent' },
 } as const;
@@ -96,6 +99,7 @@ export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutPr
     callbacks,
     selectedRef,
     sheetDismissed,
+    registerDismiss,
   } = useMorph();
   const { Background, Backdrop } = components;
   const insets = useSafeAreaInsets();
@@ -195,7 +199,22 @@ export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutPr
     repeatRef.current?.();
   }, [allowLeave, sheetDismissed, callbacks, selectedRef]);
 
-  const goBack = useCallback(() => navigation.goBack(), [navigation]);
+  const goBack = useCallback(() => {
+    if (__DEV__ && !navigation.canGoBack()) {
+      console.warn(
+        '[expo-morph-menu] The sheet is the first route of the root navigator (usually a deep link), so it cannot be closed. ' +
+          "Export `unstable_settings = { anchor: '<your home route>' }` from the root layout.",
+      );
+    }
+    navigation.goBack();
+  }, [navigation]);
+
+  // useMorphDismiss() ở bất kỳ màn nào bên trong đóng cả nhóm route: goBack
+  // trên navigator GỐC (navigation của layout này), không phải Stack bên trong.
+  useEffect(() => {
+    registerDismiss(goBack);
+    return () => registerDismiss(null);
+  }, [registerDismiss, goBack]);
 
   // Web không có back cứng: Esc đóng full screen (chỉ khi đang ở màn gốc,
   // ở màn con thì để Esc cho màn đó / không làm gì).

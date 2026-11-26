@@ -114,21 +114,21 @@ function pageArchitecture(lang) {
     1000,
     40,
     t(
-      'The menu is an overlay (not a route). The full screen is a real expo-router route. They never import each other — they meet only in MorphProvider.',
-      'Menu là overlay (không phải route). Full screen là route thật của expo-router. Hai bên không biết nhau — chỉ gặp nhau ở MorphProvider.',
+      'The menu is an overlay (not a route). The full screen is a real expo-router route. They do not import each other and communicate only through MorphProvider.',
+      'Menu là overlay (không phải route). Full screen là route thật của expo-router. Hai phần không import lẫn nhau, chỉ giao tiếp qua MorphProvider.',
     ),
   );
   legend(api, 700, 100);
 
-  api.box(40, 150, 1320, 760, t('Your app — expo-router root layout', 'App của bạn — root layout của expo-router'), S.frame);
+  api.box(40, 150, 1320, 760, t('Your app: expo-router root layout', 'App của bạn: root layout của expo-router'), S.frame);
   const provider = api.box(
     60,
     190,
     1280,
     90,
     t(
-      '<b>MorphProvider</b> — items · config · colors (light/dark) · components (slots) · callbacks<br><b>Shared values (UI thread):</b> menu 0→1 · sheet 0→1 · origin = card rect · handoff MENU | ROUTE | RETURNING',
-      '<b>MorphProvider</b> — items · config · màu (sáng/tối) · components (slot) · callback<br><b>Shared value (UI thread):</b> menu 0→1 · sheet 0→1 · origin = rect của card · handoff MENU | ROUTE | RETURNING',
+      '<b>MorphProvider</b>: items · config · colors (light/dark) · components (slots) · callbacks<br><b>Shared values (UI thread):</b> menu 0→1 · sheet 0→1 · origin = card rect · handoff MENU | ROUTE | RETURNING',
+      '<b>MorphProvider</b>: items · config · màu (sáng/tối) · components (slot) · callback<br><b>Shared value (UI thread):</b> menu 0→1 · sheet 0→1 · origin = rect của card · handoff MENU | ROUTE | RETURNING',
     ),
     `${S.state}align=left;spacingLeft=14;`,
   );
@@ -141,8 +141,8 @@ function pageArchitecture(lang) {
     580,
     520,
     t(
-      '<b>(sheet) route group</b> — options = morphSheetScreenOptions<br>transparentModal · animation: none',
-      '<b>Nhóm route (sheet)</b> — options = morphSheetScreenOptions<br>transparentModal · animation: none',
+      '<b>(sheet) route group</b>: options = morphSheetScreenOptions<br>transparentModal · animation: none',
+      '<b>Nhóm route (sheet)</b>: options = morphSheetScreenOptions<br>transparentModal · animation: none',
     ),
     S.frame,
   );
@@ -151,16 +151,16 @@ function pageArchitecture(lang) {
     410,
     540,
     440,
-    t('<b>MorphSheetLayout</b> — app/(sheet)/_layout.tsx', '<b>MorphSheetLayout</b> — app/(sheet)/_layout.tsx'),
+    t('<b>MorphSheetLayout</b>: app/(sheet)/_layout.tsx', '<b>MorphSheetLayout</b>: app/(sheet)/_layout.tsx'),
     S.frame,
   );
-  api.box(340, 450, 230, 44, t('Backdrop (slot) — dims the app behind', 'Backdrop (slot) — làm tối app phía sau'), S.slot);
+  api.box(340, 450, 230, 44, t('Backdrop (slot): dims the app behind', 'Backdrop (slot): làm tối app phía sau'), S.slot);
   api.box(
     590,
     450,
     250,
     44,
-    t('usePreventRemove — holds the route while the reverse morph runs', 'usePreventRemove — giữ route trong lúc chạy morph ngược'),
+    t('usePreventRemove: holds the route while the reverse morph runs', 'usePreventRemove: giữ route trong lúc chạy morph ngược'),
     S.pkg,
   );
   api.box(
@@ -169,13 +169,13 @@ function pageArchitecture(lang) {
     500,
     320,
     t(
-      '<b>Animated shell</b> — x, y, width, height, corner radius = lerp(origin → screen) · overflow: hidden',
-      '<b>Vỏ animate</b> — x, y, width, height, bo góc = lerp(origin → màn hình) · overflow: hidden',
+      '<b>Animated container</b>: x, y, width, height, corner radius = lerp(origin → screen) · overflow: hidden',
+      '<b>Container animate</b>: x, y, width, height, bo góc = lerp(origin → màn hình) · overflow: hidden',
     ),
     S.frame,
   );
   api.box(360, 560, 200, 50, t('Background (slot, variant "sheet")', 'Background (slot, variant "sheet")'), S.slot);
-  api.box(360, 625, 200, 60, t('MenuFace — Item slots, variant "sheet"', 'MenuFace — slot Item, variant "sheet"'), S.pkg);
+  api.box(360, 625, 200, 60, t('MenuFace: Item slots, variant "sheet"', 'MenuFace: slot Item, variant "sheet"'), S.pkg);
   api.box(
     575,
     560,
@@ -194,7 +194,7 @@ function pageArchitecture(lang) {
     110,
     t(
       '<b>Dismiss paths</b> (all go through usePreventRemove)<br>close button / router.back() · Android hardware back · browser back · Esc (web)<br>iOS: edge swipe · drag down (config.dismiss)',
-      '<b>Các đường đóng</b> (đều qua usePreventRemove)<br>nút đóng / router.back() · back cứng Android · back của trình duyệt · Esc (web)<br>iOS: vuốt cạnh trái · kéo xuống (config.dismiss)',
+      '<b>Các đường đóng</b> (đều qua usePreventRemove)<br>nút đóng / router.back() · nút back phần cứng Android · back của trình duyệt · Esc (web)<br>iOS: vuốt cạnh trái · kéo xuống (config.dismiss)',
     ),
     S.note,
   );
@@ -204,10 +204,10 @@ function pageArchitecture(lang) {
     310,
     420,
     580,
-    t('<b>MorphMenu</b> — overlay, rendered AFTER the root Stack', '<b>MorphMenu</b> — overlay, đặt SAU Stack gốc'),
+    t('<b>MorphMenu</b>: overlay, rendered AFTER the root Stack', '<b>MorphMenu</b>: overlay, đặt SAU Stack gốc'),
     S.frame,
   );
-  api.box(940, 350, 380, 40, t('Scrim (slot) — tap to close the menu', 'Scrim (slot) — chạm để đóng menu'), S.slot);
+  api.box(940, 350, 380, 40, t('Scrim (slot): tap to close the menu', 'Scrim (slot): chạm để đóng menu'), S.slot);
   api.box(
     940,
     405,
@@ -220,7 +220,7 @@ function pageArchitecture(lang) {
     S.frame,
   );
   api.box(955, 460, 170, 44, t('Background (slot, "menu")', 'Background (slot, "menu")'), S.slot);
-  api.box(1135, 460, 170, 44, t('Trigger (slot) — the button face', 'Trigger (slot) — mặt nút +'), S.slot);
+  api.box(1135, 460, 170, 44, t('Trigger (slot): the button face', 'Trigger (slot): mặt nút +'), S.slot);
   api.box(955, 515, 170, 44, t('Highlight (slot)', 'Highlight (slot)'), S.slot);
   const items = api.box(1135, 515, 170, 44, t('Item (slot) × n in Pressables', 'Item (slot) × n trong Pressable'), S.slot);
   api.box(955, 570, 170, 44, t('Separator (slot)', 'Separator (slot)'), S.slot);
@@ -253,7 +253,7 @@ function pageArchitecture(lang) {
     S.pkg,
   );
 
-  // Mũi tên từ mép khung (không nối tâm khung lớn — sẽ cắt chéo qua hộp khác).
+  // Mũi tên từ mép khung (không nối tâm khung lớn: sẽ cắt chéo qua hộp khác).
   api.arrow(940, 765, 880, 765);
   api.box(836, 772, 104, 44, t('select →<br>router.push(item.href)', 'chọn →<br>router.push(item.href)'), S.edgeLabel);
   api.arrow(1130, 310, 1130, 280);
@@ -298,8 +298,8 @@ function pageOpen(lang) {
     1250,
     40,
     t(
-      'Every visual step runs on the UI thread (Reanimated). JS only pushes the route and reports callbacks — a slow JS thread (dev builds) cannot open a gap.',
-      'Mọi bước hình ảnh chạy trên UI thread (Reanimated). JS chỉ push route và gọi callback — JS chậm (bản dev) không làm hở khung hình nào.',
+      'Every visual step runs on the UI thread (Reanimated). JS only pushes the route and calls the callbacks, so a slow JS thread (for example in development builds) does not delay the visual steps.',
+      'Mọi bước hình ảnh chạy trên UI thread (Reanimated). JS chỉ push route và gọi callback, nên JS thread chậm (ví dụ ở bản development) không làm chậm các bước hiển thị.',
     ),
   );
   const x = sequence(
@@ -324,15 +324,15 @@ function pageOpen(lang) {
   m('user', 'menu', 'press the + button', 'nhấn nút +');
   m('menu', 'sv', 'menu = spring(1) · mode = open (hit area stays active while pressed)', 'menu = spring(1) · mode = open (vùng bấm giữ hoạt động khi còn nhấn)');
   m('user', 'menu', 'slide over rows (or hover with the mouse)', 'rê qua các dòng (hoặc hover chuột)');
-  m('menu', 'you', 'onHover(item) — prefetch the next screen here', 'onHover(item) — prefetch màn sắp mở ở đây');
+  m('menu', 'you', 'onHover(item): prefetch the next screen here', 'onHover(item): prefetch màn sắp mở ở đây');
   m('user', 'menu', 'release on a row (or tap a row)', 'nhả tay trên một dòng (hoặc chạm một dòng)');
   m('menu', 'sv', 'wait until menu ≥ 0.995 · origin = card rect · handoff = MENU', 'chờ menu ≥ 0.995 · origin = rect card · handoff = MENU');
   m('menu', 'you', 'onSelect(item)', 'onSelect(item)');
   m('menu', 'router', 'router.push(item.href)', 'router.push(item.href)');
-  m('router', 'sheet', 'mount the (sheet) route — transparentModal, no animation', 'mount route (sheet) — transparentModal, không animation');
-  m('sheet', 'sv', 'first frame: shell = origin rect, MenuFace drawn → handoff = ROUTE', 'frame đầu: vỏ = rect origin, vẽ MenuFace → handoff = ROUTE');
-  m('sv', 'menu', 'card opacity 0 — identical pixels are underneath', 'card opacity 0 — bên dưới là đúng những pixel đó');
-  m('sheet', 'sv', 'sheet = spring(1): shell grows · content fades in · face fades out', 'sheet = spring(1): vỏ lớn dần · nội dung hiện · mặt menu mờ đi');
+  m('router', 'sheet', 'mount the (sheet) route: transparentModal, no animation', 'mount route (sheet): transparentModal, không animation');
+  m('sheet', 'sv', 'first frame: container = origin rect, MenuFace drawn → handoff = ROUTE', 'frame đầu: container = rect origin, vẽ MenuFace → handoff = ROUTE');
+  m('sv', 'menu', 'card opacity 0 (the container below renders the same pixels)', 'card opacity 0 (container bên dưới hiển thị cùng các pixel)');
+  m('sheet', 'sv', 'sheet = spring(1): container grows · content fades in · face fades out', 'sheet = spring(1): container lớn dần · nội dung hiện · mặt menu mờ đi');
   m('sheet', 'you', 'spring finished → useMorphSettled() = true: mount heavy content', 'spring xong → useMorphSettled() = true: mount phần nặng');
   api.box(
     60,
@@ -340,8 +340,8 @@ function pageOpen(lang) {
     1300,
     60,
     t(
-      '<b>Step 10, native vs web:</b> native waits for the shell\'s onLayout (the native view may not be on screen yet when effects run). Web hands off in useLayoutEffect — the DOM is painted in the same frame, while onLayout (ResizeObserver) arrives frames later and would leave the card covering the growing shell.',
-      '<b>Bước 10, native và web:</b> native chờ onLayout của vỏ (view native có thể chưa lên màn khi effect chạy). Web giao ca trong useLayoutEffect — DOM được vẽ cùng frame, còn onLayout (ResizeObserver) về trễ vài frame và để card đè lên vỏ đang nở.',
+      '<b>Step 10, native vs web:</b> native waits for the container\'s onLayout (the native view may not be on screen yet when effects run). Web hands off in useLayoutEffect, because the DOM is painted in the same frame, while onLayout (ResizeObserver) arrives frames later and would leave the card covering the growing container.',
+      '<b>Bước 10, native và web:</b> native chờ onLayout của container (view native có thể chưa lên màn khi effect chạy). Web chuyển giao trong useLayoutEffect vì DOM được vẽ trong cùng frame, còn onLayout (ResizeObserver) về trễ vài frame và để card đè lên container đang mở rộng.',
     ),
     S.note,
   );
@@ -359,8 +359,8 @@ function pageClose(lang) {
     1250,
     40,
     t(
-      'All dismiss paths converge on usePreventRemove, so the reverse morph lives in exactly one place. The hand-off back to the card is a single-frame cut, not a crossfade.',
-      'Mọi đường đóng gặp nhau ở usePreventRemove, nên morph ngược chỉ nằm ở một chỗ. Giao ca về card là một cú cắt trong một frame, không phải crossfade.',
+      'All dismiss paths converge on usePreventRemove, so the reverse morph lives in exactly one place. The hand-off back to the card is a single-frame swap, not a crossfade.',
+      'Mọi đường đóng gặp nhau ở usePreventRemove, nên morph ngược chỉ nằm ở một chỗ. Chuyển giao về card là một lần hoán đổi trong một frame, không phải crossfade.',
     ),
   );
   const x = sequence(
@@ -382,11 +382,11 @@ function pageClose(lang) {
     y += 52;
   };
   m.i = 0;
-  m('user', 'router', 'close button · Android back · browser back · Esc · edge swipe / drag', 'nút đóng · back cứng · back trình duyệt · Esc · vuốt cạnh / kéo xuống');
+  m('user', 'router', 'close button · Android back · browser back · Esc · edge swipe / drag', 'nút đóng · nút back phần cứng · back trình duyệt · Esc · vuốt cạnh / kéo xuống');
   m('router', 'sheet', 'removal blocked → usePreventRemove callback(repeat)', 'gỡ route bị chặn → callback(repeat) của usePreventRemove');
-  m('sheet', 'sv', 'handoff = RETURNING · sheet = spring(0) — continues from the gesture value', 'handoff = RETURNING · sheet = spring(0) — chạy tiếp từ giá trị của cử chỉ');
-  m('sheet', 'sv', 'shell shrinks · content fades out · MenuFace fades in', 'vỏ thu nhỏ · nội dung mờ đi · MenuFace hiện dần');
-  m('sv', 'menu', 'frame where sheet ≤ 0.005: CUT — shell opacity 0, card opacity 1 (same UI frame)', 'frame có sheet ≤ 0.005: CẮT — vỏ opacity 0, card opacity 1 (cùng một frame UI)');
+  m('sheet', 'sv', 'handoff = RETURNING · sheet = spring(0): continues from the gesture value', 'handoff = RETURNING · sheet = spring(0): chạy tiếp từ giá trị của cử chỉ');
+  m('sheet', 'sv', 'container shrinks · content fades out · MenuFace fades in', 'container thu nhỏ · nội dung mờ đi · MenuFace hiện dần');
+  m('sv', 'menu', 'frame where sheet ≤ 0.005: swap, container opacity 0, card opacity 1 (same UI frame)', 'frame có sheet ≤ 0.005: hoán đổi, container opacity 0, card opacity 1 (cùng một frame UI)');
   m('menu', 'sv', 'closeMenuOnDismiss = false: scrim back, menu stays open · true: menu = spring(0) → button', 'closeMenuOnDismiss = false: scrim hiện lại, menu vẫn mở · true: menu = spring(0) → nút +');
   m('sheet', 'menu', 'spring finished → allowLeave → sheetDismissed(): mode = open | closed', 'spring xong → allowLeave → sheetDismissed(): mode = open | closed');
   m('sheet', 'you', 'onSheetDismissed(item)', 'onSheetDismissed(item)');
@@ -397,8 +397,8 @@ function pageClose(lang) {
     640,
     110,
     t(
-      '<b>handoff stays RETURNING after unmount.</b> Android (react-native-screens) removes native views asynchronously; resetting handoff on unmount would show the old shell again for a frame. The next selection resets it to MENU.',
-      '<b>handoff giữ RETURNING kể cả sau unmount.</b> Android (react-native-screens) gỡ view native bất đồng bộ; đặt lại handoff lúc unmount sẽ làm vỏ cũ hiện lại một frame. Lần chọn kế tiếp mới đặt lại MENU.',
+      '<b>handoff stays RETURNING after unmount.</b> Android (react-native-screens) removes native views asynchronously; resetting handoff on unmount would show the old container again for a frame. The next selection resets it to MENU.',
+      '<b>handoff giữ RETURNING kể cả sau unmount.</b> Android (react-native-screens) gỡ view native bất đồng bộ; đặt lại handoff lúc unmount sẽ làm container cũ hiện lại một frame. Lần chọn kế tiếp mới đặt lại MENU.',
     ),
     S.warn,
   );
@@ -422,7 +422,7 @@ function pageStates(lang) {
   const { t } = api;
   api.text(40, 20, 900, 34, t('4 · State machines', '4 · Máy trạng thái'), S.title);
 
-  api.box(40, 70, 640, 640, t('<b>handoff</b> — who shows the card', '<b>handoff</b> — ai đang hiện card'), S.frame);
+  api.box(40, 70, 640, 640, t('<b>handoff</b>: who shows the card', '<b>handoff</b>: ai đang hiện card'), S.frame);
   const sMenu = api.box(80, 140, 150, 70, 'MENU', S.stateNode);
   const sRoute = api.box(470, 140, 150, 70, 'ROUTE', S.stateNode);
   const sRet = api.box(275, 340, 150, 70, 'RETURNING', S.stateNode);
@@ -439,13 +439,13 @@ function pageStates(lang) {
     600,
     240,
     t(
-      '<b>What is visible</b> (Android / web — the card overlay is above the route)<br><br>MENU: card 1 · shell 1 (shell mounts underneath, identical)<br>ROUTE: card 0 · shell 1<br>RETURNING, sheet &gt; 0.005: card 0 · shell 1<br>RETURNING, sheet ≤ 0.005: card 1 · shell 0 ← the cut<br><br><b>iOS:</b> the transparentModal is presented above the overlay, so the card always stays at opacity 1 (never animate opacity on glass/blur views).',
-      '<b>Cái gì đang hiện</b> (Android / web — card overlay nằm trên route)<br><br>MENU: card 1 · vỏ 1 (vỏ mount bên dưới, giống hệt)<br>ROUTE: card 0 · vỏ 1<br>RETURNING, sheet &gt; 0.005: card 0 · vỏ 1<br>RETURNING, sheet ≤ 0.005: card 1 · vỏ 0 ← cú cắt<br><br><b>iOS:</b> transparentModal được present đè lên overlay, nên card luôn ở opacity 1 (không bao giờ animate opacity trên view kính/blur).',
+      '<b>What is visible</b> (Android / web: the card overlay is above the route)<br><br>MENU: card 1 · container 1 (container mounts underneath, identical)<br>ROUTE: card 0 · container 1<br>RETURNING, sheet &gt; 0.005: card 0 · container 1<br>RETURNING, sheet ≤ 0.005: card 1 · container 0 ← swap<br><br><b>iOS:</b> the transparentModal is presented above the overlay, so the card always stays at opacity 1 (never animate opacity on glass/blur views).',
+      '<b>Cái gì đang hiện</b> (Android / web: card overlay nằm trên route)<br><br>MENU: card 1 · container 1 (container mount bên dưới, giống hệt)<br>ROUTE: card 0 · container 1<br>RETURNING, sheet &gt; 0.005: card 0 · container 1<br>RETURNING, sheet ≤ 0.005: card 1 · container 0 ← hoán đổi<br><br><b>iOS:</b> transparentModal được present đè lên overlay, nên card luôn ở opacity 1 (không bao giờ animate opacity trên view kính/blur).',
     ),
     S.note,
   );
 
-  api.box(720, 70, 640, 640, t('<b>MorphMenu mode</b> — who receives touches', '<b>mode của MorphMenu</b> — ai nhận chạm'), S.frame);
+  api.box(720, 70, 640, 640, t('<b>MorphMenu mode</b>: who receives touches', '<b>mode của MorphMenu</b>: ai nhận chạm'), S.frame);
   const mClosed = api.box(760, 140, 150, 70, 'closed', S.stateNode);
   const mOpen = api.box(1160, 140, 150, 70, 'open', S.stateNode);
   const mRoute = api.box(960, 340, 150, 70, 'route', S.stateNode);
@@ -466,35 +466,35 @@ function pageStates(lang) {
     600,
     240,
     t(
-      '<b>Touch ownership</b><br><br>closed: only the button hit area<br>open: scrim + rows; Android back / Esc close the menu<br>route: the overlay takes NO touches and does not hold back — otherwise (Android/web, overlay on top) the scrim would swallow the close button<br><br><b>pressing</b>: while a press that started on the button is down, its hit area stays active even in "open" — on web, a pointer-events:none element never receives pointerup and the gesture would get stuck.',
-      '<b>Ai nhận chạm</b><br><br>closed: chỉ vùng bấm của nút +<br>open: scrim + các dòng; back cứng / Esc đóng menu<br>route: overlay KHÔNG nhận chạm, không giữ back — nếu không (Android/web, overlay ở trên) scrim sẽ nuốt nút đóng<br><br><b>pressing</b>: khi cú nhấn bắt đầu trên nút + còn giữ, vùng bấm vẫn hoạt động dù đã "open" — trên web, phần tử pointer-events:none không nhận pointerup và gesture sẽ kẹt.',
+      '<b>Touch ownership</b><br><br>closed: only the button hit area<br>open: scrim + rows; Android back / Esc close the menu<br>route: the overlay receives no touches and does not handle back. Otherwise (Android and web, overlay on top) the scrim would intercept taps on the close button<br><br><b>pressing</b>: while a press that started on the button is down, its hit area stays active even in "open": on web, a pointer-events:none element never receives pointerup and the gesture would get stuck.',
+      '<b>Ai nhận chạm</b><br><br>closed: chỉ vùng bấm của nút +<br>open: scrim + các dòng; nút back phần cứng / Esc đóng menu<br>route: overlay không nhận chạm và không xử lý back. Nếu không (Android và web, overlay ở trên) scrim sẽ chặn chạm vào nút đóng<br><br><b>pressing</b>: khi cú nhấn bắt đầu trên nút + còn giữ, vùng bấm vẫn hoạt động dù đã "open": trên web, phần tử pointer-events:none không nhận pointerup và gesture sẽ kẹt.',
     ),
     S.note,
   );
   return diagram('states', t('4 · State machines', '4 · Máy trạng thái'), cells, 1400, 740);
 }
 
-/* --- trang 5: cấu tạo vỏ + dòng thời gian ---------------------------------- */
+/* --- trang 5: cấu tạo container + dòng thời gian ---------------------------------- */
 function pageShell(lang) {
   const { api, cells } = makePage('shell', lang);
   const { t } = api;
-  api.text(40, 20, 1000, 34, t('5 · The full-screen shell: layers and timeline', '5 · Vỏ full screen: các lớp và dòng thời gian'), S.title);
+  api.text(40, 20, 1000, 34, t('5 · The full-screen container: layers and timeline', '5 · Container full screen: các lớp và dòng thời gian'), S.title);
   api.text(
     40,
     56,
     1300,
     40,
     t(
-      'One opaque shell changes size every frame; everything inside it is fixed-size and only fades or translates. The inner navigator never re-lays out, so it stays a real native stack.',
-      'Một vỏ đục đổi kích thước mỗi frame; mọi thứ bên trong cố định kích thước, chỉ mờ/hiện hoặc dịch chuyển. Navigator bên trong không bao giờ đo lại, nên vẫn là native stack thật.',
+      'One opaque container changes size every frame; everything inside it is fixed-size and only fades or translates. The inner navigator never re-lays out, so it stays a real native stack.',
+      'Một container đục đổi kích thước mỗi frame; mọi thứ bên trong cố định kích thước, chỉ mờ/hiện hoặc dịch chuyển. Navigator bên trong không bao giờ đo lại, nên vẫn là native stack thật.',
     ),
   );
   const layers = [
-    [t('Backdrop (slot) — opacity 0 → backdropOpacity', 'Backdrop (slot) — opacity 0 → backdropOpacity'), S.slot],
-    [t('Shell — animated rect, corner radius, overflow hidden, background color card → sheet', 'Vỏ — rect animate, bo góc, overflow hidden, màu nền card → sheet'), S.pkg],
-    [t('Background (slot, "sheet") — fades out as the shell grows', 'Background (slot, "sheet") — mờ đi khi vỏ lớn lên'), S.slot],
-    [t('Fixed W × H content (your inner Stack) — fades in, slides from −insets.top to 0', 'Nội dung cố định W × H (Stack lồng của bạn) — hiện dần, trượt từ −insets.top về 0'), S.app],
-    [t('MenuFace — the menu rows, anchored to the card corner; fades out', 'MenuFace — các dòng menu, neo góc card; mờ đi'), S.pkg],
+    [t('Backdrop (slot): opacity 0 → backdropOpacity', 'Backdrop (slot): opacity 0 → backdropOpacity'), S.slot],
+    [t('Container: animated rect, corner radius, overflow hidden, background color card → sheet', 'Container: rect animate, bo góc, overflow hidden, màu nền card → sheet'), S.pkg],
+    [t('Background (slot, "sheet"): fades out as the container grows', 'Background (slot, "sheet"): mờ đi khi container lớn lên'), S.slot],
+    [t('Fixed W × H content (your inner Stack): fades in, slides from −insets.top to 0', 'Nội dung cố định W × H (Stack lồng của bạn): hiện dần, trượt từ −insets.top về 0'), S.app],
+    [t('MenuFace: the menu rows, anchored to the card corner; fades out', 'MenuFace: các dòng menu, neo góc card; mờ đi'), S.pkg],
   ];
   layers.forEach(([label, style], i) => {
     api.box(60 + i * 18, 120 + i * 70, 560, 56, label, style);
@@ -505,8 +505,8 @@ function pageShell(lang) {
     600,
     120,
     t(
-      '<b>Why the content is pushed up by insets.top while small:</b> the content is anchored to the shell\'s top-left; at card size the visible part would be the empty status-bar strip. Shifting it up shows the real header instead. Transform only — no layout.',
-      '<b>Vì sao nội dung bị đẩy lên insets.top khi còn nhỏ:</b> nội dung neo góc trên-trái của vỏ; ở cỡ card phần lộ ra sẽ là dải status bar trống. Đẩy lên thì thứ lộ ra là header thật. Chỉ là transform — không layout.',
+      '<b>Why the content is pushed up by insets.top while small:</b> the content is anchored to the container\'s top-left; at card size the visible part would be the empty status-bar strip. Shifting it up shows the real header instead. Transform only, no layout pass.',
+      '<b>Vì sao nội dung bị đẩy lên insets.top khi còn nhỏ:</b> nội dung neo góc trên-trái của container; ở cỡ card phần lộ ra sẽ là dải status bar trống. Đẩy lên thì thứ lộ ra là header thật. Chỉ dùng transform, không tính lại layout.',
     ),
   );
 
@@ -536,11 +536,11 @@ function pageShell(lang) {
     640,
     80,
     t(
-      '<b>■ 0.005 = ARRIVED.</b> When closing, the shell stays fully opaque until it matches the card (&lt; 1 dp off), then card and shell swap in one frame. Shadows are off in mid-flight (bounds change every frame) and ramp over 10% at each end.',
-      '<b>■ 0.005 = ARRIVED.</b> Khi đóng, vỏ giữ đục hoàn toàn tới khi trùng card (lệch &lt; 1 dp), rồi card và vỏ đổi chỗ trong một frame. Bóng tắt khi đang bay (bounds đổi mỗi frame) và tăng/giảm trong 10% ở mỗi đầu.',
+      '<b>0.005 = ARRIVED.</b> When closing, the container stays fully opaque until it matches the card (&lt; 1 dp off), then card and container swap in one frame. Shadows are disabled while the bounds change every frame, and fade over 10% at each end.',
+      '<b>0.005 = ARRIVED.</b> Khi đóng, container giữ đục hoàn toàn tới khi trùng card (lệch &lt; 1 dp), rồi card và container đổi chỗ trong một frame. Bóng đổ tắt khi bounds thay đổi mỗi frame, và tăng/giảm dần trong 10% ở mỗi đầu.',
     ),
   );
-  return diagram('shell', t('5 · Shell & timeline', '5 · Vỏ & dòng thời gian'), cells, 1400, 640);
+  return diagram('shell', t('5 · Container: layers and timeline', '5 · Container: các lớp và dòng thời gian'), cells, 1400, 640);
 }
 
 /* --- trang 6: slot ---------------------------------------------------------- */
@@ -551,14 +551,14 @@ function pageSlots(lang) {
   legend(api, 40, 64);
 
   api.box(40, 120, 700, 600, t('<b>Card</b> (package: size · position · corners · clipping · shadow)', '<b>Card</b> (package: kích thước · vị trí · bo góc · cắt nội dung · bóng)'), S.frame);
-  api.box(60, 160, 660, 540, t('Background — fills the card; drawn again on the shell while morphing', 'Background — lấp đầy card; vẽ lại trên vỏ khi đang morph'), `${S.slot}verticalAlign=top;arcSize=3;`);
-  api.box(80, 210, 620, 70, t('Item #0 — height = itemHeight(item, 0)<br>props: item · index · variant · hovered · height · colors', 'Item #0 — cao = itemHeight(item, 0)<br>props: item · index · variant · hovered · height · colors'), S.slot);
+  api.box(60, 160, 660, 540, t('Background: fills the card; drawn again on the container while morphing', 'Background: lấp đầy card; vẽ lại trên container khi đang morph'), `${S.slot}verticalAlign=top;arcSize=3;`);
+  api.box(80, 210, 620, 70, t('Item #0: height = itemHeight(item, 0)<br>props: item · index · variant · hovered · height · colors', 'Item #0: cao = itemHeight(item, 0)<br>props: item · index · variant · hovered · height · colors'), S.slot);
   api.box(100, 284, 580, 10, '', `${S.slot}fillColor=#d79b00;`);
-  api.text(80, 294, 620, 20, t('Separator — layout.separatorHeight', 'Separator — layout.separatorHeight'), S.label);
+  api.text(80, 294, 620, 20, t('Separator: layout.separatorHeight', 'Separator: layout.separatorHeight'), S.label);
   api.box(80, 318, 620, 56, t('Highlight (behind the hovered row) + Item #1', 'Highlight (sau dòng đang hover) + Item #1'), `${S.slot}fillColor=#fad7ac;`);
   api.box(80, 390, 620, 70, t('Item #2 …', 'Item #2 …'), S.slot);
   api.box(600, 600, 90, 80, t('Trigger<br>(button face)', 'Trigger<br>(mặt nút +)'), S.slot);
-  api.box(80, 600, 500, 80, t('Row offsets and heights are computed up front (never measured) — they drive drag-to-select hit testing and the highlight.', 'Vị trí và chiều cao dòng được tính trước (không đo) — dùng cho dò dòng khi rê-để-chọn và cho highlight.'), S.pkg);
+  api.box(80, 600, 500, 80, t('Row offsets and heights are computed in advance (not measured). They are used for drag-to-select hit testing and the highlight.', 'Vị trí và chiều cao dòng được tính trước (không đo), dùng cho hit testing khi kéo để chọn và cho highlight.'), S.pkg);
 
   api.box(
     780,
@@ -566,8 +566,8 @@ function pageSlots(lang) {
     580,
     330,
     t(
-      '<b>The slot contract</b><br><br><b>1. Pure.</b> Item and Background render twice (card + shell). Same props → same pixels, or a ghost shows at hand-off. No internal state, no enter/press animations of their own.<br><br><b>2. Don\'t animate size or position</b> inside a slot. Read progress / hovered (SharedValues) for opacity, color, rotation.<br><br><b>3. Known heights:</b> layout.rowHeight or a pure itemHeight().<br><br><b>4. Opaque Background:</b> card and shell swap in one frame.',
-      '<b>Hợp đồng của slot</b><br><br><b>1. Thuần.</b> Item và Background được vẽ hai lần (card + vỏ). Cùng props → cùng pixel, nếu không sẽ thấy hình nhân đôi lúc giao ca. Không state riêng, không animation nhấn/xuất hiện riêng.<br><br><b>2. Không tự animate kích thước, vị trí</b> trong slot. Đọc progress / hovered (SharedValue) để animate opacity, màu, xoay.<br><br><b>3. Chiều cao biết trước:</b> layout.rowHeight hoặc itemHeight() thuần.<br><br><b>4. Background đục:</b> card và vỏ đổi chỗ trong một frame.',
+      '<b>The slot contract</b><br><br><b>1. Pure.</b> Item and Background render twice (card + container). Same props → same pixels, or two overlapping copies show at hand-off. No internal state, no enter/press animations of their own.<br><br><b>2. Don\'t animate size or position</b> inside a slot. Read progress / hovered (SharedValues) for opacity, color, rotation.<br><br><b>3. Known heights:</b> layout.rowHeight or a pure itemHeight().<br><br><b>4. Opaque Background:</b> card and container swap in one frame.',
+      '<b>Hợp đồng của slot</b><br><br><b>1. Thuần.</b> Item và Background được vẽ hai lần (card + container). Cùng props → cùng pixel, nếu không sẽ thấy hai bản chồng lên nhau lúc chuyển giao. Không state riêng, không animation nhấn/xuất hiện riêng.<br><br><b>2. Không tự animate kích thước, vị trí</b> trong slot. Đọc progress / hovered (SharedValue) để animate opacity, màu, xoay.<br><br><b>3. Chiều cao biết trước:</b> layout.rowHeight hoặc itemHeight() thuần.<br><br><b>4. Background đục:</b> card và container đổi chỗ trong một frame.',
     ),
     S.note,
   );
@@ -577,8 +577,8 @@ function pageSlots(lang) {
     580,
     250,
     t(
-      '<b>Outside the card</b><br><br>Scrim — behind the open menu (opacity animated for you; tap closes)<br>Backdrop — behind the full screen<br>MorphCloseButton — in your screens; icon via closeIcon / icon<br>fabIcon · item.icon — any MorphIcon: element, image source or ({ size, color }) =&gt; node<br><br>Beyond slots: useMorphProgress() → { menu, sheet } to drive your own animations.',
-      '<b>Bên ngoài card</b><br><br>Scrim — sau menu đang mở (opacity đã được animate; chạm để đóng)<br>Backdrop — sau full screen<br>MorphCloseButton — trong màn của bạn; icon qua closeIcon / icon<br>fabIcon · item.icon — mọi MorphIcon: element, ảnh hoặc ({ size, color }) =&gt; node<br><br>Ngoài slot: useMorphProgress() → { menu, sheet } để lái animation của riêng bạn.',
+      '<b>Outside the card</b><br><br>Scrim: behind the open menu (opacity animated for you; tap closes)<br>Backdrop: behind the full screen<br>MorphCloseButton: in your screens; icon via closeIcon / icon<br>fabIcon · item.icon: any MorphIcon: element, image source or ({ size, color }) =&gt; node<br><br>Beyond slots: useMorphProgress() → { menu, sheet } for your own animations.',
+      '<b>Bên ngoài card</b><br><br>Scrim: sau menu đang mở (opacity đã được animate; chạm để đóng)<br>Backdrop: sau full screen<br>MorphCloseButton: trong màn của bạn; icon qua closeIcon / icon<br>fabIcon · item.icon: mọi MorphIcon: element, ảnh hoặc ({ size, color }) =&gt; node<br><br>Ngoài slot: useMorphProgress() → { menu, sheet } để điều khiển animation của riêng bạn.',
     ),
     S.note,
   );
@@ -626,8 +626,8 @@ function pageOverview(lang) {
     1300,
     22,
     t(
-      'One set of views travels the whole way — button → card → full-screen expo-router route — and back. No blank frame, no flicker.',
-      'Cùng một bộ view đi suốt hành trình — nút → card → route full-screen của expo-router — rồi quay về. Không frame trắng, không nháy.',
+      'The button expands into a card, and the card expands into a full-screen expo-router route. Dismissing the route reverses the animation.',
+      'Nút mở rộng thành card, card mở rộng thành route full screen của expo-router. Đóng route sẽ chạy animation theo chiều ngược lại.',
     ),
     S.sub,
   );
@@ -675,7 +675,7 @@ function pageOverview(lang) {
 
   // mũi tên đi tới
   [
-    t('tap — or press and slide onto a row', 'chạm — hoặc nhấn rồi rê tới một dòng'),
+    t('tap, or press and drag onto a row', 'chạm, hoặc nhấn giữ và kéo tới một dòng'),
     t('pick a row: the card grows into the route', 'chọn dòng: card phóng to thành route'),
     t('router.push inside the sheet', 'router.push bên trong sheet'),
   ].forEach((label, i) => {
@@ -691,7 +691,7 @@ function pageOverview(lang) {
   path([[xs[3] + 105, B + 6], [xs[3] + 105, B + 36], [xs[2] + 150, B + 36], [xs[2] + 150, B + 6]], t('back', 'quay lại'), BACK);
   path(
     [[xs[2] + 60, B + 6], [xs[2] + 60, B + 86], [xs[1] + 105, B + 86], [xs[1] + 105, B + 6]],
-    t('<b>close: shrinks back into the card — the menu stays open</b>', '<b>đóng: thu nhỏ về lại card — menu vẫn mở</b>'),
+    t('<b>dismiss: collapses into the card, the menu stays open</b>', '<b>đóng: thu gọn về card, menu vẫn mở</b>'),
     BACK,
   );
   path([[xs[1] + 40, B + 6], [xs[1] + 40, B + 36], [xs[0] + 165, B + 36], [xs[0] + 165, B + 6]], t('tap outside', 'chạm ra ngoài'), BACK);
@@ -710,8 +710,8 @@ function pageOverview(lang) {
     1300,
     22,
     t(
-      '<b>closeMenuOnDismiss: true</b> — closing the route collapses the menu back into the button instead.',
-      '<b>closeMenuOnDismiss: true</b> — đóng route thì menu cũng thu về thành nút.',
+      '<b>closeMenuOnDismiss: true</b>: dismissing the route also collapses the menu into the button.',
+      '<b>closeMenuOnDismiss: true</b>: đóng route thì menu cũng thu gọn về nút.',
     ),
     S.sub,
   );

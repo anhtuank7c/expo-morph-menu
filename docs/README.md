@@ -1,34 +1,42 @@
-# expo-morph-menu — documentation / tài liệu
+# Documentation
 
-| | English | Tiếng Việt |
+**English** | [Tiếng Việt](README.vi.md)
+
+| Document | Contents |
+| --- | --- |
+| [Integration guide](en/INTEGRATION.md) | Installation, setup, configuration, testing, troubleshooting |
+| [Custom UI](en/CUSTOM-UI.md) | Slots, the slot contract, examples for common UI kits |
+| [Architecture](en/ARCHITECTURE.md) | Route boundary, opening and closing sequences, hand-off, web specifics |
+| [Performance](en/PERFORMANCE.md) | Optimizations, measurement methods, test results |
+
+## Diagrams
+
+The diagrams are generated from a single layout with labels in both languages.
+
+| Page | Diagram | SVG |
 | --- | --- | --- |
-| **Architecture** — how it works and why · **Kiến trúc** — hoạt động ra sao, vì sao | [en/ARCHITECTURE.md](en/ARCHITECTURE.md) | [vi/ARCHITECTURE.md](vi/ARCHITECTURE.md) |
-| **Integration guide** — install, set up, configure, test · **Hướng dẫn tích hợp** | [en/INTEGRATION.md](en/INTEGRATION.md) | [vi/INTEGRATION.md](vi/INTEGRATION.md) |
-| **Custom UI (slots)** — use your own UI kit · **Tuỳ biến UI (slot)** | [en/CUSTOM-UI.md](en/CUSTOM-UI.md) | [vi/CUSTOM-UI.md](vi/CUSTOM-UI.md) |
-| **Diagrams** (draw.io, 7 pages) · **Sơ đồ** (draw.io, 7 trang) | [diagrams/expo-morph-menu.en.drawio](diagrams/expo-morph-menu.en.drawio) | [diagrams/expo-morph-menu.vi.drawio](diagrams/expo-morph-menu.vi.drawio) |
-| Performance notes & measurements · Ghi chú hiệu năng & số đo | — | [PERFORMANCE.md](PERFORMANCE.md) |
+| 1 | Architecture | [en](diagrams/svg/en/1-architecture.svg), [vi](diagrams/svg/vi/1-architecture.svg) |
+| 2 | Opening sequence | [en](diagrams/svg/en/2-opening.svg), [vi](diagrams/svg/vi/2-opening.svg) |
+| 3 | Closing sequence | [en](diagrams/svg/en/3-closing.svg), [vi](diagrams/svg/vi/3-closing.svg) |
+| 4 | State machines (`handoff`, menu mode) | [en](diagrams/svg/en/4-states.svg), [vi](diagrams/svg/vi/4-states.svg) |
+| 5 | Full-screen container: layers and timeline | [en](diagrams/svg/en/5-shell.svg), [vi](diagrams/svg/vi/5-shell.svg) |
+| 6 | Custom UI: slots and contract | [en](diagrams/svg/en/6-slots.svg), [vi](diagrams/svg/vi/6-slots.svg) |
+| 7 | Overview (used at the top of the README) | [en](diagrams/svg/en/0-overview.svg), [vi](diagrams/svg/vi/0-overview.svg) |
 
-## Diagrams / Sơ đồ
+Sources: [`diagrams/expo-morph-menu.en.drawio`](diagrams/expo-morph-menu.en.drawio) and [`diagrams/expo-morph-menu.vi.drawio`](diagrams/expo-morph-menu.vi.drawio). They open in [app.diagrams.net](https://app.diagrams.net), draw.io desktop, or the "Draw.io Integration" extension for VS Code.
 
-1. Architecture · Kiến trúc
-2. Opening sequence · Luồng mở
-3. Closing sequence · Luồng đóng
-4. State machines (`handoff`, menu mode) · Máy trạng thái
-5. Full-screen shell: layers & timeline · Vỏ full screen: các lớp & dòng thời gian
-6. Custom UI: slots & contract · Tuỳ biến UI: slot & hợp đồng
+### Editing the diagrams
 
-Open the `.drawio` files with [app.diagrams.net](https://app.diagrams.net), draw.io desktop, or the VS Code "Draw.io Integration" extension; export PNG/SVG from there.
-
-Mở file `.drawio` bằng [app.diagrams.net](https://app.diagrams.net), draw.io desktop hoặc extension "Draw.io Integration" của VS Code; xuất PNG/SVG từ đó.
-
-**Editing / Chỉnh sửa:** the diagrams are generated — edit [`diagrams/build.mjs`](diagrams/build.mjs) (one layout, labels in both languages), then run / sơ đồ được sinh tự động — sửa `build.mjs` rồi chạy:
+The `.drawio` files are generated. Edit [`diagrams/build.mjs`](diagrams/build.mjs), then regenerate:
 
 ```bash
-node docs/diagrams/build.mjs            # → expo-morph-menu.{en,vi}.drawio
-node docs/diagrams/preview.mjs vi       # quick HTML preview, no draw.io needed / xem trước nhanh
+node docs/diagrams/build.mjs            # writes expo-morph-menu.{en,vi}.drawio
+node docs/diagrams/preview.mjs en       # approximate HTML preview, no draw.io required
 
-# SVG for README & docs (needs draw.io desktop) / SVG cho README và tài liệu (cần draw.io desktop)
-DRAWIO_BIN="/path/to/draw.io" node docs/diagrams/export-svg.mjs   # → docs/diagrams/svg/{en,vi}/*.svg
+# SVG export, requires draw.io desktop
+DRAWIO_BIN="/path/to/draw.io" node docs/diagrams/export-svg.mjs   # writes diagrams/svg/{en,vi}/*.svg
 ```
 
-The SVGs keep an embedded copy of the diagram (open them in draw.io to edit) and render on a white background in GitHub light and dark mode. / SVG có kèm dữ liệu sơ đồ (mở bằng draw.io để sửa) và có nền trắng, đọc rõ ở cả chế độ sáng lẫn tối của GitHub.
+The exported SVG files embed the diagram source, so they can be opened and edited in draw.io. They use a white background, which keeps them readable in both the light and dark themes of GitHub.
+
+draw.io desktop: <https://github.com/jgraph/drawio-desktop/releases>

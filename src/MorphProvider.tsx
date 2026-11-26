@@ -52,6 +52,15 @@ export type MorphContextValue = {
   /** Overlay đăng ký hàm đồng bộ state JS khi full screen đã đóng xong. */
   registerSheetDismissed: (fn: () => void) => void;
   sheetDismissed: () => void;
+  /**
+   * Ghi đè `closeMenuOnDismiss` cho LẦN ĐÓNG KẾ TIẾP: -1 = theo config,
+   * 0 = giữ menu mở, 1 = thu menu về nút. Đặt bởi `useMorphDismiss`, đọc và
+   * đặt lại bởi MorphMenu khi full screen đã đóng xong.
+   */
+  closeMenuOverride: SharedValue<number>;
+  /** MorphSheetLayout đăng ký hàm đóng cả nhóm route (navigator gốc goBack). */
+  registerDismiss: (fn: (() => void) | null) => void;
+  dismiss: () => boolean;
 };
 
 const Ctx = createContext<MorphContextValue | null>(null);
@@ -103,6 +112,8 @@ export function MorphProvider({
   const origin = useSharedValue<Rect>(EMPTY_RECT);
   const dismissedRef = useRef<(() => void) | null>(null);
   const selectedRef = useRef<MorphItem | null>(null);
+  const closeMenuOverride = useSharedValue(-1);
+  const dismissFnRef = useRef<(() => void) | null>(null);
 
   // Phụ thuộc vào nội dung chứ không vào identity: `config={{…}}` viết inline
   // tạo object mới mỗi render, không được làm mọi consumer render lại.
@@ -161,6 +172,15 @@ export function MorphProvider({
     dismissedRef.current?.();
   }, []);
 
+  const registerDismiss = useCallback((fn: (() => void) | null) => {
+    dismissFnRef.current = fn;
+  }, []);
+  const dismiss = useCallback(() => {
+    if (!dismissFnRef.current) return false;
+    dismissFnRef.current();
+    return true;
+  }, []);
+
   const value = useMemo<MorphContextValue>(
     () => ({
       menu,
@@ -180,6 +200,9 @@ export function MorphProvider({
       selectedRef,
       registerSheetDismissed,
       sheetDismissed,
+      closeMenuOverride,
+      registerDismiss,
+      dismiss,
     }),
     [
       menu,
@@ -198,6 +221,9 @@ export function MorphProvider({
       callbacks,
       registerSheetDismissed,
       sheetDismissed,
+      closeMenuOverride,
+      registerDismiss,
+      dismiss,
     ],
   );
 

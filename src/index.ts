@@ -14,6 +14,7 @@ export { renderIcon } from './icon';
 export type { MorphIcon, MorphIconRenderProps } from './icon';
 
 export { useMorphSettled } from './settled';
+export { useMorphDismiss, type MorphDismissOptions } from './dismiss';
 export { MorphTrace } from './MorphTrace';
 export type { MorphTraceProps } from './MorphTrace';
 

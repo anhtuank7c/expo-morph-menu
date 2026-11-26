@@ -1,51 +1,57 @@
 # Custom UI: slots
 
-> Tiếng Việt: [`../vi/CUSTOM-UI.md`](../vi/CUSTOM-UI.md) · Diagram: page 6 of [`../diagrams/expo-morph-menu.en.drawio`](../diagrams/expo-morph-menu.en.drawio) · Integration: [`INTEGRATION.md`](INTEGRATION.md)
+**English** | [Tiếng Việt](../vi/CUSTOM-UI.md)
 
-Every project has its own UI kit. `expo-morph-menu` doesn't ask you to adopt its look: **the package moves things, you draw them.**
+Related: [Integration guide](INTEGRATION.md), [Architecture](ARCHITECTURE.md). Diagram: page 6 of [`expo-morph-menu.en.drawio`](../diagrams/expo-morph-menu.en.drawio).
 
-- **The package owns** the views that move — size, position, corners, clipping, shadow — plus the geometry, gestures and the hand-off between menu and full screen.
-- **You own** what is seen, through *slots*: plain React components that receive props and shared values.
+`expo-morph-menu` does not ship a fixed visual design. Responsibilities are split as follows:
 
-Use your design system's components inside the slots — Tamagui, NativeWind, React Native Paper, Unistyles, gluestack, or plain views.
+- The package owns the animated containers (size, position, corner radius, clipping, shadow), the geometry, the gestures and the hand-off between the menu and the full screen.
+- Your app owns the rendered content, through slots. A slot is a React component that receives props and Reanimated shared values.
+
+Slots can use components from any design system, for example Tamagui, NativeWind, React Native Paper, Unistyles or gluestack, or plain React Native views.
 
 ## Slots
 
 ![Slots and the slot contract](../diagrams/svg/en/6-slots.svg)
 
 ```tsx
-<MorphProvider items={items} components={{ Background, Item, Trigger, Highlight, Separator, Scrim, Backdrop }} itemHeight={…} />
+<MorphProvider
+  items={items}
+  components={{ Background, Item, Trigger, Highlight, Separator, Scrim, Backdrop }}
+  itemHeight={...}
+/>
 ```
 
-| Slot | Props | Drawn | Default |
+| Slot | Props | Where it is rendered | Default |
 | --- | --- | --- | --- |
-| `Background` | `variant: 'menu' \| 'sheet'`, `progress`, `colors` | fills the card; again on the full-screen shell while it morphs | Liquid Glass / blur / solid `colors.surface` |
-| `Item` | `item`, `index`, `variant`, `hovered`, `height`, `colors` | each row, in the card and on the shell | `DefaultItem`: icon in a `tint` circle + label |
-| `Trigger` | `progress`, `size`, `colors` | the button's face (inside the card's corner) | `fabIcon` or "+", fades and turns 45° |
-| `Highlight` | `hovered`, `colors` — or `null` | behind the hovered row; positioned and sized by the package | rounded `colors.highlight` |
-| `Separator` | `index`, `colors` | between rows, `layout.separatorHeight` tall | none |
-| `Scrim` | `progress`, `colors` | behind the open menu; tap closes it | `colors.scrim` |
-| `Backdrop` | `progress`, `colors` | behind the full screen | `colors.backdrop` × `backdropOpacity` |
+| `Background` | `variant` (`'menu'` or `'sheet'`), `progress`, `colors` | Fills the card. Also rendered in the full-screen container during the transition | Liquid Glass, blur or solid `colors.surface` |
+| `Item` | `item`, `index`, `variant`, `hovered`, `height`, `colors` | Each row, in the card and in the container | `DefaultItem`: icon in a `tint` circle and a label |
+| `Trigger` | `progress`, `size`, `colors` | Button face, in the card corner | `fabIcon` or "+", rotates 45 degrees and fades out |
+| `Highlight` | `hovered`, `colors`, or `null` | Behind the hovered row. Position and size are set by the package | Rounded rectangle in `colors.highlight` |
+| `Separator` | `index`, `colors` | Between rows, `layout.separatorHeight` high | None |
+| `Scrim` | `progress`, `colors` | Behind the open menu. Tapping it closes the menu | `colors.scrim` |
+| `Backdrop` | `progress`, `colors` | Behind the full screen | `colors.backdrop` with `backdropOpacity` |
 
-- `progress` / `hovered` are Reanimated `SharedValue`s — read them inside `useAnimatedStyle`.
-- `variant` tells `Item`/`Background` whether they're in the interactive card (`'menu'`) or the static copy on the shell (`'sheet'`). Usually you ignore it; it's there for analytics or debug borders.
-- `Scrim` and `Backdrop` get their opacity animated by the package; draw them static.
-- Row heights: `layout.rowHeight` for all rows, or `itemHeight={(item, index) => number}`.
+- `progress` and `hovered` are Reanimated `SharedValue` objects. Read them inside `useAnimatedStyle`.
+- `variant` indicates whether `Item` or `Background` is rendered in the interactive card (`'menu'`) or in the static copy inside the container (`'sheet'`). Most implementations ignore it. It can be used for analytics or debug borders.
+- The package animates the opacity of `Scrim` and `Backdrop`. Render them without animation.
+- Row heights come from `layout.rowHeight` for all rows, or from `itemHeight={(item, index) => number}`.
 
-## The contract
+## The slot contract
 
-These four rules are what keep the morph seamless. Each one comes from a defect that was measured and fixed.
+The following rules keep the card and the container visually identical at the moment they swap. Each rule corresponds to a defect that was reproduced and fixed during development.
 
-1. **Slots are pure.** `Item` and `Background` are rendered **twice**: in the card, and on the full-screen shell while it morphs. At the hand-off the two copies swap in one frame, so they must be pixel-identical. Same props → same output. No internal state, no mount/enter animations, no press ripple of their own (rows are already wrapped in a `Pressable` by the package).
-2. **Don't animate size or position.** The package animates the container; animating inside it fights the morph. Animate opacity, color, rotation, scale of an icon… from `progress` and `hovered`.
-3. **Row heights are known up front.** Never measured: `rowHeight` or a pure `itemHeight`. Heights drive drag-to-select hit testing and the highlight.
-4. **`Background` is opaque.** A see-through background would reveal the frame where shell and card swap. Want a translucent look? Use `surface: 'blur' | 'glass'` and no `Background` slot.
+1. `Item` and `Background` are pure. They are rendered twice, in the card and in the full-screen container during the transition. At the hand-off, the two copies swap in a single frame, so they must render the same pixels for the same props. Do not use internal state, mount or enter animations, or press feedback inside them. The package already wraps each row in a `Pressable`.
+2. Slots do not animate their own size or position. The package animates the container, and an animation inside it would conflict. Animate opacity, color, rotation or icon scale from `progress` and `hovered` instead.
+3. Row heights are known in advance. They are never measured: use `rowHeight` or a pure `itemHeight`. Row heights are used for drag-to-select hit testing and for the highlight position.
+4. `Background` is opaque. A translucent background would show the frame in which the card and the container swap. For a translucent look, use `surface: 'blur'` or `surface: 'glass'` without a `Background` slot.
 
-**How to check:** render `<MorphTrace enabled />` and look for `GHOST` / `FLICKER` / `OVERLAP` in the logs while opening and closing. On web, `example/public/phone.html` shows the app in a phone-sized frame.
+Verification: render `<MorphTrace enabled />` and check the logs for `GHOST`, `FLICKER` and `OVERLAP` while opening and closing. On web, `example/public/phone.html` renders the app in a phone-sized frame.
 
-## Walkthrough: a dark card with subtitles
+## Example: dark card with subtitles
 
-This is the "Custom (slots)" variant of the example app (`example/components/CustomSlots.tsx`), tested on Android and web.
+This example is the "Custom (slots)" variant of the example app (`example/components/CustomSlots.tsx`). It was tested on Android and web.
 
 ```tsx
 import { Ionicons } from '@expo/vector-icons';
@@ -61,12 +67,12 @@ import {
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, { Extrapolation, interpolate, useAnimatedStyle } from 'react-native-reanimated';
 
-// 1. Opaque background — your card color, border, gradient image…
+// 1. Opaque background: card color, border, gradient or image.
 function Background() {
   return <View style={[StyleSheet.absoluteFill, { backgroundColor: '#1f2a44' }]} />;
 }
 
-// 2. A row with a subtitle and its own hover state.
+// 2. Row with a subtitle and its own hover state.
 function Item({ item, index, hovered, colors }: MorphItemProps) {
   const subtitle = item.data?.subtitle as string | undefined;
   const hover = useAnimatedStyle(() => ({
@@ -85,7 +91,7 @@ function Item({ item, index, hovered, colors }: MorphItemProps) {
   );
 }
 
-// 3. The button face: animate rotation/opacity from progress, not size.
+// 3. Button face: animate rotation and opacity from progress, not size.
 function Trigger({ progress }: MorphTriggerProps) {
   const style = useAnimatedStyle(() => ({
     opacity: interpolate(progress.value, [0, 0.35], [1, 0], Extrapolation.CLAMP),
@@ -104,11 +110,11 @@ export const components: MorphComponents = {
   Trigger,
   Separator: () => <View style={{ flex: 1, marginHorizontal: 18, backgroundColor: 'rgba(255,255,255,0.15)' }} />,
   Scrim: () => <BlurView intensity={20} tint="dark" style={StyleSheet.absoluteFill} />,
-  Highlight: null, // Item draws its own hover state
+  Highlight: null, // Item renders its own hover state
 };
 
 export const config: MorphConfigInput = {
-  radius: { card: 18, fab: 18 },                       // rounded-square button
+  radius: { card: 18, fab: 18 },  // rounded square button
   layout: { cardWidth: 260, separatorHeight: StyleSheet.hairlineWidth },
   colors: { light: { iconForeground: '#fff' }, dark: { iconForeground: '#fff' } },
 };
@@ -122,39 +128,39 @@ export const itemHeight = (item: MorphItem) => (item.data?.subtitle ? 58 : 46);
 
 Notes:
 
-- Each `Item` is placed in a row box of its height; fill it with `flex: 1`.
-- `Separator` fills a box the package sizes to `separatorHeight`; draw it with `flex: 1`.
-- The `Highlight` slot (when used) is positioned and sized to the hovered row by the package — draw it to fill (`flex: 1`).
-- Define slot components **at module level** (or memoize them). A new component identity on every render remounts every row.
-- `item.data` carries anything your `Item` needs (subtitle, badge count, disabled flag).
+- Each `Item` is placed in a row container with the row's height. Use `flex: 1` to fill it.
+- `Separator` fills a container sized to `separatorHeight`. Use `flex: 1`.
+- When the `Highlight` slot is used, the package positions and sizes it to the hovered row. Use `flex: 1`.
+- Define slot components at module level, or memoize them. A new component identity on each render remounts every row.
+- `item.data` carries any extra data the `Item` needs, such as a subtitle, a badge count or a disabled flag.
 
-## Colors and the shell
+## Colors in the full-screen container
 
-While the full screen grows, the shell shows your `Background` fading out over `colors.sheetBackground`, and your screens fading in. Keep them coherent:
+While the container expands, it shows your `Background` fading out over `colors.sheetBackground`, then your screens fading in. Keep these colors consistent:
 
-- `colors.sheetBackground` should match your screens' background (it also becomes the inner Stack's `contentStyle`).
-- With a dark `Background` and a white sheet, the shell passes through a blend of both for a few frames — that's expected. For a calmer morph, use a `Background` close to `sheetBackground`.
-- Dark mode: pass both palettes (`colors.light`, `colors.dark`) and read `colors` from slot props instead of hard-coding.
+- `colors.sheetBackground` should match the background of your screens. It is also used as the `contentStyle` background of the inner Stack.
+- With a dark `Background` and a light sheet background, the container blends between both colors for a few frames. This is expected. A `Background` color close to `sheetBackground` gives a smoother transition.
+- For dark mode, pass both palettes (`colors.light` and `colors.dark`) and read `colors` from the slot props instead of hard-coding values.
 
 ## Icons and the close button
 
-Every icon accepts a `MorphIcon` — an element, an image source, or a function:
+Every icon prop accepts a `MorphIcon`: a React element, an image source, or a function.
 
 ```tsx
 fabIcon={({ size, color }) => <Icon name="plus" size={size} color={color} />}
 closeIcon={require('./close.png')}                // default for every MorphCloseButton
-items={[{ …, icon: <CameraSvg width={15} height={15} /> }]}
+items={[{ ..., icon: <CameraSvg width={15} height={15} /> }]}
 ```
 
-The function form gets the size and theme color for that spot. Single-color PNGs are tinted; pass `iconTint: false` (item) or `tintImage={false}` (close button) for multi-color images. Inside your own `Item`, use `renderIcon(item.icon, { size, color })`.
+The function form receives the size and theme color for its position. Single-color images are tinted. For multi-color images, set `iconTint: false` on the item or `tintImage={false}` on the close button. Inside a custom `Item`, render icons with `renderIcon(item.icon, { size, color })`.
 
-`<MorphCloseButton icon={…} size={40} backgroundColor="transparent" />` — or don't use it at all: any button calling `router.back()` runs the same reverse morph.
+`<MorphCloseButton icon={...} size={40} backgroundColor="transparent" />` customizes the built-in button. A custom button that calls `router.back()` runs the same collapse animation.
 
-## UI kit recipes
+## UI kit examples
 
-The pattern is the same everywhere: **static, pure components inside the slots; motion from shared values.** The snippets below show the shape — check prop names against your kit's version.
+The pattern is the same for every kit: static, pure components inside the slots, with animation driven by shared values. Check the prop names against the version of your kit.
 
-**NativeWind**
+### NativeWind
 
 ```tsx
 const components: MorphComponents = {
@@ -167,9 +173,9 @@ const components: MorphComponents = {
 };
 ```
 
-Hover/pressed states must come from `hovered` via `useAnimatedStyle`, not from `active:`/`hover:` classes (those react to the row's own touches, which the package's `Pressable` handles, and wouldn't appear on the shell copy).
+Derive hover and pressed styles from `hovered` with `useAnimatedStyle`. Do not use `active:` or `hover:` classes: they respond to touches on the row itself, which are handled by the package's `Pressable`, and they are not applied to the copy inside the container.
 
-**Tamagui**
+### Tamagui
 
 ```tsx
 const components: MorphComponents = {
@@ -182,9 +188,9 @@ const components: MorphComponents = {
 };
 ```
 
-Don't use Tamagui `animation`/`enterStyle` props or pressable `Button`/`ListItem` inside slots — they animate on mount and would differ between the two copies.
+Do not use the Tamagui `animation` or `enterStyle` props, or pressable components such as `Button` and `ListItem`, inside slots. They animate on mount, so the two copies would differ.
 
-**React Native Paper**
+### React Native Paper
 
 ```tsx
 const components: MorphComponents = {
@@ -193,25 +199,25 @@ const components: MorphComponents = {
 };
 ```
 
-Keep Paper's elevation at 0 inside the card — the package draws the card's shadow (`config.shadow`). A `List.Item` without `onPress` has no ripple, which keeps it pure.
+Keep Paper elevation at `0` inside the card, because the package renders the card shadow (`config.shadow`). A `List.Item` without `onPress` has no ripple effect, so it stays pure.
 
-**Unistyles / StyleSheet-based themes**
+### Unistyles and StyleSheet-based themes
 
-Call your style hook inside the slot (`const { styles } = useStyles(sheet)`); theme switches re-render both copies the same way, so purity holds.
+Call the style hook inside the slot, for example `const { styles } = useStyles(sheet)`. A theme change re-renders both copies in the same way, so the purity rule still holds.
 
-## Going further
+## Advanced usage
 
-- **`useMorphProgress()`** returns `{ menu, sheet }` for animating things outside the menu — dim a tab bar, blur a header, scale the page behind.
-- **Wrap the default row:** `Item: (p) => <View style={{ opacity: p.item.data?.disabled ? 0.4 : 1, flex: 1 }}><DefaultItem {...p} /></View>`.
-- **Different looks per platform:** build `components` with `Platform.select`.
-- **Disable a part:** `Highlight: null`; omit `Separator`; pass `surface: 'solid'` to skip glass/blur.
+- `useMorphProgress()` returns `{ menu, sheet }` for animations outside the menu, such as dimming a tab bar, blurring a header or scaling the page behind.
+- Wrap the default row: `Item: (p) => <View style={{ opacity: p.item.data?.disabled ? 0.4 : 1, flex: 1 }}><DefaultItem {...p} /></View>`.
+- Platform-specific slots: build `components` with `Platform.select`.
+- Disable a part: set `Highlight: null`, omit `Separator`, or set `surface: 'solid'` to skip Liquid Glass and blur.
 
 ## Checklist
 
-- [ ] Slot components defined at module level (or memoized).
-- [ ] No internal state, mount animations or press effects inside `Item` / `Background`.
-- [ ] Hover/pressed visuals read `hovered`; button animation reads `progress`.
-- [ ] Row heights from `rowHeight` / pure `itemHeight`.
-- [ ] `Background` opaque; `colors.sheetBackground` matches your screens.
-- [ ] Light and dark palettes provided if the app supports both.
-- [ ] Open/close checked with `<MorphTrace enabled />`: no `GHOST`, `FLICKER`, `OVERLAP`, `HOLE`.
+- [ ] Slot components are defined at module level or memoized.
+- [ ] `Item` and `Background` have no internal state, mount animations or press effects.
+- [ ] Hover and pressed styles read `hovered`. The button animation reads `progress`.
+- [ ] Row heights come from `rowHeight` or a pure `itemHeight`.
+- [ ] `Background` is opaque, and `colors.sheetBackground` matches the screens.
+- [ ] Light and dark palettes are provided if the app supports both themes.
+- [ ] Opening and closing were checked with `<MorphTrace enabled />`, with no `GHOST`, `FLICKER`, `OVERLAP` or `HOLE` flags.

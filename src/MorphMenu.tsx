@@ -50,9 +50,26 @@ const IS_WEB = Platform.OS === 'web';
 export type MorphMenuProps = {
   /** Nhãn trình đọc màn hình của FAB. */
   fabAccessibilityLabel?: string;
+  /**
+   * Ẩn FAB (thu nhỏ và mờ đi, không nhận chạm). Chỉ có tác dụng khi menu đang
+   * đóng: menu đang mở thì được đóng trước; khi full screen đang hiện thì bỏ
+   * qua, vì card là điểm thu về của full screen. Dùng để ẩn nút ở các màn
+   * không phải tab (ví dụ màn chat).
+   */
+  hidden?: boolean;
+  /**
+   * Khoảng cách thêm tính từ mép dưới, cộng với safe area và `layout.margin`.
+   * Dùng để đặt FAB phía trên tab bar: truyền chiều cao tab bar KHÔNG gồm
+   * inset dưới.
+   */
+  bottomOffset?: number;
 };
 
-export function MorphMenu({ fabAccessibilityLabel = 'Open menu' }: MorphMenuProps) {
+export function MorphMenu({
+  fabAccessibilityLabel = 'Open menu',
+  hidden = false,
+  bottomOffset = 0,
+}: MorphMenuProps) {
   // Cùng nguồn kích thước với vỏ sheet: KHÔNG dùng useWindowDimensions — trên
   // Android edge-to-edge "window" không tính thanh điều hướng, rect lệch vỏ.
   const { width: W, height: H } = useSafeAreaFrame();
@@ -73,6 +90,7 @@ export function MorphMenu({ fabAccessibilityLabel = 'Open menu' }: MorphMenuProp
     callbacks,
     selectedRef,
     registerSheetDismissed,
+    closeMenuOverride,
   } = useMorph();
   const closeOnDismiss = config.closeMenuOnDismiss;
   const sh = config.shadow;
@@ -111,8 +129,8 @@ export function MorphMenu({ fabAccessibilityLabel = 'Open menu' }: MorphMenuProp
   const scrimGate = useSharedValue(1);
 
   const geo = useMemo(
-    () => metrics(W, H, insets.bottom, list.cardH, config),
-    [W, H, insets.bottom, list.cardH, config],
+    () => metrics(W, H, insets.bottom + bottomOffset, list.cardH, config),
+    [W, H, insets.bottom, bottomOffset, list.cardH, config],
   );
   const right = geo.side === 'right';
 
@@ -161,22 +179,39 @@ export function MorphMenu({ fabAccessibilityLabel = 'Open menu' }: MorphMenuProp
     () => handoff.value === HANDOFF.RETURNING && sheet.value <= ARRIVED,
     (arrived, was) => {
       if (!arrived || was) return;
-      if (closeOnDismiss) {
+      const o = closeMenuOverride.value;
+      if (o === 1 || (o === -1 && closeOnDismiss)) {
         if (menu.value > 0.5) menu.value = withSpring(0, spring);
       } else {
         scrimGate.value = withTiming(1, { duration: 200 });
       }
     },
-    [closeOnDismiss, spring],
+    [closeOnDismiss, spring, closeMenuOverride],
   );
 
   // Route gọi khi đã pop xong: chỉ đồng bộ state JS. Không đụng `menu.value`
   // để khỏi restart spring giữa chừng (mất vận tốc → khựng).
   const onSheetDismissed = useCallback(() => {
+    const o = closeMenuOverride.value;
+    const closeMenu = o === 1 || (o === -1 && closeOnDismiss);
+    closeMenuOverride.value = -1;
     hovered.value = -1;
-    setMode(closeOnDismiss ? 'closed' : 'open');
-    if (closeOnDismiss) callbacks.onClose?.();
-  }, [hovered, closeOnDismiss, callbacks]);
+    setMode(closeMenu ? 'closed' : 'open');
+    if (closeMenu) callbacks.onClose?.();
+  }, [hovered, closeOnDismiss, callbacks, closeMenuOverride]);
+
+  /* --- ẩn / hiện FAB --------------------------------------------------------
+     Chỉ ẩn khi menu đóng. Đang mở mà bị yêu cầu ẩn (ví dụ deep link sang màn
+     khác) thì đóng menu trước; effect chạy lại khi mode = 'closed'.          */
+  const presence = useSharedValue(hidden ? 0 : 1);
+  const concealed = hidden && mode === 'closed';
+  useEffect(() => {
+    if (hidden && mode === 'open') {
+      close();
+      return;
+    }
+    presence.value = withTiming(concealed ? 0 : 1, { duration: 180 });
+  }, [hidden, mode, concealed, close, presence]);
   useEffect(
     () => registerSheetDismissed(onSheetDismissed),
     [registerSheetDismissed, onSheetDismissed],
@@ -325,11 +360,12 @@ export function MorphMenu({ fabAccessibilityLabel = 'Open menu' }: MorphMenuProp
       transform: [
         { translateX: i(geo.fab.x, geo.card.x) },
         { translateY: i(geo.fab.y, geo.card.y) },
+        { scale: 0.6 + 0.4 * presence.value },
       ],
       // Bounds đổi mỗi frame → shadow dựng lại mỗi frame: tắt lúc đang bay.
       ...animatedShadow(shadowSpecValue, shadow),
       // Chỉ biến mất khi route đã thực sự layout xong (xem visibility.ts).
-      opacity: overlayOpacity(handoff.value, sheet.value),
+      opacity: overlayOpacity(handoff.value, sheet.value) * presence.value,
     };
   });
 
@@ -453,7 +489,7 @@ export function MorphMenu({ fabAccessibilityLabel = 'Open menu' }: MorphMenuProp
               borderRadius: geo.fab.r,
             },
           ]}
-          pointerEvents={mode === 'closed' || pressing ? 'auto' : 'none'}
+          pointerEvents={(mode === 'closed' && !concealed) || pressing ? 'auto' : 'none'}
         >
           {IS_WEB && (
             <View role="button" aria-label={fabAccessibilityLabel} style={StyleSheet.absoluteFill} />
