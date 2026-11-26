@@ -1,0 +1,27 @@
+# Kéo xuống: iOS đóng (config.dismiss.dragDown = true), Android KHÔNG đóng
+# (mặc định Android chỉ đóng bằng nút × hoặc back cứng).
+appId: host.exp.exponent
+name: Sheet kéo xuống
+---
+- runFlow: subflows/launch.yaml
+- runFlow:
+    file: subflows/open-sheet.yaml
+    env:
+      ITEM: store
+- swipe:
+    start: "50%,30%"
+    end: "50%,85%"
+    duration: 250
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - waitForAnimationToEnd
+      - assertVisible:
+          id: "sheet-close"
+      - tapOn:
+          id: "sheet-close"
+- runFlow: subflows/assert-menu-open.yaml
+- tapOn:
+    point: "25%,25%"
+- runFlow: subflows/assert-home.yaml

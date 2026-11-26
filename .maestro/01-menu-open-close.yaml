@@ -1,0 +1,14 @@
+# Mở morph menu rồi đóng — bằng scrim và bằng back cứng.
+appId: host.exp.exponent
+name: Menu mở / đóng
+---
+- runFlow: subflows/launch.yaml
+
+- runFlow: subflows/open-menu.yaml
+- tapOn:
+    point: "25%,25%"   # chạm scrim, ngoài card
+- runFlow: subflows/assert-home.yaml
+
+- runFlow: subflows/open-menu.yaml
+- pressKey: back
+- runFlow: subflows/assert-home.yaml

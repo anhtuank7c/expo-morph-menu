@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "Morphing Menu",
+    "slug": "morphing-menu",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "morphmenu",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "dev.example.morphingmenu"
+    },
+    "android": {
+      "package": "dev.example.morphingmenu",
+      "edgeToEdgeEnabled": true
+    },
+    "plugins": ["expo-router"]
+  }
+}

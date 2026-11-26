@@ -1,0 +1,13 @@
+# Android: back cứng lần 1 đóng full screen (menu ở lại), lần 2 đóng menu.
+appId: host.exp.exponent
+name: Sheet đóng bằng back cứng
+---
+- runFlow: subflows/launch.yaml
+- runFlow:
+    file: subflows/open-sheet.yaml
+    env:
+      ITEM: audio
+- pressKey: back
+- runFlow: subflows/assert-menu-open.yaml
+- pressKey: back
+- runFlow: subflows/assert-home.yaml

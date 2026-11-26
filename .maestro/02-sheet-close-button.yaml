@@ -1,0 +1,28 @@
+# Menu → full screen → đóng bằng nút × → menu vẫn mở → chọn dòng khác ngay từ
+# menu đang mở → đóng → đóng menu. Vòng hai kiểm tra handoff được đặt lại
+# đúng khi commit từ trạng thái "menu còn mở sau khi đóng full screen".
+appId: host.exp.exponent
+name: Sheet đóng bằng nút ×
+---
+- runFlow: subflows/launch.yaml
+
+- runFlow:
+    file: subflows/open-sheet.yaml
+    env:
+      ITEM: camera
+# MỘT cú chạm phải đóng được sheet.
+- tapOn:
+    id: "sheet-close"
+- runFlow: subflows/assert-menu-open.yaml
+
+- runFlow:
+    file: subflows/open-sheet.yaml
+    env:
+      ITEM: store
+- tapOn:
+    id: "sheet-close"
+- runFlow: subflows/assert-menu-open.yaml
+
+- tapOn:
+    point: "25%,25%"   # chạm scrim → đóng menu
+- runFlow: subflows/assert-home.yaml
