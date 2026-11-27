@@ -92,4 +92,5 @@ export const authSlice = createSlice({
 });
 
 export const authActions = authSlice.actions;
-export const { selectAuth, selectIsSignedIn, selectAccessToken, selectUserId, selectLastAuthError } = authSlice.selectors;
+export const { selectAuth, selectIsSignedIn, selectAccessToken, selectUserId, selectLastAuthError } =
+  authSlice.selectors;

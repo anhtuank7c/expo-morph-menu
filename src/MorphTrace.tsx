@@ -58,8 +58,7 @@ export function MorphTrace({ enabled = true }: MorphTraceProps) {
       Math.abs(ov - p.ov) > 1e-3 ||
       Math.abs(sh - p.sh) > 1e-3;
     if (!changed) return;
-    const jumped =
-      p.ov >= 0 && (Math.abs(ov - p.ov) > 0.5 || Math.abs(sh - p.sh) > 0.5);
+    const jumped = p.ov >= 0 && (Math.abs(ov - p.ov) > 0.5 || Math.abs(sh - p.sh) > 0.5);
     // Ba cú nhảy CÓ CHỦ ĐÍCH, đều xảy ra khi vỏ nằm trùng khít card (s≈0,
     // m≈1) nên mắt không thấy:
     //   MENU → ROUTE      route vừa layout, overlay nhường chỗ cho vỏ.

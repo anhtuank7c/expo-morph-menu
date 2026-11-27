@@ -67,8 +67,17 @@ export function GoLiveScreen() {
               placeholderTextColor="rgba(255,255,255,0.5)"
               style={styles.title}
             />
-            <Pressable style={styles.start} disabled={start.isLoading} onPress={() => startLive({ title })} testID="live-start">
-              {start.isLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.startText}>Start broadcast</Text>}
+            <Pressable
+              style={styles.start}
+              disabled={start.isLoading}
+              onPress={() => startLive({ title })}
+              testID="live-start"
+            >
+              {start.isLoading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.startText}>Start broadcast</Text>
+              )}
             </Pressable>
           </>
         ) : (
@@ -148,7 +157,19 @@ const styles = StyleSheet.create({
   },
   error: { color: '#fca5a5', textAlign: 'center' },
   streamTitle: { color: '#fff', fontSize: 17, fontWeight: '700', textAlign: 'center' },
-  start: { height: 50, borderRadius: 25, backgroundColor: theme.live, alignItems: 'center', justifyContent: 'center' },
-  end: { height: 50, borderRadius: 25, backgroundColor: '#3f3c4a', alignItems: 'center', justifyContent: 'center' },
+  start: {
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: theme.live,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  end: {
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#3f3c4a',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   startText: { color: '#fff', fontWeight: '700', fontSize: 16 },
 });

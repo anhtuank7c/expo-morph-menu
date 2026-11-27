@@ -19,11 +19,7 @@ import {
   type MorphTriggerProps,
 } from 'expo-morph-menu';
 import { StyleSheet, Text, View } from 'react-native';
-import Animated, {
-  Extrapolation,
-  interpolate,
-  useAnimatedStyle,
-} from 'react-native-reanimated';
+import Animated, { Extrapolation, interpolate, useAnimatedStyle } from 'react-native-reanimated';
 
 const NAVY = '#1f2a44';
 
@@ -97,8 +93,22 @@ export const customItemHeight = (item: MorphItem) => (item.data?.subtitle ? 58 :
 
 const styles = StyleSheet.create({
   bg: { backgroundColor: NAVY, borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(255,255,255,0.15)' },
-  item: { flex: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, marginHorizontal: 6, borderRadius: 12 },
-  badge: { width: 30, height: 30, borderRadius: 9, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
+  item: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    marginHorizontal: 6,
+    borderRadius: 12,
+  },
+  badge: {
+    width: 30,
+    height: 30,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
   texts: { flex: 1 },
   title: { color: '#fff', fontSize: 15, fontWeight: '600' },
   subtitle: { color: 'rgba(255,255,255,0.6)', fontSize: 12, marginTop: 2 },

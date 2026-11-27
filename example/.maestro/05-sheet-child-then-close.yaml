@@ -10,20 +10,20 @@ name: Màn con rồi đóng
       ITEM: checkin
 - extendedWaitUntil:
     visible:
-      id: "open-child"
+      id: 'open-child'
     timeout: 5000
 - tapOn:
-    id: "open-child"
+    id: 'open-child'
 - extendedWaitUntil:
     visible:
-      id: "child-screen"
+      id: 'child-screen'
     timeout: 5000
-- pressKey: back          # về màn gốc của sheet (native-stack)
+- pressKey: back # về màn gốc của sheet (native-stack)
 - extendedWaitUntil:
     visible:
-      id: "morph-close"
+      id: 'morph-close'
     timeout: 5000
-- pressKey: back          # đóng full screen
+- pressKey: back # đóng full screen
 - runFlow: subflows/assert-menu-open.yaml
-- pressKey: back          # đóng menu
+- pressKey: back # đóng menu
 - runFlow: subflows/assert-home.yaml

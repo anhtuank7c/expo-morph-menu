@@ -6,18 +6,18 @@ appId: host.exp.exponent
 - runFlow:
     when:
       notVisible:
-        id: "morph-item-camera"
+        id: 'morph-item-camera'
     file: open-menu.yaml
 - tapOn:
-    id: "morph-item-${ITEM}"
+    id: 'morph-item-${ITEM}'
 - extendedWaitUntil:
     visible:
-      id: "morph-close"
+      id: 'morph-close'
     timeout: 5000
 - waitForAnimationToEnd
 # Hồi quy: khi sheet đang mở, overlay không được còn ở trạng thái 'open'
 # (scrim của menu từng phủ lên sheet và nuốt cú chạm nút ×).
 - assertNotVisible:
-    id: "morph-scrim"
+    id: 'morph-scrim'
 - assertNotVisible:
-    id: "morph-item-camera"
+    id: 'morph-item-camera'

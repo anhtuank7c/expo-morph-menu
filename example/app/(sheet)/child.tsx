@@ -18,12 +18,12 @@ export default function Child() {
       <View style={styles.root} testID="child-screen">
         <Text style={styles.text}>Pushed from {from}</Text>
         <Text style={styles.note}>
-          This screen is in the nested Stack of MorphSheetLayout. {BACK} return to the previous
-          screen, and the sheet stays open.
+          This screen is in the nested Stack of MorphSheetLayout. {BACK} return to the previous screen, and
+          the sheet stays open.
         </Text>
         <Text style={styles.note}>
-          To close the whole sheet from here, call useMorphDismiss(). router.back() would only go back
-          one screen.
+          To close the whole sheet from here, call useMorphDismiss(). router.back() would only go back one
+          screen.
         </Text>
         <Pressable style={styles.cta} onPress={() => dismiss()} testID="dismiss-sheet">
           <Text style={styles.ctaText}>Close the sheet</Text>

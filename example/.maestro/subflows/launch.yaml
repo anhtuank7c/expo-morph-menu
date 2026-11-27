@@ -15,31 +15,31 @@ appId: host.exp.exponent
 - repeat:
     while:
       notVisible:
-        id: "morph-fab"
+        id: 'morph-fab'
     times: 45
     commands:
       # Link tới khi Expo Go còn đang khởi tạo thì bị nuốt, app nằm ở màn Home
       # của Expo Go ("Development servers") — mở lại link.
       - runFlow:
           when:
-            visible: "Development servers"
+            visible: 'Development servers'
           commands:
             - openLink: ${METRO_URL || 'exp://127.0.0.1:8081'}
       # Lần đầu chạy (hoặc sau khi xoá dữ liệu Expo Go): màn giới thiệu.
       - runFlow:
           when:
-            visible: "This is the developer menu.*"
+            visible: 'This is the developer menu.*'
           commands:
-            - tapOn: "Continue"
+            - tapOn: 'Continue'
       # "Continue" mở tiếp dev menu đầy đủ: đóng bằng back.
       - runFlow:
           when:
-            visible: "Toggle performance monitor"
+            visible: 'Toggle performance monitor'
           commands:
             - pressKey: back
       - extendedWaitUntil:
           visible:
-            id: "morph-fab"
+            id: 'morph-fab'
           timeout: 2000
           optional: true
 
@@ -47,10 +47,10 @@ appId: host.exp.exponent
 - runFlow:
     when:
       visible:
-        id: "morph-close"
+        id: 'morph-close'
     commands:
       - tapOn:
-          id: "morph-close"
+          id: 'morph-close'
       - waitForAnimationToEnd
 - assertVisible:
-    id: "morph-fab"
+    id: 'morph-fab'

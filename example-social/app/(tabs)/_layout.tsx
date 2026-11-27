@@ -70,11 +70,18 @@ export default function TabsLayout() {
 
   return (
     <Tabs screenOptions={screenOptions}>
-      <Tabs.Screen name="index" options={{ title: 'Murmur', tabBarAccessibilityLabel: 'Feed', tabBarIcon: ICONS.index }} />
+      <Tabs.Screen
+        name="index"
+        options={{ title: 'Murmur', tabBarAccessibilityLabel: 'Feed', tabBarIcon: ICONS.index }}
+      />
       <Tabs.Screen name="search" options={{ title: 'Search', tabBarIcon: ICONS.search }} />
       <Tabs.Screen
         name="notifications"
-        options={{ title: 'Notifications', tabBarIcon: ICONS.notifications, tabBarBadge: unreadNotices || undefined }}
+        options={{
+          title: 'Notifications',
+          tabBarIcon: ICONS.notifications,
+          tabBarBadge: unreadNotices || undefined,
+        }}
       />
       <Tabs.Screen
         name="messages"

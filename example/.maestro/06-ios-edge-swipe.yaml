@@ -1,7 +1,7 @@
 # iOS: vuốt từ cạnh trái đóng full screen (config.dismiss.edgeSwipe).
 # Android bỏ qua: cạnh trái là back gesture của hệ thống, đã phủ bởi flow 03.
 # CHƯA CHẠY THỬ — cần máy Mac + iOS Simulator.
-appId: host.exp.exponent   # Expo Go iOS: host.exp.Exponent
+appId: host.exp.exponent # Expo Go iOS: host.exp.Exponent
 name: iOS vuốt cạnh trái
 ---
 - runFlow:
@@ -14,10 +14,10 @@ name: iOS vuốt cạnh trái
           env:
             ITEM: camera
       - swipe:
-          start: "1%,50%"
-          end: "85%,50%"
+          start: '1%,50%'
+          end: '85%,50%'
           duration: 300
       - runFlow: subflows/assert-menu-open.yaml
       - tapOn:
-          point: "25%,25%"
+          point: '25%,25%'
       - runFlow: subflows/assert-home.yaml

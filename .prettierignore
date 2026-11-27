@@ -1,0 +1,10 @@
+node_modules/
+.expo/
+lib/
+dist/
+example-social/test/.build/
+docs/diagrams/
+package-lock.json
+bun.lock
+*.log
+*.md

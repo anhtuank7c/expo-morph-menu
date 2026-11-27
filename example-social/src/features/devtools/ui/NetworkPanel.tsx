@@ -63,14 +63,16 @@ const PanelHeader = memo(function PanelHeader({ control, onSignOut, accent }: Pr
             style={[styles.segment, server.chaos === level && { backgroundColor: accent }]}
             testID={`chaos-${level}`}
           >
-            <Text style={[styles.segmentText, server.chaos === level && styles.segmentTextActive]}>{level}</Text>
+            <Text style={[styles.segmentText, server.chaos === level && styles.segmentTextActive]}>
+              {level}
+            </Text>
           </Pressable>
         ))}
       </View>
       <Text style={styles.hint}>
-        Off: no faults. Low and high: network errors, 503, 429 with Retry-After, and lost responses after the server
-        has committed a write. Latency {server.latencyMs[0]} to {server.latencyMs[1]} ms. Access tokens live{' '}
-        {server.accessTtlSec} s.
+        Off: no faults. Low and high: network errors, 503, 429 with Retry-After, and lost responses after the
+        server has committed a write. Latency {server.latencyMs[0]} to {server.latencyMs[1]} ms. Access tokens
+        live {server.accessTtlSec} s.
       </Text>
 
       <View style={styles.logHeader}>
@@ -110,7 +112,10 @@ function TokenCountdown() {
   }, [expiresAt]);
   const seconds = expiresAt ? Math.round((expiresAt - now) / 1000) : null;
   return (
-    <Row label="Access token" value={seconds === null ? 'none' : seconds > 0 ? `expires in ${seconds} s` : 'expired'} />
+    <Row
+      label="Access token"
+      value={seconds === null ? 'none' : seconds > 0 ? `expires in ${seconds} s` : 'expired'}
+    />
   );
 }
 
@@ -195,6 +200,10 @@ const styles = StyleSheet.create({
   entryBody: { flex: 1 },
   status: { minWidth: 58, borderRadius: 6, paddingHorizontal: 6, paddingVertical: 3, alignItems: 'center' },
   statusText: { color: '#fff', fontSize: 11, fontWeight: '700' },
-  url: { fontSize: 13, color: '#16141f', fontFamily: Platform.select({ ios: 'Menlo', default: 'monospace' }) },
+  url: {
+    fontSize: 13,
+    color: '#16141f',
+    fontFamily: Platform.select({ ios: 'Menlo', default: 'monospace' }),
+  },
   meta: { fontSize: 12, color: '#6b6878', marginTop: 2 },
 });

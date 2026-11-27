@@ -22,11 +22,7 @@ export type ListLayout = {
   cardH: number;
 };
 
-export function listLayout(
-  heights: number[],
-  padding: number,
-  separatorHeight: number,
-): ListLayout {
+export function listLayout(heights: number[], padding: number, separatorHeight: number): ListLayout {
   const offsets: number[] = [];
   let y = padding;
   heights.forEach((h, i) => {

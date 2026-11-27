@@ -296,8 +296,7 @@ export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutPr
   const shell = useAnimatedStyle(() => {
     const p = sheet.value;
     const o = origin.value.w > 0 ? origin.value : fallbackOrigin(W, H, cardRadius);
-    const i = (a: number, b: number) =>
-      interpolate(p, [0, 1], [a, b], Extrapolation.CLAMP);
+    const i = (a: number, b: number) => interpolate(p, [0, 1], [a, b], Extrapolation.CLAMP);
     // Vỏ mang đúng shadow của card ở p ≈ 0, để lúc cắt sang overlay shadow
     // không đổi. Giữa chừng tắt (bounds đổi mỗi frame).
     const shadow = restShadow(p);

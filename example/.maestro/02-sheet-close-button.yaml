@@ -12,7 +12,7 @@ name: Sheet đóng bằng nút ×
       ITEM: camera
 # MỘT cú chạm phải đóng được sheet.
 - tapOn:
-    id: "morph-close"
+    id: 'morph-close'
 - runFlow: subflows/assert-menu-open.yaml
 
 - runFlow:
@@ -20,9 +20,9 @@ name: Sheet đóng bằng nút ×
     env:
       ITEM: store
 - tapOn:
-    id: "morph-close"
+    id: 'morph-close'
 - runFlow: subflows/assert-menu-open.yaml
 
 - tapOn:
-    point: "25%,25%"   # chạm scrim → đóng menu
+    point: '25%,25%' # chạm scrim → đóng menu
 - runFlow: subflows/assert-home.yaml

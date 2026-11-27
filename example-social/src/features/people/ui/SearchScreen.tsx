@@ -13,7 +13,8 @@ import { SearchField } from './SearchField';
 
 const CONTENT = { paddingBottom: TAB_BAR_HEIGHT + 24 };
 
-const openProfile = (user: User) => router.push({ pathname: '/profile/[handle]', params: { handle: user.handle } });
+const openProfile = (user: User) =>
+  router.push({ pathname: '/profile/[handle]', params: { handle: user.handle } });
 
 export function SearchScreen() {
   // The debounced query: this screen renders once per pause in typing, not per keystroke.
@@ -36,7 +37,9 @@ export function SearchScreen() {
 
       <Text style={styles.heading}>People</Text>
       <QueryState isLoading={people.isLoading} error={people.error} onRetry={people.refetch} />
-      {people.data?.map((u) => <PersonRow key={u.id} user={u} onPress={openProfile} />)}
+      {people.data?.map((u) => (
+        <PersonRow key={u.id} user={u} onPress={openProfile} />
+      ))}
       {people.data?.length === 0 && <Text style={styles.empty}>No results.</Text>}
     </ScrollView>
   );
@@ -54,7 +57,14 @@ const TrendList = memo(function TrendList({ trends }: { trends: Trend[] }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: theme.background },
-  heading: { fontSize: 19, fontWeight: '800', color: theme.text, paddingHorizontal: 16, marginTop: 8, marginBottom: 4 },
+  heading: {
+    fontSize: 19,
+    fontWeight: '800',
+    color: theme.text,
+    paddingHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 4,
+  },
   trend: { paddingHorizontal: 16, paddingVertical: 10, gap: 2 },
   tag: { fontSize: 16, fontWeight: '700', color: theme.text },
   muted: { color: theme.textMuted, fontSize: 13 },

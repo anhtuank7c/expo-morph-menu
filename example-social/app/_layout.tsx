@@ -28,7 +28,13 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 
 import { selectIsSignedIn } from '../src/features/auth';
-import { COMPOSE_COMPONENTS, COMPOSE_CONFIG, COMPOSE_ITEMS, ComposeMenu, composeFabIcon } from '../src/features/compose';
+import {
+  COMPOSE_COMPONENTS,
+  COMPOSE_CONFIG,
+  COMPOSE_ITEMS,
+  ComposeMenu,
+  composeFabIcon,
+} from '../src/features/compose';
 import { theme } from '../src/shared/theme';
 import { store } from '../src/store';
 import { useAppSelector } from '../src/store/hooks';
@@ -74,7 +80,12 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <GestureHandlerRootView style={styles.root}>
         <Provider store={store}>
-          <MorphProvider items={COMPOSE_ITEMS} fabIcon={composeFabIcon} config={COMPOSE_CONFIG} components={COMPOSE_COMPONENTS}>
+          <MorphProvider
+            items={COMPOSE_ITEMS}
+            fabIcon={composeFabIcon}
+            config={COMPOSE_CONFIG}
+            components={COMPOSE_COMPONENTS}
+          >
             <StatusBar style="dark" />
             <RootStack />
             <ComposeMenu />

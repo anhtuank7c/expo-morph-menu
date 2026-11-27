@@ -19,4 +19,3 @@ export const GALLERY: Media[] = [
   { color: '#6d28d9', icon: 'planet', aspect: 1 },
   { color: '#be123c', icon: 'flower', aspect: 1 },
 ];
-

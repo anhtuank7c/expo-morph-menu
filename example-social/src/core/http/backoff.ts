@@ -17,7 +17,11 @@ export type BackoffOptions = {
 export const DEFAULT_BACKOFF: BackoffOptions = { baseMs: 300, capMs: 5000 };
 
 /** Delay before retry number `attempt` (0 for the first retry). */
-export function backoffDelay(attempt: number, { baseMs, capMs }: BackoffOptions = DEFAULT_BACKOFF, random = Math.random) {
+export function backoffDelay(
+  attempt: number,
+  { baseMs, capMs }: BackoffOptions = DEFAULT_BACKOFF,
+  random = Math.random,
+) {
   const ceiling = Math.min(capMs, baseMs * 2 ** attempt);
   return Math.round(random() * ceiling);
 }

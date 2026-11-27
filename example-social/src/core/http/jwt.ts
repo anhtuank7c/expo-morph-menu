@@ -85,14 +85,14 @@ export function signJwt(payload: JwtPayload, secret: string): string {
 }
 
 export type VerifyResult =
-  | { ok: true; payload: JwtPayload }
-  | { ok: false; reason: 'malformed' | 'bad_signature' | 'expired' };
+  { ok: true; payload: JwtPayload } | { ok: false; reason: 'malformed' | 'bad_signature' | 'expired' };
 
 export function verifyJwt(token: string, secret: string, nowMs = Date.now()): VerifyResult {
   const parts = token.split('.');
   if (parts.length !== 3) return { ok: false, reason: 'malformed' };
   const [header, body, signature] = parts;
-  if (base64UrlEncode(hash(`${header}.${body}.${secret}`)) !== signature) return { ok: false, reason: 'bad_signature' };
+  if (base64UrlEncode(hash(`${header}.${body}.${secret}`)) !== signature)
+    return { ok: false, reason: 'bad_signature' };
   const payload = decodeJwt(token);
   if (!payload) return { ok: false, reason: 'malformed' };
   if (payload.exp * 1000 <= nowMs) return { ok: false, reason: 'expired' };

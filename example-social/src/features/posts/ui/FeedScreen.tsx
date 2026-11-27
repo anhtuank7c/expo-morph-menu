@@ -41,7 +41,8 @@ export function FeedScreen() {
 
   let footer: React.ReactElement | undefined;
   if (isFetchingNextPage) footer = <ActivityIndicator style={styles.footer} color={theme.accent} />;
-  else if (posts.length > 0 && error) footer = <QueryState isLoading={false} error={error} onRetry={retryNextPage} />;
+  else if (posts.length > 0 && error)
+    footer = <QueryState isLoading={false} error={error} onRetry={retryNextPage} />;
   else if (posts.length > 0 && !hasNextPage) footer = <Text style={styles.end}>You are all caught up.</Text>;
 
   return (
@@ -56,17 +57,33 @@ export function FeedScreen() {
       ListEmptyComponent={<QueryState isLoading={isLoading} error={error} onRetry={refetch} />}
       ListFooterComponent={footer}
       refreshControl={
-        <RefreshControl refreshing={refreshing} tintColor={theme.accent} colors={[theme.accent]} onRefresh={refresh} />
+        <RefreshControl
+          refreshing={refreshing}
+          tintColor={theme.accent}
+          colors={[theme.accent]}
+          onRefresh={refresh}
+        />
       }
     />
   );
 }
 
-const FeedTabs = memo(function FeedTabs({ tab, onChange }: { tab: FeedTab; onChange: (tab: FeedTab) => void }) {
+const FeedTabs = memo(function FeedTabs({
+  tab,
+  onChange,
+}: {
+  tab: FeedTab;
+  onChange: (tab: FeedTab) => void;
+}) {
   return (
     <View style={styles.segments}>
       {TABS.map((t) => (
-        <Pressable key={t.key} onPress={() => onChange(t.key)} style={styles.segment} testID={`feed-${t.key}`}>
+        <Pressable
+          key={t.key}
+          onPress={() => onChange(t.key)}
+          style={styles.segment}
+          testID={`feed-${t.key}`}
+        >
           <Text style={[styles.segmentText, tab === t.key && styles.segmentActive]}>{t.label}</Text>
           {tab === t.key && <View style={styles.indicator} />}
         </Pressable>
@@ -86,7 +103,14 @@ const styles = StyleSheet.create({
   segment: { flex: 1, alignItems: 'center', paddingVertical: 12 },
   segmentText: { fontSize: 15, fontWeight: '600', color: theme.textMuted },
   segmentActive: { color: theme.text },
-  indicator: { position: 'absolute', bottom: 0, height: 3, width: 48, borderRadius: 2, backgroundColor: theme.accent },
+  indicator: {
+    position: 'absolute',
+    bottom: 0,
+    height: 3,
+    width: 48,
+    borderRadius: 2,
+    backgroundColor: theme.accent,
+  },
   footer: { padding: 24 },
   end: { textAlign: 'center', color: theme.textMuted, padding: 24 },
 });

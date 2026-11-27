@@ -15,7 +15,12 @@ export const Avatar = memo(function Avatar({ user, size = 40 }: { user: AvatarUs
     .join('')
     .toUpperCase();
   return (
-    <View style={[styles.circle, { width: size, height: size, borderRadius: size / 2, backgroundColor: user.color }]}>
+    <View
+      style={[
+        styles.circle,
+        { width: size, height: size, borderRadius: size / 2, backgroundColor: user.color },
+      ]}
+    >
       <Text style={[styles.text, { fontSize: size * 0.38 }]}>{initials}</Text>
     </View>
   );

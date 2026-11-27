@@ -213,10 +213,7 @@ export function MorphMenu({
     }
     presence.value = withTiming(concealed ? 0 : 1, { duration: 180 });
   }, [hidden, mode, concealed, close, presence]);
-  useEffect(
-    () => registerSheetDismissed(onSheetDismissed),
-    [registerSheetDismissed, onSheetDismissed],
-  );
+  useEffect(() => registerSheetDismissed(onSheetDismissed), [registerSheetDismissed, onSheetDismissed]);
 
   // Back cứng Android / phím Esc trên web đóng menu thay vì thoát màn hình.
   useEffect(() => {
@@ -351,8 +348,7 @@ export function MorphMenu({
 
   const boxStyle = useAnimatedStyle(() => {
     const p = menu.value;
-    const i = (a: number, b: number) =>
-      interpolate(p, [0, 1], [a, b], Extrapolation.CLAMP);
+    const i = (a: number, b: number) => interpolate(p, [0, 1], [a, b], Extrapolation.CLAMP);
     const shadow = restShadow(p);
     return {
       width: i(geo.fab.w, geo.card.w),
@@ -421,10 +417,7 @@ export function MorphMenu({
           </View>
         )}
 
-        <View
-          style={[styles.fabLayer, corner, { width: fabSize, height: fabSize }]}
-          pointerEvents="none"
-        >
+        <View style={[styles.fabLayer, corner, { width: fabSize, height: fabSize }]} pointerEvents="none">
           <Trigger progress={menu} size={fabSize} colors={colors} />
         </View>
 

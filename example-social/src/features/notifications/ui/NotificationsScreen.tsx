@@ -8,7 +8,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import { memo, useCallback, useRef } from 'react';
-import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View, type ListRenderItem } from 'react-native';
+import {
+  FlatList,
+  Pressable,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  View,
+  type ListRenderItem,
+} from 'react-native';
 
 import type { IconName, Notice } from '../../../core/api/dto';
 import { timeAgo } from '../../../shared/lib/format';
@@ -57,7 +65,9 @@ export function NotificationsScreen() {
       contentContainerStyle={CONTENT}
       ItemSeparatorComponent={Separator}
       ListEmptyComponent={<QueryState isLoading={isLoading} error={error} onRetry={refetch} />}
-      refreshControl={<RefreshControl refreshing={isFetching && !isLoading} onRefresh={refresh} tintColor={theme.accent} />}
+      refreshControl={
+        <RefreshControl refreshing={isFetching && !isLoading} onRefresh={refresh} tintColor={theme.accent} />
+      }
     />
   );
 }

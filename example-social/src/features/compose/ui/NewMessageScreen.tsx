@@ -69,7 +69,9 @@ export function NewMessageScreen() {
         renderItem={renderItem}
         extraData={pending}
         keyboardShouldPersistTaps="handled"
-        ListEmptyComponent={<QueryState isLoading={people.isLoading} error={people.error} onRetry={people.refetch} />}
+        ListEmptyComponent={
+          <QueryState isLoading={people.isLoading} error={people.error} onRetry={people.refetch} />
+        }
       />
     </View>
   );

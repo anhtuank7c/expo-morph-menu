@@ -6,7 +6,7 @@ name: Menu mở / đóng
 
 - runFlow: subflows/open-menu.yaml
 - tapOn:
-    point: "25%,25%"   # chạm scrim, ngoài card
+    point: '25%,25%' # chạm scrim, ngoài card
 - runFlow: subflows/assert-home.yaml
 
 - runFlow: subflows/open-menu.yaml

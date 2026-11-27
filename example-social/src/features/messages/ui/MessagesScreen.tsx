@@ -12,7 +12,15 @@
 
 import { router } from 'expo-router';
 import { memo, useCallback } from 'react';
-import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View, type ListRenderItem } from 'react-native';
+import {
+  FlatList,
+  Pressable,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  View,
+  type ListRenderItem,
+} from 'react-native';
 
 import type { ConversationSummary } from '../../../core/api/dto';
 import { timeAgo } from '../../../shared/lib/format';
@@ -27,7 +35,13 @@ const keyOf = (c: ConversationSummary) => c.id;
 const renderRow: ListRenderItem<ConversationSummary> = ({ item }) => <ConversationRow conversation={item} />;
 
 export function MessagesScreen() {
-  const { data = EMPTY, isLoading, isFetching, error, refetch } = useGetConversationsQuery(undefined, {
+  const {
+    data = EMPTY,
+    isLoading,
+    isFetching,
+    error,
+    refetch,
+  } = useGetConversationsQuery(undefined, {
     pollingInterval: 5_000,
   });
   const refresh = useCallback(() => void refetch(), [refetch]);
@@ -39,7 +53,9 @@ export function MessagesScreen() {
       renderItem={renderRow}
       style={styles.list}
       contentContainerStyle={CONTENT}
-      refreshControl={<RefreshControl refreshing={isFetching && !isLoading} onRefresh={refresh} tintColor={theme.accent} />}
+      refreshControl={
+        <RefreshControl refreshing={isFetching && !isLoading} onRefresh={refresh} tintColor={theme.accent} />
+      }
       ListEmptyComponent={
         isLoading || error ? (
           <QueryState isLoading={isLoading} error={error} onRetry={refetch} />
@@ -51,7 +67,11 @@ export function MessagesScreen() {
   );
 }
 
-const ConversationRow = memo(function ConversationRow({ conversation }: { conversation: ConversationSummary }) {
+const ConversationRow = memo(function ConversationRow({
+  conversation,
+}: {
+  conversation: ConversationSummary;
+}) {
   const { id, user, lastMessage: last, unread, typing } = conversation;
   const open = useCallback(() => router.push({ pathname: '/chat/[id]', params: { id } }), [id]);
   return (

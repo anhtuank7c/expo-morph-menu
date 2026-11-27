@@ -60,14 +60,19 @@ export default function Home() {
   return (
     <ScrollView
       style={styles.root}
-      contentContainerStyle={{ padding: 20, paddingTop: insets.top + 12, paddingBottom: insets.bottom + 120, gap: 14 }}
+      contentContainerStyle={{
+        padding: 20,
+        paddingTop: insets.top + 12,
+        paddingBottom: insets.bottom + 120,
+        gap: 14,
+      }}
     >
       <Text style={styles.title} testID="home-title">
         expo-morph-menu
       </Text>
       <Text style={styles.lead}>
-        The + button opens a menu card. Each row is an expo-router route: the card grows into that
-        screen, and closing the screen shrinks it back into the card.
+        The + button opens a menu card. Each row is an expo-router route: the card grows into that screen, and
+        closing the screen shrinks it back into the card.
       </Text>
 
       <Text style={styles.caption}>Try it</Text>
@@ -76,8 +81,8 @@ export default function Home() {
           1. Tap +, then tap a row. The screen shows a placeholder while its data loads (about 700 ms).
         </Text>
         <Text style={styles.step}>
-          2. Press and hold +, slide onto a row and release. Loading starts while your finger is on
-          the row (the onHover callback), so the data is usually ready when the screen opens.
+          2. Press and hold +, slide onto a row and release. Loading starts while your finger is on the row
+          (the onHover callback), so the data is usually ready when the screen opens.
         </Text>
         <Text style={styles.step}>The badge on the screen shows how long it waited for data.</Text>
       </View>
@@ -123,8 +128,8 @@ export default function Home() {
           <Text style={styles.code}>npx uri-scheme open morphmenu://sheet/audio --android</Text>
         </View>
         <Text style={styles.step}>
-          Opens the route without the menu. There is no card to start from, so the container expands
-          from the center of the screen.
+          Opens the route without the menu. There is no card to start from, so the container expands from the
+          center of the screen.
         </Text>
       </View>
 
@@ -158,7 +163,13 @@ const styles = StyleSheet.create({
     padding: 2,
   },
   segItem: { flex: 1, paddingVertical: 8, borderRadius: 8, alignItems: 'center' },
-  segActive: { backgroundColor: '#fff', shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 4, elevation: 1 },
+  segActive: {
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 1,
+  },
   segText: { fontSize: 13, fontWeight: '600', color: '#8e8e93' },
   segTextActive: { color: '#1c1c1e' },
 });

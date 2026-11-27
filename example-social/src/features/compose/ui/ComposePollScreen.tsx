@@ -41,7 +41,10 @@ export function ComposePollScreen() {
   const submit = useCallback(async () => {
     const { question, options, days } = selectPollDraft(store.getState());
     try {
-      await createPost({ text: question.trim(), poll: { options: options.map((o) => o.trim()).filter(Boolean), days } }).unwrap();
+      await createPost({
+        text: question.trim(),
+        poll: { options: options.map((o) => o.trim()).filter(Boolean), days },
+      }).unwrap();
       store.dispatch(composerActions.cleared('poll'));
       dismiss({ closeMenu: true });
     } catch {

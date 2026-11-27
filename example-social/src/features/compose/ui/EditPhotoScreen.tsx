@@ -62,7 +62,12 @@ export function EditPhotoScreen() {
       </View>
       <CaptionInput />
       {error ? <Text style={styles.error}>{errorText(error)}</Text> : null}
-      <Pressable style={[styles.post, isLoading && styles.busy]} disabled={isLoading} testID="photo-post" onPress={submit}>
+      <Pressable
+        style={[styles.post, isLoading && styles.busy]}
+        disabled={isLoading}
+        testID="photo-post"
+        onPress={submit}
+      >
         {isLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.postText}>Post photo</Text>}
       </Pressable>
     </View>
@@ -103,7 +108,14 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   error: { color: theme.like, marginHorizontal: 16 },
-  post: { marginHorizontal: 16, height: 48, borderRadius: 24, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center' },
+  post: {
+    marginHorizontal: 16,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: theme.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   busy: { opacity: 0.7 },
   postText: { color: '#fff', fontWeight: '700', fontSize: 16 },
 });

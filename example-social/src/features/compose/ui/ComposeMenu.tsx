@@ -5,7 +5,14 @@
 
 import { Ionicons } from '@expo/vector-icons';
 import { usePathname } from 'expo-router';
-import { MorphMenu, type MorphBackgroundProps, type MorphComponents, type MorphConfigInput, type MorphIcon, type MorphItem } from 'expo-morph-menu';
+import {
+  MorphMenu,
+  type MorphBackgroundProps,
+  type MorphComponents,
+  type MorphConfigInput,
+  type MorphIcon,
+  type MorphItem,
+} from 'expo-morph-menu';
 import { StyleSheet } from 'react-native';
 import Animated, { interpolateColor, useAnimatedStyle } from 'react-native-reanimated';
 
@@ -50,7 +57,9 @@ export const COMPOSE_ITEMS: MorphItem[] = [
   },
 ];
 
-export const composeFabIcon: MorphIcon = ({ size, color }) => <Ionicons name="add" size={size} color={color} />;
+export const composeFabIcon: MorphIcon = ({ size, color }) => (
+  <Ionicons name="add" size={size} color={color} />
+);
 
 export const COMPOSE_CONFIG: MorphConfigInput = {
   colorScheme: 'light',
@@ -70,7 +79,9 @@ export const COMPOSE_CONFIG: MorphConfigInput = {
 function CardBackground({ variant, progress }: MorphBackgroundProps) {
   const style = useAnimatedStyle(() => ({
     backgroundColor:
-      variant === 'sheet' ? '#ffffff' : interpolateColor(progress.value, [0, 0.35], [theme.accent, '#ffffff']),
+      variant === 'sheet'
+        ? '#ffffff'
+        : interpolateColor(progress.value, [0, 0.35], [theme.accent, '#ffffff']),
   }));
   return <Animated.View style={[StyleSheet.absoluteFill, style]} />;
 }
@@ -91,5 +102,7 @@ export function ComposeMenu() {
   // While a compose route is open, the card is where the sheet collapses back
   // to, so the menu must stay mounted and not hidden.
   const inSheet = pathname.startsWith('/compose');
-  return <MorphMenu hidden={!onTab && !inSheet} bottomOffset={TAB_BAR_HEIGHT} fabAccessibilityLabel="Create" />;
+  return (
+    <MorphMenu hidden={!onTab && !inSheet} bottomOffset={TAB_BAR_HEIGHT} fabAccessibilityLabel="Create" />
+  );
 }

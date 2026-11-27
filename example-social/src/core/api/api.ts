@@ -26,7 +26,18 @@ export const api = createApi({
   reducerPath: 'api',
   // With a real backend, drop `fetchFn` and point `baseUrl` at your API.
   baseQuery: createBaseQuery({ baseUrl: API_BASE_URL, fetchFn: server.fetch }),
-  tagTypes: ['Me', 'Feed', 'Post', 'Replies', 'User', 'UserPosts', 'Notifications', 'Conversations', 'Thread', 'Live'],
+  tagTypes: [
+    'Me',
+    'Feed',
+    'Post',
+    'Replies',
+    'User',
+    'UserPosts',
+    'Notifications',
+    'Conversations',
+    'Thread',
+    'Live',
+  ],
   // Keep unused data for 2 minutes, refetch when the app returns to the foreground.
   keepUnusedDataFor: 120,
   refetchOnFocus: true,

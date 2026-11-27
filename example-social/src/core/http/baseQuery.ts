@@ -53,12 +53,16 @@ const RETRYABLE_STATUS = new Set([408, 429, 500, 502, 503, 504]);
 const IDEMPOTENT_METHODS = new Set(['GET', 'HEAD', 'PUT', 'DELETE', 'OPTIONS']);
 
 let keyCounter = 0;
-const idempotencyKey = () => `${Date.now().toString(36)}-${(keyCounter++).toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+const idempotencyKey = () =>
+  `${Date.now().toString(36)}-${(keyCounter++).toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
 const errorCode = (error: FetchBaseQueryError | undefined) =>
   error && typeof error.status === 'number' ? (error.data as ApiErrorBody | undefined)?.error : undefined;
 
-function outcomeOf(error: FetchBaseQueryError | undefined, meta: FetchBaseQueryMeta | undefined): NetworkOutcome {
+function outcomeOf(
+  error: FetchBaseQueryError | undefined,
+  meta: FetchBaseQueryMeta | undefined,
+): NetworkOutcome {
   if (!error) return meta?.response?.status ?? 200;
   if (error.status === 'FETCH_ERROR') return /abort/i.test(String(error.error)) ? 'aborted' : 'network';
   if (error.status === 'TIMEOUT_ERROR') return 'timeout';
@@ -80,7 +84,13 @@ export function createBaseQuery({
   maxRetries = 3,
   backoff,
   timeoutMs = 8_000,
-}: BaseQueryOptions): BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError, ExtraOptions, FetchBaseQueryMeta> {
+}: BaseQueryOptions): BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError,
+  ExtraOptions,
+  FetchBaseQueryMeta
+> {
   const raw = fetchBaseQuery({
     baseUrl,
     fetchFn,
@@ -98,14 +108,16 @@ export function createBaseQuery({
 
   /** One logged attempt. */
   async function attempt(args: FetchArgs, api: BaseQueryApi, attemptNo: number) {
-    const id = (api.dispatch(
-      networkActions.requestStarted({
-        method: (args.method ?? 'GET').toUpperCase(),
-        url: args.url,
-        attempt: attemptNo,
-        startedAt: Date.now(),
-      }),
-    ) as ReturnType<typeof networkActions.requestStarted>).payload.id;
+    const id = (
+      api.dispatch(
+        networkActions.requestStarted({
+          method: (args.method ?? 'GET').toUpperCase(),
+          url: args.url,
+          attempt: attemptNo,
+          startedAt: Date.now(),
+        }),
+      ) as ReturnType<typeof networkActions.requestStarted>
+    ).payload.id;
     const result = await raw(args, api, {});
     const replayed = result.meta?.response?.headers.get('Idempotent-Replay') === 'true';
     api.dispatch(
@@ -187,12 +199,18 @@ export function createBaseQuery({
         return result;
       }
 
-      const retryAllowed = extraOptions?.retry !== false && retries < maxRetries && isRetryable(error, method, hasKey);
+      const retryAllowed =
+        extraOptions?.retry !== false && retries < maxRetries && isRetryable(error, method, hasKey);
       if (!retryAllowed) return result;
 
       const retryAfter = parseRetryAfter(result.meta?.response?.headers.get('Retry-After'));
       const delay = retryAfter ?? backoffDelay(retries, backoff);
-      api.dispatch(networkActions.annotated({ id, note: `retry in ${delay} ms${retryAfter !== null ? ' (Retry-After)' : ''}` }));
+      api.dispatch(
+        networkActions.annotated({
+          id,
+          note: `retry in ${delay} ms${retryAfter !== null ? ' (Retry-After)' : ''}`,
+        }),
+      );
       try {
         await sleep(delay, api.signal);
       } catch {

@@ -72,16 +72,15 @@ export default function SheetRoot() {
 
           <Text style={styles.heading}>What happened</Text>
           <Text style={styles.para}>
-            1. The row's href was pushed with expo-router. This screen is a regular route, so a deep
-            link opens it as well.
+            1. The row's href was pushed with expo-router. This screen is a regular route, so a deep link
+            opens it as well.
           </Text>
           <Text style={styles.para}>
-            2. MorphSheetLayout, the layout of the (sheet) group, animated the container from the
-            card to full screen.
+            2. MorphSheetLayout, the layout of the (sheet) group, animated the container from the card to full
+            screen.
           </Text>
           <Text style={styles.para}>
-            3. This screen rendered a skeleton until useMorphSettled() returned true and the data
-            arrived.
+            3. This screen rendered a skeleton until useMorphSettled() returned true and the data arrived.
           </Text>
 
           <Link href={{ pathname: '/(sheet)/child', params: { from: item.label } }} asChild>

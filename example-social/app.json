@@ -15,8 +15,6 @@
       "package": "dev.example.murmur",
       "edgeToEdgeEnabled": true
     },
-    "plugins": [
-      "expo-router"
-    ]
+    "plugins": ["expo-router"]
   }
 }

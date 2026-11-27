@@ -52,7 +52,9 @@ export const PostCard = memo(function PostCard({ post, large = false }: { post: 
         </View>
         {post.text ? <Text style={[styles.text, large && styles.textLarge]}>{post.text}</Text> : null}
 
-        {post.media && <Media media={post.media} style={[styles.media, { aspectRatio: post.media.aspect }]} />}
+        {post.media && (
+          <Media media={post.media} style={[styles.media, { aspectRatio: post.media.aspect }]} />
+        )}
 
         {post.poll && <PollView poll={post.poll} postId={id} onVote={onVote} />}
 
@@ -97,7 +99,9 @@ const PollView = memo(function PollView({
             testID={`vote-${postId}-${i}`}
           >
             {voted && <View style={[styles.optionBar, { width: `${share}%` }]} />}
-            <Text style={[styles.optionText, poll.votedOption === i && styles.optionChosen]}>{option.label}</Text>
+            <Text style={[styles.optionText, poll.votedOption === i && styles.optionChosen]}>
+              {option.label}
+            </Text>
             {voted && <Text style={styles.optionShare}>{share}%</Text>}
           </Pressable>
         );
@@ -131,7 +135,13 @@ function Action({
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: 12, paddingHorizontal: 16, paddingVertical: 12, backgroundColor: theme.background },
+  row: {
+    flexDirection: 'row',
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: theme.background,
+  },
   pressed: { backgroundColor: theme.surface },
   body: { flex: 1, gap: 6 },
   meta: { flexDirection: 'row', alignItems: 'baseline', gap: 6 },

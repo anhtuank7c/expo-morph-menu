@@ -4,8 +4,8 @@ appId: host.exp.exponent
 ---
 - waitForAnimationToEnd
 - assertNotVisible:
-    id: "morph-close"
+    id: 'morph-close'
 - assertVisible:
-    id: "morph-item-camera"
+    id: 'morph-item-camera'
 - assertVisible:
-    id: "morph-scrim"
+    id: 'morph-scrim'

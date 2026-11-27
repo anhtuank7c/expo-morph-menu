@@ -88,8 +88,17 @@ const ProfileHeader = memo(function ProfileHeader({ user }: { user: User }) {
             </Pressable>
           ) : (
             <>
-              <Pressable style={styles.outline} onPress={message} disabled={opening.isLoading} testID="profile-message">
-                {opening.isLoading ? <ActivityIndicator size="small" /> : <Text style={styles.outlineText}>Message</Text>}
+              <Pressable
+                style={styles.outline}
+                onPress={message}
+                disabled={opening.isLoading}
+                testID="profile-message"
+              >
+                {opening.isLoading ? (
+                  <ActivityIndicator size="small" />
+                ) : (
+                  <Text style={styles.outlineText}>Message</Text>
+                )}
               </Pressable>
               <Pressable
                 style={[styles.follow, user.isFollowed && styles.outline]}
@@ -120,7 +129,13 @@ const styles = StyleSheet.create({
   list: { flex: 1, backgroundColor: theme.background },
   header: { paddingBottom: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: theme.border },
   banner: { height: 110, opacity: 0.85 },
-  avatarRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', paddingHorizontal: 16, marginTop: -38 },
+  avatarRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    marginTop: -38,
+  },
   avatarRing: { borderRadius: 50, borderWidth: 4, borderColor: theme.background },
   buttons: { flexDirection: 'row', gap: 8, paddingBottom: 4 },
   outline: {
@@ -134,7 +149,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   outlineText: { fontWeight: '700', color: theme.text },
-  follow: { backgroundColor: theme.text, borderRadius: 999, paddingHorizontal: 16, paddingVertical: 8, minWidth: 90, alignItems: 'center' },
+  follow: {
+    backgroundColor: theme.text,
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    minWidth: 90,
+    alignItems: 'center',
+  },
   followText: { fontWeight: '700', color: '#fff' },
   error: { color: theme.like, paddingHorizontal: 16, marginTop: 6 },
   name: { fontSize: 21, fontWeight: '800', color: theme.text, paddingHorizontal: 16, marginTop: 8 },

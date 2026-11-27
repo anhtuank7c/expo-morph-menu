@@ -27,7 +27,11 @@ const SOURCES = [
 ];
 for (const file of SOURCES) {
   const { outputText } = ts.transpileModule(fs.readFileSync(path.join(src, file), 'utf8'), {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true },
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+      esModuleInterop: true,
+    },
   });
   const out = path.join(build, file.replace(/.ts$/, '.js'));
   fs.mkdirSync(path.dirname(out), { recursive: true });
@@ -139,8 +143,13 @@ async function test(name, fn) {
     const { api, store, login, server, refreshCalls } = setup();
     await login();
     server.control.expireAccessTokens();
-    const all = await Promise.all(['a', 'b', 'c', 'd', 'e'].map((id) => store.dispatch(api.endpoints.item.initiate(id))));
-    assert.ok(all.every((r) => r.data), 'all requests succeed');
+    const all = await Promise.all(
+      ['a', 'b', 'c', 'd', 'e'].map((id) => store.dispatch(api.endpoints.item.initiate(id))),
+    );
+    assert.ok(
+      all.every((r) => r.data),
+      'all requests succeed',
+    );
     assert.equal(refreshCalls(), 1, `refresh calls: ${refreshCalls()}`);
     assert.equal(store.getState().auth.refreshCount, 1);
   });

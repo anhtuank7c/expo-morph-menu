@@ -1,0 +1,5 @@
+# Prettier expects LF. Without this, Git on Windows checks files out with CRLF
+# and `npm run format:check` reports every file.
+* text=auto eol=lf
+*.gif binary
+*.png binary

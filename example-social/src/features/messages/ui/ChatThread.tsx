@@ -18,7 +18,11 @@ import { clientId, timeAgo } from '../../../shared/lib/format';
 import { theme } from '../../../shared/theme';
 import { Avatar } from '../../../shared/ui/Avatar';
 import { QueryState } from '../../../shared/ui/QueryState';
-import { useGetThreadQuery, useMarkConversationReadMutation, useSendMessageMutation } from '../api/messagesApi';
+import {
+  useGetThreadQuery,
+  useMarkConversationReadMutation,
+  useSendMessageMutation,
+} from '../api/messagesApi';
 
 /** How often the open conversation polls for new messages. */
 const POLL_MS = 2000;
@@ -68,7 +72,8 @@ export function ChatThread({ conversationId }: { conversationId: string }) {
     [send, conversationId],
   );
   const retry = useCallback(
-    (message: Message) => send({ conversationId, text: message.text, clientId: message.clientId ?? message.id }),
+    (message: Message) =>
+      send({ conversationId, text: message.text, clientId: message.clientId ?? message.id }),
     [send, conversationId],
   );
   const renderItem = useCallback<ListRenderItem<Message>>(
@@ -119,7 +124,11 @@ const MessageBubble = memo(function MessageBubble({
   const sending = message.status === 'sending';
   const retry = useCallback(() => onRetry(message), [onRetry, message]);
   return (
-    <Pressable disabled={!failed} onPress={retry} style={[styles.bubble, mine ? styles.me : styles.them, sending && styles.sending]}>
+    <Pressable
+      disabled={!failed}
+      onPress={retry}
+      style={[styles.bubble, mine ? styles.me : styles.them, sending && styles.sending]}
+    >
       <Text style={[styles.message, mine && styles.mineText]}>{message.text}</Text>
       <View style={styles.footer}>
         {sending && <Ionicons name="time-outline" size={11} color="rgba(255,255,255,0.8)" />}

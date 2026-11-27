@@ -1,6 +1,6 @@
 # Maestro chạy các flow ở thư mục này theo thứ tự tên file.
 # Chạy kèm kiểm tra flicker: `npm run e2e` (scripts/e2e.mjs).
 flows:
-  - "*.yaml"
+  - '*.yaml'
 executionOrder:
   continueOnFailure: false

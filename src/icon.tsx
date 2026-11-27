@@ -15,9 +15,7 @@ import { Image, type ImageSourcePropType, type ImageStyle, type StyleProp } from
 export type MorphIconRenderProps = { size: number; color: string };
 
 export type MorphIcon =
-  | React.ReactElement
-  | ImageSourcePropType
-  | ((props: MorphIconRenderProps) => React.ReactNode);
+  React.ReactElement | ImageSourcePropType | ((props: MorphIconRenderProps) => React.ReactNode);
 
 export type RenderIconOptions = MorphIconRenderProps & {
   /**

@@ -8,7 +8,8 @@ import { theme } from '../theme';
 export function errorText(error: FetchBaseQueryError | SerializedError | undefined) {
   if (!error) return '';
   if ('status' in error) {
-    if (error.status === 'FETCH_ERROR' || error.status === 'TIMEOUT_ERROR') return 'Could not reach the server.';
+    if (error.status === 'FETCH_ERROR' || error.status === 'TIMEOUT_ERROR')
+      return 'Could not reach the server.';
     const body = error.data as { message?: string } | undefined;
     if (typeof error.status === 'number') return body?.message ?? `Request failed (${error.status}).`;
   }
@@ -50,6 +51,12 @@ export function QueryState({
 const styles = StyleSheet.create({
   box: { alignItems: 'center', justifyContent: 'center', padding: 32, gap: 12 },
   text: { color: theme.textMuted, textAlign: 'center' },
-  button: { borderRadius: 999, borderWidth: 1, borderColor: theme.border, paddingHorizontal: 16, paddingVertical: 8 },
+  button: {
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: theme.border,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
   buttonText: { color: theme.text, fontWeight: '600' },
 });

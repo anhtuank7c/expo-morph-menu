@@ -12,5 +12,7 @@ export function DevScreen() {
   const [logout] = useLogoutMutation();
   const signedIn = useAppSelector(selectIsSignedIn);
   const signOut = useCallback(() => void logout(), [logout]);
-  return <NetworkPanel control={server.control} accent={theme.accent} onSignOut={signedIn ? signOut : undefined} />;
+  return (
+    <NetworkPanel control={server.control} accent={theme.accent} onSignOut={signedIn ? signOut : undefined} />
+  );
 }

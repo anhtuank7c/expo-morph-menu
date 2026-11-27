@@ -7,7 +7,15 @@
 import { router } from 'expo-router';
 import { useMorphSettled } from 'expo-morph-menu';
 import { memo, useCallback, useMemo } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View, useWindowDimensions, type ListRenderItem } from 'react-native';
+import {
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+  type ListRenderItem,
+} from 'react-native';
 
 import type { Media as MediaData } from '../../../core/api/dto';
 import { theme } from '../../../shared/theme';

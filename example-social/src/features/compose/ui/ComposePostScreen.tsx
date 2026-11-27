@@ -115,7 +115,14 @@ const CharacterCount = memo(function CharacterCount() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: theme.background },
   row: { flexDirection: 'row', gap: 12, paddingHorizontal: 16, paddingTop: 8, flex: 1 },
-  input: { flex: 1, fontSize: 18, lineHeight: 24, color: theme.text, textAlignVertical: 'top', paddingTop: 8 },
+  input: {
+    flex: 1,
+    fontSize: 18,
+    lineHeight: 24,
+    color: theme.text,
+    textAlignVertical: 'top',
+    paddingTop: 8,
+  },
   placeholder: { color: theme.textMuted },
   error: { color: theme.like, paddingHorizontal: 16, paddingBottom: 8 },
   footer: {

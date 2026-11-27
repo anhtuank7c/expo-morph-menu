@@ -178,11 +178,6 @@ export function resolveConfig(input?: MorphConfigInput): MorphConfig {
   };
 }
 
-export function resolveColors(
-  scheme: 'light' | 'dark',
-  input?: MorphConfigInput['colors'],
-): MorphColors {
-  return scheme === 'dark'
-    ? { ...DARK_COLORS, ...input?.dark }
-    : { ...LIGHT_COLORS, ...input?.light };
+export function resolveColors(scheme: 'light' | 'dark', input?: MorphConfigInput['colors']): MorphColors {
+  return scheme === 'dark' ? { ...DARK_COLORS, ...input?.dark } : { ...LIGHT_COLORS, ...input?.light };
 }

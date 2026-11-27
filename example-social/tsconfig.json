@@ -3,13 +3,8 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "expo-morph-menu": [
-        "../src/index.ts"
-      ]
+      "expo-morph-menu": ["../src/index.ts"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx"
-  ]
+  "include": ["**/*.ts", "**/*.tsx"]
 }

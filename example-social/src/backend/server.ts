@@ -118,7 +118,9 @@ const routes = [
     const offset = Number(query.cursor) || 0;
     const followed = follows.get(userId) ?? new Set<string>();
     const all = posts
-      .filter((p) => !p.replyTo && (query.tab !== 'following' || followed.has(p.authorId) || p.authorId === userId))
+      .filter(
+        (p) => !p.replyTo && (query.tab !== 'following' || followed.has(p.authorId) || p.authorId === userId),
+      )
       .sort((a, b) => b.createdAt - a.createdAt);
     const items = all.slice(offset, offset + limit).map((p) => toPost(p, userId));
     return json({ items, nextCursor: offset + limit < all.length ? String(offset + limit) : null });
@@ -130,7 +132,12 @@ const routes = [
   }),
 
   route('GET', '/posts/:id/replies', ({ params, userId }) =>
-    json(posts.filter((p) => p.replyTo === params.id).sort((a, b) => a.createdAt - b.createdAt).map((p) => toPost(p, userId))),
+    json(
+      posts
+        .filter((p) => p.replyTo === params.id)
+        .sort((a, b) => a.createdAt - b.createdAt)
+        .map((p) => toPost(p, userId)),
+    ),
   ),
 
   route('POST', '/posts', ({ body, userId }) => {
@@ -138,14 +145,19 @@ const routes = [
     if (text.length > 280) return error(422, 'text_too_long', 'Posts are limited to 280 characters');
     if (!text && !body?.media) return error(422, 'empty_post', 'A post needs text or a photo');
     const options: string[] | undefined = body?.poll?.options;
-    if (options && (options.length < 2 || options.length > 4)) return error(422, 'invalid_poll', 'A poll needs 2 to 4 choices');
+    if (options && (options.length < 2 || options.length > 4))
+      return error(422, 'invalid_poll', 'A poll needs 2 to 4 choices');
     const record: PostRecord = {
       id: nextId('p'),
       authorId: userId,
       text,
       createdAt: Date.now(),
       media: body?.media,
-      poll: options && { days: Number(body.poll.days) || 1, voters: {}, options: options.map((label) => ({ label, votes: 0 })) },
+      poll: options && {
+        days: Number(body.poll.days) || 1,
+        voters: {},
+        options: options.map((label) => ({ label, votes: 0 })),
+      },
       likedBy: new Set(),
       likeBase: 0,
       repostCount: 0,
@@ -171,7 +183,8 @@ const routes = [
   route('POST', '/posts/:id/votes', ({ params, body, userId }) => {
     const p = findPost(params.id);
     if (!p?.poll) return error(404, 'not_found', 'Poll not found');
-    if (p.poll.voters[userId] !== undefined) return error(409, 'already_voted', 'You already voted in this poll');
+    if (p.poll.voters[userId] !== undefined)
+      return error(409, 'already_voted', 'You already voted in this poll');
     const option = Number(body?.option);
     if (!p.poll.options[option]) return error(422, 'invalid_option', 'Unknown choice');
     p.poll.voters[userId] = option;
@@ -182,9 +195,9 @@ const routes = [
   route('GET', '/users', ({ query, userId }) => {
     const q = (query.q ?? '').toLowerCase();
     return json(
-      USERS.filter((u) => u.id !== userId && (!q || u.name.toLowerCase().includes(q) || u.handle.includes(q))).map((u) =>
-        toUser(u, userId),
-      ),
+      USERS.filter(
+        (u) => u.id !== userId && (!q || u.name.toLowerCase().includes(q) || u.handle.includes(q)),
+      ).map((u) => toUser(u, userId)),
     );
   }),
   route('GET', '/users/:handle', ({ params, userId }) => {
@@ -268,12 +281,23 @@ const routes = [
     // The client id also deduplicates sends that the client retried by hand.
     const existing = body?.clientId && c.messages.find((m) => m.clientId === body.clientId);
     if (existing) return json({ ...existing });
-    const message: MessageRecord = { id: nextId('m'), clientId: body?.clientId, from: userId, text, createdAt: Date.now() };
+    const message: MessageRecord = {
+      id: nextId('m'),
+      clientId: body?.clientId,
+      from: userId,
+      text,
+      createdAt: Date.now(),
+    };
     c.messages.push(message);
     // The other person starts typing, then replies.
     setTimeout(() => (c.typingUntil = Date.now() + 1800), 500);
     setTimeout(() => {
-      c.messages.push({ id: nextId('m'), from: c.userId, text: AUTO_REPLIES[replyIndex++ % AUTO_REPLIES.length], createdAt: Date.now() });
+      c.messages.push({
+        id: nextId('m'),
+        from: c.userId,
+        text: AUTO_REPLIES[replyIndex++ % AUTO_REPLIES.length],
+        createdAt: Date.now(),
+      });
       c.typingUntil = 0;
       c.unread += 1;
     }, 2300);
@@ -287,7 +311,11 @@ const routes = [
   }),
 
   route('POST', '/live', ({ body }) => {
-    const live = { id: nextId('live'), title: String(body?.title ?? '').trim() || 'Untitled broadcast', startedAt: Date.now() };
+    const live = {
+      id: nextId('live'),
+      title: String(body?.title ?? '').trim() || 'Untitled broadcast',
+      startedAt: Date.now(),
+    };
     lives.set(live.id, live);
     return json({ ...live, viewers: 0 }, 201);
   }),
@@ -311,7 +339,9 @@ export const server = createMockServer({
   secret: 'murmur-mock-secret',
   routes,
   authenticate: (body) =>
-    String(body?.email).trim().toLowerCase() === DEMO_EMAIL && body?.password === DEMO_PASSWORD ? ME_ID : null,
+    String(body?.email).trim().toLowerCase() === DEMO_EMAIL && body?.password === DEMO_PASSWORD
+      ? ME_ID
+      : null,
   accessTtlSec: 60,
   latencyMs: [180, 520],
   chaos: chaosFromEnv('low'),

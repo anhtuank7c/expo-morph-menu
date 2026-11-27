@@ -9,8 +9,8 @@ name: Sheet kéo xuống
     env:
       ITEM: store
 - swipe:
-    start: "50%,30%"
-    end: "50%,85%"
+    start: '50%,30%'
+    end: '50%,85%'
     duration: 250
 - runFlow:
     when:
@@ -18,10 +18,10 @@ name: Sheet kéo xuống
     commands:
       - waitForAnimationToEnd
       - assertVisible:
-          id: "morph-close"
+          id: 'morph-close'
       - tapOn:
-          id: "morph-close"
+          id: 'morph-close'
 - runFlow: subflows/assert-menu-open.yaml
 - tapOn:
-    point: "25%,25%"
+    point: '25%,25%'
 - runFlow: subflows/assert-home.yaml

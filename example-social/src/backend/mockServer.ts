@@ -85,7 +85,10 @@ export type MockServerControl = {
 };
 
 /** Probability of each fault per request. */
-const CHAOS: Record<ChaosLevel, { network: number; unavailable: number; rateLimited: number; lostResponse: number }> = {
+const CHAOS: Record<
+  ChaosLevel,
+  { network: number; unavailable: number; rateLimited: number; lostResponse: number }
+> = {
   off: { network: 0, unavailable: 0, rateLimited: 0, lostResponse: 0 },
   low: { network: 0.03, unavailable: 0.08, rateLimited: 0.03, lostResponse: 0.04 },
   high: { network: 0.08, unavailable: 0.2, rateLimited: 0.08, lostResponse: 0.1 },
@@ -162,7 +165,14 @@ export function createMockServer(options: MockServerOptions) {
       ep: accessEpoch,
     };
     const refreshJti = uid('rt');
-    const refresh: JwtPayload = { sub: userId, jti: refreshJti, typ: 'refresh', iat: now, exp: now + refreshTtlSec, fam: family };
+    const refresh: JwtPayload = {
+      sub: userId,
+      jti: refreshJti,
+      typ: 'refresh',
+      iat: now,
+      exp: now + refreshTtlSec,
+      fam: family,
+    };
     refreshTokens.set(refreshJti, { userId, family });
     return {
       accessToken: signJwt(access, secret),
@@ -182,17 +192,24 @@ export function createMockServer(options: MockServerOptions) {
     if (expired) {
       return {
         ...error(401, 'token_expired', 'The access token expired'),
-        headers: { 'WWW-Authenticate': 'Bearer error="invalid_token", error_description="The access token expired"' },
+        headers: {
+          'WWW-Authenticate': 'Bearer error="invalid_token", error_description="The access token expired"',
+        },
       };
     }
-    if (!result.ok || result.payload.typ !== 'access') return error(401, 'invalid_token', 'Invalid access token');
+    if (!result.ok || result.payload.typ !== 'access')
+      return error(401, 'invalid_token', 'Invalid access token');
     return { userId: result.payload.sub };
   }
 
   function refresh(body: any): MockResponse {
     const result = verifyJwt(String(body?.refreshToken ?? ''), secret);
     if (!result.ok) {
-      return error(401, result.reason === 'expired' ? 'refresh_token_expired' : 'invalid_refresh_token', 'Sign in again');
+      return error(
+        401,
+        result.reason === 'expired' ? 'refresh_token_expired' : 'invalid_refresh_token',
+        'Sign in again',
+      );
     }
     const record = refreshTokens.get(result.payload.jti);
     if (!record || revokedFamilies.has(record.family)) return error(401, 'session_revoked', 'Sign in again');
@@ -239,7 +256,8 @@ export function createMockServer(options: MockServerOptions) {
     const method = (init?.method ?? request?.method ?? 'GET').toUpperCase();
     const headers: Record<string, string> = {};
     const source = init?.headers ?? request?.headers;
-    if (source) new Headers(source as HeadersInit).forEach((value, key) => (headers[key.toLowerCase()] = value));
+    if (source)
+      new Headers(source as HeadersInit).forEach((value, key) => (headers[key.toLowerCase()] = value));
     let text = '';
     if (init?.body != null) text = String(init.body);
     else if (request && method !== 'GET' && method !== 'HEAD') text = await request.text();
@@ -303,7 +321,10 @@ export function createMockServer(options: MockServerOptions) {
       return toResponse(error(503, 'unavailable', 'Service temporarily unavailable'));
     }
     if (random() < chaos.rateLimited) {
-      return toResponse({ ...error(429, 'rate_limited', 'Too many requests'), headers: { 'Retry-After': '1' } });
+      return toResponse({
+        ...error(429, 'rate_limited', 'Too many requests'),
+        headers: { 'Retry-After': '1' },
+      });
     }
 
     const key = req.headers['idempotency-key'];
@@ -317,7 +338,15 @@ export function createMockServer(options: MockServerOptions) {
     match.r.keys.forEach((k, i) => (params[k] = decodeURIComponent(match.m![i + 1])));
     let result: MockResponse;
     try {
-      result = await match.r.handler({ method: req.method, path, params, query, body, headers: req.headers, userId });
+      result = await match.r.handler({
+        method: req.method,
+        path,
+        params,
+        query,
+        body,
+        headers: req.headers,
+        userId,
+      });
     } catch (e) {
       result = error(500, 'internal', e instanceof Error ? e.message : 'Internal error');
     }

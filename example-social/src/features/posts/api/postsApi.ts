@@ -113,7 +113,9 @@ function patchPostEverywhere(
   const { selectCachedArgsForQuery, updateQueryData } = postsApi.util;
 
   for (const tab of selectCachedArgsForQuery(state, 'getFeed')) {
-    patches.push(dispatch(updateQueryData('getFeed', tab, (d) => d.pages.forEach((page) => apply(page.items)))));
+    patches.push(
+      dispatch(updateQueryData('getFeed', tab, (d) => d.pages.forEach((page) => apply(page.items)))),
+    );
   }
   for (const postId of selectCachedArgsForQuery(state, 'getPost')) {
     if (postId === id) patches.push(dispatch(updateQueryData('getPost', postId, recipe)));

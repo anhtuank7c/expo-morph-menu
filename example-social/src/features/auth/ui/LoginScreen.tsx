@@ -4,7 +4,16 @@
 
 import { Link } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { DEMO_ACCOUNT } from '../../../backend';
@@ -65,7 +74,9 @@ export function LoginScreen() {
           onSubmitEditing={submit}
           testID="login-password"
         />
-        {lastError ? <Text style={styles.error}>{MESSAGES[lastError] ?? `Sign-in failed (${lastError}).`}</Text> : null}
+        {lastError ? (
+          <Text style={styles.error}>{MESSAGES[lastError] ?? `Sign-in failed (${lastError}).`}</Text>
+        ) : null}
         <Pressable
           style={[styles.button, isLoading && styles.busy]}
           disabled={isLoading}
@@ -87,7 +98,12 @@ export function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: theme.background, paddingHorizontal: 24, justifyContent: 'space-between' },
+  screen: {
+    flex: 1,
+    backgroundColor: theme.background,
+    paddingHorizontal: 24,
+    justifyContent: 'space-between',
+  },
   brand: { alignItems: 'center', gap: 8 },
   logo: {
     width: 64,
@@ -112,7 +128,14 @@ const styles = StyleSheet.create({
     color: theme.text,
   },
   error: { color: theme.like, fontSize: 14 },
-  button: { height: 50, borderRadius: 25, backgroundColor: theme.accent, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
+  button: {
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: theme.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 4,
+  },
   busy: { opacity: 0.6 },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
   hint: { color: theme.textMuted, fontSize: 13, textAlign: 'center' },

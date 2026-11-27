@@ -2,10 +2,10 @@ appId: host.exp.exponent
 ---
 - waitForAnimationToEnd
 - assertNotVisible:
-    id: "morph-close"
+    id: 'morph-close'
 - assertNotVisible:
-    id: "morph-scrim"
+    id: 'morph-scrim'
 - assertVisible:
-    id: "morph-fab"
+    id: 'morph-fab'
 - assertVisible:
-    id: "home-title"
+    id: 'home-title'

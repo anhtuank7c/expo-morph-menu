@@ -40,7 +40,15 @@ export const messagesApi = api.injectEndpoints({
           updateQueryData('getThread', conversationId, (thread) => {
             const existing = thread.messages.find((m) => m.clientId === clientId);
             if (existing) existing.status = 'sending';
-            else thread.messages.push({ id: clientId, clientId, from: 'me', text, createdAt: Date.now(), status: 'sending' });
+            else
+              thread.messages.push({
+                id: clientId,
+                clientId,
+                from: 'me',
+                text,
+                createdAt: Date.now(),
+                status: 'sending',
+              });
           }),
         );
         try {

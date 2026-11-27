@@ -12,7 +12,14 @@ export const ME_ID = 'me';
 export const DEMO_EMAIL = 'demo@murmur.app';
 export const DEMO_PASSWORD = 'murmur123';
 
-export type UserRecord = { id: string; name: string; handle: string; color: string; bio: string; followersBase: number };
+export type UserRecord = {
+  id: string;
+  name: string;
+  handle: string;
+  color: string;
+  bio: string;
+  followersBase: number;
+};
 
 export type PostRecord = {
   id: string;
@@ -48,13 +55,62 @@ export type ConversationRecord = {
 };
 
 export const USERS: UserRecord[] = [
-  { id: ME_ID, name: 'You', handle: 'you', color: '#6d28d9', bio: 'Trying out expo-morph-menu.', followersBase: 128 },
-  { id: 'u1', name: 'Linh Tran', handle: 'linhcodes', color: '#0ea5e9', bio: 'Mobile dev. Animations, gestures and too much coffee.', followersBase: 4210 },
-  { id: 'u2', name: 'Marco Bellini', handle: 'marcob', color: '#f97316', bio: 'Design systems at a small studio in Turin.', followersBase: 1893 },
-  { id: 'u3', name: 'Aisha Rahman', handle: 'aisha.r', color: '#10b981', bio: 'Product engineer. Runner. Reads RFCs for fun.', followersBase: 9120 },
-  { id: 'u4', name: 'Kenji Mori', handle: 'kenjimori', color: '#e11d48', bio: 'Photographer. Mostly streets and trains.', followersBase: 15300 },
-  { id: 'u5', name: 'Sofia Lind', handle: 'sofialind', color: '#8b5cf6', bio: 'Frontend lead. Accessibility first.', followersBase: 2702 },
-  { id: 'u6', name: 'Duc Pham', handle: 'ducpham', color: '#eab308', bio: 'Backend, infra, and the occasional React Native bug report.', followersBase: 960 },
+  {
+    id: ME_ID,
+    name: 'You',
+    handle: 'you',
+    color: '#6d28d9',
+    bio: 'Trying out expo-morph-menu.',
+    followersBase: 128,
+  },
+  {
+    id: 'u1',
+    name: 'Linh Tran',
+    handle: 'linhcodes',
+    color: '#0ea5e9',
+    bio: 'Mobile dev. Animations, gestures and too much coffee.',
+    followersBase: 4210,
+  },
+  {
+    id: 'u2',
+    name: 'Marco Bellini',
+    handle: 'marcob',
+    color: '#f97316',
+    bio: 'Design systems at a small studio in Turin.',
+    followersBase: 1893,
+  },
+  {
+    id: 'u3',
+    name: 'Aisha Rahman',
+    handle: 'aisha.r',
+    color: '#10b981',
+    bio: 'Product engineer. Runner. Reads RFCs for fun.',
+    followersBase: 9120,
+  },
+  {
+    id: 'u4',
+    name: 'Kenji Mori',
+    handle: 'kenjimori',
+    color: '#e11d48',
+    bio: 'Photographer. Mostly streets and trains.',
+    followersBase: 15300,
+  },
+  {
+    id: 'u5',
+    name: 'Sofia Lind',
+    handle: 'sofialind',
+    color: '#8b5cf6',
+    bio: 'Frontend lead. Accessibility first.',
+    followersBase: 2702,
+  },
+  {
+    id: 'u6',
+    name: 'Duc Pham',
+    handle: 'ducpham',
+    color: '#eab308',
+    bio: 'Backend, infra, and the occasional React Native bug report.',
+    followersBase: 960,
+  },
 ];
 
 /** follower id → followed ids */
@@ -78,8 +134,24 @@ const post = (p: Omit<PostRecord, 'likedBy'> & { likedByMe?: boolean }): PostRec
 };
 
 export const POSTS: PostRecord[] = [
-  post({ id: 'p1', authorId: 'u1', text: 'Shipped a floating menu where each row opens a real route. Deep links and Android back just use the navigation stack.', createdAt: now - 12 * min, likeBase: 182, repostCount: 24 }),
-  post({ id: 'p2', authorId: 'u4', text: 'Last train of the night.', createdAt: now - 48 * min, media: { color: '#1e3a8a', icon: 'train', aspect: 4 / 3 }, likeBase: 1203, likedByMe: true, repostCount: 96 }),
+  post({
+    id: 'p1',
+    authorId: 'u1',
+    text: 'Shipped a floating menu where each row opens a real route. Deep links and Android back just use the navigation stack.',
+    createdAt: now - 12 * min,
+    likeBase: 182,
+    repostCount: 24,
+  }),
+  post({
+    id: 'p2',
+    authorId: 'u4',
+    text: 'Last train of the night.',
+    createdAt: now - 48 * min,
+    media: { color: '#1e3a8a', icon: 'train', aspect: 4 / 3 },
+    likeBase: 1203,
+    likedByMe: true,
+    repostCount: 96,
+  }),
   post({
     id: 'p3',
     authorId: 'u3',
@@ -98,13 +170,66 @@ export const POSTS: PostRecord[] = [
     likeBase: 77,
     repostCount: 12,
   }),
-  post({ id: 'p4', authorId: 'u2', text: 'Rule of thumb for design tokens: if two components share a value by accident, they should not share the token.', createdAt: now - 3 * hour, likeBase: 403, repostCount: 58 }),
-  post({ id: 'p5', authorId: 'u5', text: 'Reminder: every drag gesture in your app needs a tap alternative.', createdAt: now - 5 * hour, likeBase: 951, repostCount: 230 }),
-  post({ id: 'p6', authorId: 'u4', text: 'Morning market.', createdAt: now - 7 * hour, media: { color: '#b45309', icon: 'basket', aspect: 1 }, likeBase: 688, repostCount: 31 }),
-  post({ id: 'p7', authorId: 'u6', text: 'Moved our staging builds to a nightly schedule. CI time dropped by a third.', createdAt: now - 9 * hour, likeBase: 64, repostCount: 4 }),
-  post({ id: 'r1', authorId: 'u3', replyTo: 'p1', text: 'Does it handle the browser back button on web?', createdAt: now - 10 * min, likeBase: 12, repostCount: 0 }),
-  post({ id: 'r2', authorId: 'u1', replyTo: 'p1', text: 'Yes, every dismiss path goes through the same code.', createdAt: now - 8 * min, likeBase: 20, repostCount: 1 }),
-  post({ id: 'r3', authorId: 'u5', replyTo: 'p1', text: 'Nice. Are the rows reachable with a screen reader?', createdAt: now - 6 * min, likeBase: 7, repostCount: 0 }),
+  post({
+    id: 'p4',
+    authorId: 'u2',
+    text: 'Rule of thumb for design tokens: if two components share a value by accident, they should not share the token.',
+    createdAt: now - 3 * hour,
+    likeBase: 403,
+    repostCount: 58,
+  }),
+  post({
+    id: 'p5',
+    authorId: 'u5',
+    text: 'Reminder: every drag gesture in your app needs a tap alternative.',
+    createdAt: now - 5 * hour,
+    likeBase: 951,
+    repostCount: 230,
+  }),
+  post({
+    id: 'p6',
+    authorId: 'u4',
+    text: 'Morning market.',
+    createdAt: now - 7 * hour,
+    media: { color: '#b45309', icon: 'basket', aspect: 1 },
+    likeBase: 688,
+    repostCount: 31,
+  }),
+  post({
+    id: 'p7',
+    authorId: 'u6',
+    text: 'Moved our staging builds to a nightly schedule. CI time dropped by a third.',
+    createdAt: now - 9 * hour,
+    likeBase: 64,
+    repostCount: 4,
+  }),
+  post({
+    id: 'r1',
+    authorId: 'u3',
+    replyTo: 'p1',
+    text: 'Does it handle the browser back button on web?',
+    createdAt: now - 10 * min,
+    likeBase: 12,
+    repostCount: 0,
+  }),
+  post({
+    id: 'r2',
+    authorId: 'u1',
+    replyTo: 'p1',
+    text: 'Yes, every dismiss path goes through the same code.',
+    createdAt: now - 8 * min,
+    likeBase: 20,
+    repostCount: 1,
+  }),
+  post({
+    id: 'r3',
+    authorId: 'u5',
+    replyTo: 'p1',
+    text: 'Nice. Are the rows reachable with a screen reader?',
+    createdAt: now - 6 * min,
+    likeBase: 7,
+    repostCount: 0,
+  }),
   ...olderPosts(),
 ];
 
@@ -135,7 +260,9 @@ function olderPosts(): PostRecord[] {
       authorId: author.id,
       text,
       createdAt: now - (11 + i * 2) * hour,
-      media: withMedia ? { color: colors[i % colors.length], icon: icons[i % icons.length], aspect: 16 / 9 } : undefined,
+      media: withMedia
+        ? { color: colors[i % colors.length], icon: icons[i % icons.length], aspect: 16 / 9 }
+        : undefined,
       likeBase: 20 + ((i * 37) % 400),
       repostCount: (i * 7) % 40,
     });
@@ -158,8 +285,18 @@ export const CONVERSATIONS: ConversationRecord[] = [
     typingUntil: 0,
     messages: [
       { id: 'm1', from: 'u1', text: 'Hey, did you try the new menu build?', createdAt: now - 30 * min },
-      { id: 'm2', from: ME_ID, text: 'Yes, opening a chat from the menu works well.', createdAt: now - 28 * min },
-      { id: 'm3', from: 'u1', text: 'Great. Can you check it on a small Android phone?', createdAt: now - 5 * min },
+      {
+        id: 'm2',
+        from: ME_ID,
+        text: 'Yes, opening a chat from the menu works well.',
+        createdAt: now - 28 * min,
+      },
+      {
+        id: 'm3',
+        from: 'u1',
+        text: 'Great. Can you check it on a small Android phone?',
+        createdAt: now - 5 * min,
+      },
       { id: 'm4', from: 'u1', text: 'The emulator is fine, I mean a real device.', createdAt: now - 4 * min },
     ],
   },
@@ -178,7 +315,14 @@ export const CONVERSATIONS: ConversationRecord[] = [
     userId: 'u2',
     unread: 1,
     typingUntil: 0,
-    messages: [{ id: 'm7', from: 'u2', text: 'Sending you the token spreadsheet tomorrow.', createdAt: now - 6 * hour }],
+    messages: [
+      {
+        id: 'm7',
+        from: 'u2',
+        text: 'Sending you the token spreadsheet tomorrow.',
+        createdAt: now - 6 * hour,
+      },
+    ],
   },
 ];
 
