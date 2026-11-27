@@ -379,8 +379,14 @@ export function MorphMenu({
     opacity: interpolate(menu.value, [0.35, 0.7], [0, 1], Extrapolation.CLAMP),
   }));
 
-  const Surface = surface.Component;
   const corner = right ? { right: 0 } : { left: 0 };
+  /* Liquid Glass KHÔNG được đổi kích thước mỗi frame: UIGlassEffect dựng lại
+     hình dạng + khúc xạ ở render server mỗi lần bounds đổi → giật nặng trên
+     iOS 26 dù UI thread vẫn đủ 60fps (đo: ~125 frame > 34ms / 24 lần mở-đóng,
+     so với 0 khi dùng cách dưới). Nên: hộp animate chỉ là View trong suốt cắt
+     theo bo góc, còn GlassView cố định ở rect card, neo đúng góc như list. */
+  const fixedGlass = surface.kind === 'glass';
+  const Surface = fixedGlass ? Animated.View : surface.Component;
   const Trigger = components.Trigger ?? DefaultTrigger;
   const Highlight = components.Highlight === undefined ? DefaultHighlight : components.Highlight;
   const Scrim = components.Scrim;
@@ -404,7 +410,7 @@ export function MorphMenu({
       </Animated.View>
 
       <Surface
-        {...surface.props}
+        {...(fixedGlass ? null : surface.props)}
         style={[
           styles.box,
           {
@@ -415,6 +421,17 @@ export function MorphMenu({
         ]}
         pointerEvents={open ? 'auto' : 'none'}
       >
+        {fixedGlass && (
+          <surface.Component
+            {...surface.props}
+            pointerEvents="none"
+            style={[
+              styles.fixedSurface,
+              corner,
+              { width: cardWidth, height: geo.cardH, borderRadius: geo.card.r },
+            ]}
+          />
+        )}
         {Background && (
           <View style={StyleSheet.absoluteFill} pointerEvents="none">
             <Background variant="menu" progress={menu} colors={colors} />
@@ -565,6 +582,7 @@ const styles = StyleSheet.create({
   fabLayer: { position: 'absolute', bottom: 0, alignItems: 'center', justifyContent: 'center' },
   center: { alignItems: 'center', justifyContent: 'center' },
   list: { position: 'absolute', bottom: 0 },
+  fixedSurface: { position: 'absolute', bottom: 0 },
   // top: 0 vì translateY dùng offsets tính từ mép trên card (đã gồm padding).
   highlight: { position: 'absolute', left: 6, right: 6, top: 0 },
   highlightFill: { flex: 1, borderRadius: 14 },
