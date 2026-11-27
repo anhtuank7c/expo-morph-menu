@@ -60,6 +60,20 @@ Các gói tùy chọn, được phát hiện khi chạy:
 | `expo-glass-effect` | Bề mặt card Liquid Glass trên iOS 26 trở lên |
 | `expo-blur` | Bề mặt card làm mờ trên iOS |
 
+Nếu bắt đầu từ template trống (`create-expo-app --template blank-typescript`), cần cài thêm:
+
+| Gói | Lý do |
+| --- | --- |
+| `react-dom` | expo-router phụ thuộc vào gói này. Nếu thiếu, npm cài một bản `react-dom` mới hơn, xung đột với `react` của project (`ERESOLVE`) |
+| `react-native-web` | Chạy trên web |
+| `@expo/vector-icons`, `expo-font` | Chỉ cần nếu dùng icon như các ví dụ bên dưới (`Ionicons`). Ngoài Expo Go bắt buộc phải có `expo-font` |
+
+```bash
+npx expo install react-dom react-native-web @expo/vector-icons expo-font
+```
+
+Template `default` đã có sẵn tất cả các gói này. Với project chưa từng dùng expo-router, cần đặt thêm `"main": "expo-router/entry"` trong `package.json` và một `scheme` trong `app.json`.
+
 ## Tương thích
 
 | | Hỗ trợ |

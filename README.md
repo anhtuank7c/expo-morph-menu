@@ -60,6 +60,20 @@ Optional packages, detected at runtime:
 | `expo-glass-effect` | Liquid Glass card surface on iOS 26 and later |
 | `expo-blur` | Blurred card surface on iOS |
 
+Starting from a blank template (`create-expo-app --template blank-typescript`) also needs:
+
+| Package | Why |
+| --- | --- |
+| `react-dom` | expo-router depends on it. Without it, npm installs a newer `react-dom` that conflicts with the project's `react` (`ERESOLVE`) |
+| `react-native-web` | Running on web |
+| `@expo/vector-icons`, `expo-font` | Only if you use the icons from the examples below (`Ionicons`). `expo-font` is required outside Expo Go |
+
+```bash
+npx expo install react-dom react-native-web @expo/vector-icons expo-font
+```
+
+The `default` template already includes all of them. For a project that did not use expo-router before, also set `"main": "expo-router/entry"` in `package.json` and a `scheme` in `app.json`.
+
 ## Compatibility
 
 | | Supported |
