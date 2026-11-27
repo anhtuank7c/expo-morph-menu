@@ -25,7 +25,7 @@ Optional peer dependencies are detected at runtime. If a package is not installe
 | `expo-glass-effect` | Liquid Glass card surface on iOS 26 and later |
 | `expo-blur` | Blurred card surface on iOS |
 
-Platform status: tested on Android emulators (Android 9 and 17) and in desktop Chrome. Not yet verified on iOS devices.
+Platform status: tested on Android emulators (Android 9 and 17), an iOS 27 simulator and desktop Chrome. Not yet verified on a physical iOS device.
 
 ## Installation
 

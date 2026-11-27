@@ -1,6 +1,6 @@
 # expo-morph-menu
 
-[English](README.md) | **Tiếng Việt**
+[English](https://github.com/anhtuank7c/expo-morph-menu/blob/main/README.md) | **Tiếng Việt**
 
 Menu nổi có thể mở rộng dành cho expo-router, dùng animation của Reanimated 4.
 
@@ -8,22 +8,22 @@ Nút nổi mở rộng thành card menu. Khi chọn một dòng, card mở rộn
 
 <table>
   <tr>
-    <td align="center"><img src="docs/demo/basic-ios.gif" width="280" alt="Ví dụ cơ bản trên iOS: menu Liquid Glass, các dòng mở rộng thành route full screen và màn con, đóng thì về lại card"></td>
-    <td align="center"><img src="docs/demo/social-ios.gif" width="280" alt="Ví dụ mạng xã hội trên iOS: menu soạn bài mở Photo và Go live thành route full screen, kéo xuống thì thu về card"></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/basic-ios.gif" width="280" alt="Ví dụ cơ bản trên iOS: menu Liquid Glass, các dòng mở rộng thành route full screen và màn con, đóng thì về lại card"></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/social-ios.gif" width="280" alt="Ví dụ mạng xã hội trên iOS: menu soạn bài mở Photo và Go live thành route full screen, kéo xuống thì thu về card"></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/demo/basic.gif" width="280" alt="Ví dụ cơ bản: menu mở, một dòng mở rộng thành route full screen, đóng thì về lại card"></td>
-    <td align="center"><img src="docs/demo/social.gif" width="280" alt="Ví dụ mạng xã hội: nút soạn bài mở menu, Post, Poll và Go live mở rộng thành route full screen"></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/basic.gif" width="280" alt="Ví dụ cơ bản: menu mở, một dòng mở rộng thành route full screen, đóng thì về lại card"></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/social.gif" width="280" alt="Ví dụ mạng xã hội: nút soạn bài mở menu, Post, Poll và Go live mở rộng thành route full screen"></td>
   </tr>
   <tr>
-    <td align="center"><a href="example">Ví dụ cơ bản</a>: chạm một dòng, đóng, nhấn giữ rồi trượt</td>
-    <td align="center"><a href="example-social">Ví dụ mạng xã hội</a>: màn đăng bài, poll và live từ cùng một menu</td>
+    <td align="center"><a href="https://github.com/anhtuank7c/expo-morph-menu/tree/main/example">Ví dụ cơ bản</a>: chạm một dòng, đóng, nhấn giữ rồi trượt</td>
+    <td align="center"><a href="https://github.com/anhtuank7c/expo-morph-menu/tree/main/example-social">Ví dụ mạng xã hội</a>: màn đăng bài, poll và live từ cùng một menu</td>
   </tr>
 </table>
 
 Hàng trên: iOS 27 simulator. Hàng dưới: Android emulator.
 
-![Nút nổi, card menu, route full screen và màn hình con, cùng đường đóng](docs/diagrams/svg/vi/0-overview.svg)
+![Nút nổi, card menu, route full screen và màn hình con, cùng đường đóng](https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/diagrams/svg/vi/0-overview.svg?sanitize=true)
 
 ## Tính năng
 
@@ -38,11 +38,11 @@ Hàng trên: iOS 27 simulator. Hàng dưới: Android emulator.
 
 | Chủ đề | English | Tiếng Việt |
 | --- | --- | --- |
-| Hướng dẫn tích hợp | [docs/en/INTEGRATION.md](docs/en/INTEGRATION.md) | [docs/vi/INTEGRATION.md](docs/vi/INTEGRATION.md) |
-| Giao diện tùy chỉnh (slot) | [docs/en/CUSTOM-UI.md](docs/en/CUSTOM-UI.md) | [docs/vi/CUSTOM-UI.md](docs/vi/CUSTOM-UI.md) |
-| Kiến trúc | [docs/en/ARCHITECTURE.md](docs/en/ARCHITECTURE.md) | [docs/vi/ARCHITECTURE.md](docs/vi/ARCHITECTURE.md) |
-| Hiệu năng | [docs/en/PERFORMANCE.md](docs/en/PERFORMANCE.md) | [docs/vi/PERFORMANCE.md](docs/vi/PERFORMANCE.md) |
-| Mã nguồn sơ đồ | [docs/README.md](docs/README.md) | [docs/README.vi.md](docs/README.vi.md) |
+| Hướng dẫn tích hợp | [docs/en/INTEGRATION.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/en/INTEGRATION.md) | [docs/vi/INTEGRATION.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/vi/INTEGRATION.md) |
+| Giao diện tùy chỉnh (slot) | [docs/en/CUSTOM-UI.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/en/CUSTOM-UI.md) | [docs/vi/CUSTOM-UI.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/vi/CUSTOM-UI.md) |
+| Kiến trúc | [docs/en/ARCHITECTURE.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/en/ARCHITECTURE.md) | [docs/vi/ARCHITECTURE.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/vi/ARCHITECTURE.md) |
+| Hiệu năng | [docs/en/PERFORMANCE.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/en/PERFORMANCE.md) | [docs/vi/PERFORMANCE.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/vi/PERFORMANCE.md) |
+| Mã nguồn sơ đồ | [docs/README.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/README.md) | [docs/README.vi.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/README.vi.md) |
 
 ## Cài đặt
 
@@ -60,7 +60,19 @@ Các gói tùy chọn, được phát hiện khi chạy:
 | `expo-glass-effect` | Bề mặt card Liquid Glass trên iOS 26 trở lên |
 | `expo-blur` | Bề mặt card làm mờ trên iOS |
 
-Yêu cầu: Expo SDK 58 trở lên (expo-router 58, Reanimated 4, Gesture Handler 3). `babel.config.js` phải dùng `babel-preset-expo`, preset này bật Babel plugin cho worklets.
+## Tương thích
+
+| | Hỗ trợ |
+| --- | --- |
+| Expo SDK | 58 trở lên |
+| React Native | 0.80 trở lên (New Architecture) |
+| Reanimated | 4 trở lên, kèm `react-native-worklets` |
+| Nền tảng | iOS, Android, web |
+| Expo Go | Có. Package không có native code riêng |
+
+`babel.config.js` phải dùng `babel-preset-expo`, preset này bật Babel plugin cho worklets.
+
+**Jest:** package cung cấp mã nguồn TypeScript cho Metro (export condition `react-native`). Thêm package vào `transformIgnorePatterns` cùng với các package React Native khác, ví dụ `node_modules/(?!(...|expo-morph-menu)/)`.
 
 ## Sử dụng
 
@@ -219,7 +231,7 @@ Props của `MorphCloseButton`: `icon`, `size` (mặc định `32`), `iconSize`,
 
 ### Slot
 
-![Các slot do ứng dụng render và layout do package quản lý](docs/diagrams/svg/vi/6-slots.svg)
+![Các slot do ứng dụng render và layout do package quản lý](https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/diagrams/svg/vi/6-slots.svg?sanitize=true)
 
 Package quản lý các container có animation (kích thước, vị trí, bán kính bo góc, cắt nội dung) cùng với cử chỉ và logic chuyển giao (hand-off). Mỗi phần hiển thị có thể được thay thế qua `components`:
 
@@ -259,7 +271,7 @@ Component slot phải tuân theo bốn quy tắc:
 3. Chiều cao dòng được biết trước: `layout.rowHeight` hoặc một hàm thuần `itemHeight(item, index)`. Các dòng không được đo.
 4. `Background` phải đục (không trong suốt), vì card và container toàn màn hình hoán đổi trong một frame.
 
-Chi tiết và ví dụ cho NativeWind, Tamagui, React Native Paper và Unistyles: [Giao diện tùy chỉnh](docs/vi/CUSTOM-UI.md).
+Chi tiết và ví dụ cho NativeWind, Tamagui, React Native Paper và Unistyles: [Giao diện tùy chỉnh](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/vi/CUSTOM-UI.md).
 
 ### Callback
 
@@ -306,17 +318,17 @@ Cùng một mã chạy trên Expo web thông qua React Native Web.
 
 Card menu là một overlay, không phải route. Khi một dòng được chọn, package lưu khung của card và push route của item. Layout của nhóm route render một `Stack` có kích thước cố định bên trong một container có animation. Container mở rộng từ khung đã lưu ra toàn màn hình, trong khi navigator bên trong giữ kích thước không đổi và không phải tính layout lại.
 
-![Kiến trúc: MorphProvider kết nối overlay MorphMenu và nhóm route MorphSheetLayout](docs/diagrams/svg/vi/1-architecture.svg)
+![Kiến trúc: MorphProvider kết nối overlay MorphMenu và nhóm route MorphSheetLayout](https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/diagrams/svg/vi/1-architecture.svg?sanitize=true)
 
 Mở: frame đầu tiên của container trùng với card và render cùng các dòng, nên overlay có thể được ẩn mà không có thay đổi nào nhìn thấy được. Sau đó container mở rộng.
 
-![Trình tự mở](docs/diagrams/svg/vi/2-opening.svg)
+![Trình tự mở](https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/diagrams/svg/vi/2-opening.svg?sanitize=true)
 
 Đóng: mọi đường đóng đều bị chặn bởi `usePreventRemove`. Container thu gọn, và tại frame mà khung của nó trùng với card, card được hiện ra và container bị ẩn.
 
-![Trình tự đóng](docs/diagrams/svg/vi/3-closing.svg)
+![Trình tự đóng](https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/diagrams/svg/vi/3-closing.svg?sanitize=true)
 
-Máy trạng thái, các lớp của container và dòng thời gian animation được mô tả trong [Kiến trúc](docs/vi/ARCHITECTURE.md).
+Máy trạng thái, các lớp của container và dòng thời gian animation được mô tả trong [Kiến trúc](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/vi/ARCHITECTURE.md).
 
 ## Phát triển
 
@@ -349,10 +361,10 @@ Cấu hình ESLint (`eslint.config.js`) kế thừa `eslint-config-expo` và th�
 
 | Ví dụ | Nội dung |
 | --- | --- |
-| [example/](example/README.vi.md) | Menu trên một màn hình kèm các bước tích hợp, slot mặc định và tùy biến, prefetch khi hover, kiểm thử end-to-end bằng Maestro với trace theo frame. Không dùng thư viện quản lý state |
-| [example-social/](example-social/README.vi.md) | Ứng dụng mạng xã hội có tab và đăng nhập: nút nằm trên tab bar, ẩn ở các màn hình được push, luồng nhiều bước và chat bên trong sheet, `useMorphDismiss`, Redux Toolkit với optimistic update |
+| [example/](https://github.com/anhtuank7c/expo-morph-menu/blob/main/example/README.vi.md) | Menu trên một màn hình kèm các bước tích hợp, slot mặc định và tùy biến, prefetch khi hover, kiểm thử end-to-end bằng Maestro với trace theo frame. Không dùng thư viện quản lý state |
+| [example-social/](https://github.com/anhtuank7c/expo-morph-menu/blob/main/example-social/README.vi.md) | Ứng dụng mạng xã hội có tab và đăng nhập: nút nằm trên tab bar, ẩn ở các màn hình được push, luồng nhiều bước và chat bên trong sheet, `useMorphDismiss`, Redux Toolkit với optimistic update |
 
-Ví dụ mạng xã hội tải dữ liệu từ một REST API giả lập chạy trong ứng dụng (refresh JWT, thử lại theo backoff, giả lập lỗi): [example-social/docs/DATA-LAYER.vi.md](example-social/docs/DATA-LAYER.vi.md).
+Ví dụ mạng xã hội tải dữ liệu từ một REST API giả lập chạy trong ứng dụng (refresh JWT, thử lại theo backoff, giả lập lỗi): [example-social/docs/DATA-LAYER.vi.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/example-social/docs/DATA-LAYER.vi.md).
 
 ## Trạng thái nền tảng
 
@@ -360,9 +372,17 @@ Ví dụ mạng xã hội tải dữ liệu từ một REST API giả lập ch�
 | --- | --- |
 | Android | Kiểm thử end-to-end bằng Maestro và trace theo frame trên emulator Android 17 (API 37). Một bản build trước đó cũng đã được kiểm thử trên MEmu (Android 9) |
 | Web | Kiểm thử thủ công và bằng script trên Chrome desktop, với kích thước viewport desktop và điện thoại |
-| iOS | Chưa kiểm tra trên thiết bị. Vuốt từ mép trái, Liquid Glass và blur chưa được kiểm thử |
+| iOS | Kiểm thử thủ công trên iOS 27 simulator, gồm bề mặt Liquid Glass và kéo xuống để đóng. Chưa kiểm thử trên thiết bị thật |
 
-Hoan nghênh các báo cáo lỗi trên iOS.
+Hoan nghênh báo cáo từ thiết bị iOS thật.
+
+## Đóng góp và báo lỗi
+
+- Lỗi: mở issue bằng [form báo lỗi](https://github.com/anhtuank7c/expo-morph-menu/issues/new?template=bug_report.yml). Ghi rõ version của package, Expo SDK và Reanimated, nền tảng, và kèm video nếu lỗi về hiển thị.
+- Ý tưởng tính năng và câu hỏi: [đề xuất tính năng](https://github.com/anhtuank7c/expo-morph-menu/issues/new?template=feature_request.yml) hoặc [Discussions](https://github.com/anhtuank7c/expo-morph-menu/discussions).
+- Pull request: xem [CONTRIBUTING.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/CONTRIBUTING.md).
+- Lỗi bảo mật: không mở issue công khai, xem [SECURITY.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/SECURITY.md).
+- Ghi chú phát hành: [CHANGELOG.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/CHANGELOG.md).
 
 ## Giấy phép
 

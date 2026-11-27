@@ -25,7 +25,7 @@ Các peer dependency tùy chọn được phát hiện lúc chạy. Nếu một 
 | `expo-glass-effect` | Bề mặt card dạng Liquid Glass trên iOS 26 trở lên |
 | `expo-blur` | Bề mặt card làm mờ (blur) trên iOS |
 
-Tình trạng nền tảng: đã kiểm thử trên Android emulator (Android 9 và 17) và trên Chrome desktop. Chưa được xác minh trên thiết bị iOS.
+Tình trạng nền tảng: đã kiểm thử trên Android emulator (Android 9 và 17), iOS 27 simulator và Chrome desktop. Chưa được xác minh trên thiết bị iOS thật.
 
 ## Cài đặt
 

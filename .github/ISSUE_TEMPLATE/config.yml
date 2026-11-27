@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or idea
+    url: https://github.com/anhtuank7c/expo-morph-menu/discussions
+    about: Ask how to do something, or discuss an idea before filing a feature request.
+  - name: Integration guide and troubleshooting
+    url: https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/en/INTEGRATION.md#troubleshooting
+    about: Common setup problems and their fixes.
+  - name: Security vulnerability
+    url: https://github.com/anhtuank7c/expo-morph-menu/security/advisories/new
+    about: Report security problems privately, not as a public issue.

@@ -2,6 +2,14 @@
   "name": "expo-morph-menu",
   "version": "0.1.0",
   "description": "A floating button that morphs into a menu, then into a full-screen expo-router route — and back. Bring-your-own-UI slots, Reanimated 4, iOS / Android / web.",
+  "homepage": "https://github.com/anhtuank7c/expo-morph-menu#readme",
+  "bugs": {
+    "url": "https://github.com/anhtuank7c/expo-morph-menu/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anhtuank7c/expo-morph-menu.git"
+  },
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "react-native": "src/index.ts",
@@ -18,8 +26,12 @@
     "src",
     "lib",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "sideEffects": false,
   "workspaces": [
     "example",

@@ -1,6 +1,6 @@
 # expo-morph-menu
 
-**English** | [Tiếng Việt](README.vi.md)
+**English** | [Tiếng Việt](https://github.com/anhtuank7c/expo-morph-menu/blob/main/README.vi.md)
 
 An expandable floating action menu for expo-router, animated with Reanimated 4.
 
@@ -8,22 +8,22 @@ The floating button expands into a card menu. Selecting a row expands the card i
 
 <table>
   <tr>
-    <td align="center"><img src="docs/demo/basic-ios.gif" width="280" alt="Basic example on iOS: Liquid Glass menu, rows expand into full-screen routes and nested screens, closing returns to the card"></td>
-    <td align="center"><img src="docs/demo/social-ios.gif" width="280" alt="Social example on iOS: the compose menu opens Photo and Go live as full-screen routes, dragging down collapses them back into the card"></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/basic-ios.gif" width="280" alt="Basic example on iOS: Liquid Glass menu, rows expand into full-screen routes and nested screens, closing returns to the card"></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/social-ios.gif" width="280" alt="Social example on iOS: the compose menu opens Photo and Go live as full-screen routes, dragging down collapses them back into the card"></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/demo/basic.gif" width="280" alt="Basic example: the menu opens, a row expands into a full-screen route, closing it returns to the card"></td>
-    <td align="center"><img src="docs/demo/social.gif" width="280" alt="Social example: the compose button opens a menu, Post, Poll and Go live expand into full-screen routes"></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/basic.gif" width="280" alt="Basic example: the menu opens, a row expands into a full-screen route, closing it returns to the card"></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/social.gif" width="280" alt="Social example: the compose button opens a menu, Post, Poll and Go live expand into full-screen routes"></td>
   </tr>
   <tr>
-    <td align="center"><a href="example">Basic example</a>: tap a row, close, press and hold then slide</td>
-    <td align="center"><a href="example-social">Social example</a>: post, poll and live screens from one menu</td>
+    <td align="center"><a href="https://github.com/anhtuank7c/expo-morph-menu/tree/main/example">Basic example</a>: tap a row, close, press and hold then slide</td>
+    <td align="center"><a href="https://github.com/anhtuank7c/expo-morph-menu/tree/main/example-social">Social example</a>: post, poll and live screens from one menu</td>
   </tr>
 </table>
 
 Top row: iOS 27 simulator. Bottom row: Android emulator.
 
-![Floating button, card menu, full-screen route and child screen, with the dismiss path](docs/diagrams/svg/en/0-overview.svg)
+![Floating button, card menu, full-screen route and child screen, with the dismiss path](https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/diagrams/svg/en/0-overview.svg?sanitize=true)
 
 ## Features
 
@@ -38,11 +38,11 @@ Top row: iOS 27 simulator. Bottom row: Android emulator.
 
 | Topic | English | Tiếng Việt |
 | --- | --- | --- |
-| Integration guide | [docs/en/INTEGRATION.md](docs/en/INTEGRATION.md) | [docs/vi/INTEGRATION.md](docs/vi/INTEGRATION.md) |
-| Custom UI (slots) | [docs/en/CUSTOM-UI.md](docs/en/CUSTOM-UI.md) | [docs/vi/CUSTOM-UI.md](docs/vi/CUSTOM-UI.md) |
-| Architecture | [docs/en/ARCHITECTURE.md](docs/en/ARCHITECTURE.md) | [docs/vi/ARCHITECTURE.md](docs/vi/ARCHITECTURE.md) |
-| Performance | [docs/en/PERFORMANCE.md](docs/en/PERFORMANCE.md) | [docs/vi/PERFORMANCE.md](docs/vi/PERFORMANCE.md) |
-| Diagram sources | [docs/README.md](docs/README.md) | [docs/README.vi.md](docs/README.vi.md) |
+| Integration guide | [docs/en/INTEGRATION.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/en/INTEGRATION.md) | [docs/vi/INTEGRATION.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/vi/INTEGRATION.md) |
+| Custom UI (slots) | [docs/en/CUSTOM-UI.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/en/CUSTOM-UI.md) | [docs/vi/CUSTOM-UI.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/vi/CUSTOM-UI.md) |
+| Architecture | [docs/en/ARCHITECTURE.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/en/ARCHITECTURE.md) | [docs/vi/ARCHITECTURE.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/vi/ARCHITECTURE.md) |
+| Performance | [docs/en/PERFORMANCE.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/en/PERFORMANCE.md) | [docs/vi/PERFORMANCE.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/vi/PERFORMANCE.md) |
+| Diagram sources | [docs/README.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/README.md) | [docs/README.vi.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/README.vi.md) |
 
 ## Installation
 
@@ -60,7 +60,19 @@ Optional packages, detected at runtime:
 | `expo-glass-effect` | Liquid Glass card surface on iOS 26 and later |
 | `expo-blur` | Blurred card surface on iOS |
 
-Requirements: Expo SDK 58 or later (expo-router 58, Reanimated 4, Gesture Handler 3). `babel.config.js` must use `babel-preset-expo`, which enables the worklets Babel plugin.
+## Compatibility
+
+| | Supported |
+| --- | --- |
+| Expo SDK | 58 or later |
+| React Native | 0.80 or later (New Architecture) |
+| Reanimated | 4 or later, with `react-native-worklets` |
+| Platforms | iOS, Android, web |
+| Expo Go | Yes. The package has no native code of its own |
+
+`babel.config.js` must use `babel-preset-expo`, which enables the worklets Babel plugin.
+
+**Jest:** the package ships TypeScript source for Metro (the `react-native` export condition). Add it to `transformIgnorePatterns` next to the other React Native packages, for example `node_modules/(?!(...|expo-morph-menu)/)`.
 
 ## Usage
 
@@ -219,7 +231,7 @@ Single-color images are tinted with that color. For multi-color images, set `ico
 
 ### Slots
 
-![Slots rendered by your app and layout owned by the package](docs/diagrams/svg/en/6-slots.svg)
+![Slots rendered by your app and layout owned by the package](https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/diagrams/svg/en/6-slots.svg?sanitize=true)
 
 The package owns the animated containers (size, position, corner radius, clipping) together with gestures and the hand-off logic. Each visible part can be replaced through `components`:
 
@@ -259,7 +271,7 @@ Slot components must follow four rules:
 3. Row heights are known in advance: `layout.rowHeight` or a pure `itemHeight(item, index)`. Rows are not measured.
 4. `Background` is opaque, because the card and the full-screen container swap in a single frame.
 
-Details and examples for NativeWind, Tamagui, React Native Paper and Unistyles: [Custom UI](docs/en/CUSTOM-UI.md).
+Details and examples for NativeWind, Tamagui, React Native Paper and Unistyles: [Custom UI](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/en/CUSTOM-UI.md).
 
 ### Callbacks
 
@@ -306,17 +318,17 @@ The same code runs on Expo web through React Native Web.
 
 The menu card is an overlay, not a route. When a row is selected, the package stores the card's bounds and pushes the item's route. The route group's layout renders a fixed-size `Stack` inside an animated container. The container expands from the stored bounds to the full screen, while the inner navigator keeps a constant size and is not laid out again.
 
-![Architecture: MorphProvider connects the MorphMenu overlay and the MorphSheetLayout route group](docs/diagrams/svg/en/1-architecture.svg)
+![Architecture: MorphProvider connects the MorphMenu overlay and the MorphSheetLayout route group](https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/diagrams/svg/en/1-architecture.svg?sanitize=true)
 
 Opening: the first frame of the container matches the card and renders the same rows, so the overlay can be hidden without a visible change. The container then expands.
 
-![Opening sequence](docs/diagrams/svg/en/2-opening.svg)
+![Opening sequence](https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/diagrams/svg/en/2-opening.svg?sanitize=true)
 
 Closing: every dismiss path is intercepted by `usePreventRemove`. The container collapses, and on the frame where its bounds match the card, the card becomes visible and the container is hidden.
 
-![Closing sequence](docs/diagrams/svg/en/3-closing.svg)
+![Closing sequence](https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/diagrams/svg/en/3-closing.svg?sanitize=true)
 
-State machines, container layers and the animation timeline are described in [Architecture](docs/en/ARCHITECTURE.md).
+State machines, container layers and the animation timeline are described in [Architecture](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/en/ARCHITECTURE.md).
 
 ## Development
 
@@ -349,10 +361,10 @@ The ESLint config (`eslint.config.js`) extends `eslint-config-expo` and adds typ
 
 | Example | Shows |
 | --- | --- |
-| [example/](example/README.md) | The menu on a single screen with the integration steps, default and custom slots, prefetching on hover, Maestro end-to-end tests with the frame trace. No state management library |
-| [example-social/](example-social/README.md) | A social app with tabs and sign-in: button above the tab bar, hidden on pushed screens, multi-step flows and a chat inside the sheet, `useMorphDismiss`, Redux Toolkit with optimistic updates |
+| [example/](https://github.com/anhtuank7c/expo-morph-menu/blob/main/example/README.md) | The menu on a single screen with the integration steps, default and custom slots, prefetching on hover, Maestro end-to-end tests with the frame trace. No state management library |
+| [example-social/](https://github.com/anhtuank7c/expo-morph-menu/blob/main/example-social/README.md) | A social app with tabs and sign-in: button above the tab bar, hidden on pushed screens, multi-step flows and a chat inside the sheet, `useMorphDismiss`, Redux Toolkit with optimistic updates |
 
-The social example loads data from a mock REST API that runs in the app (JWT refresh, retries with backoff, fault injection): [example-social/docs/DATA-LAYER.md](example-social/docs/DATA-LAYER.md).
+The social example loads data from a mock REST API that runs in the app (JWT refresh, retries with backoff, fault injection): [example-social/docs/DATA-LAYER.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/example-social/docs/DATA-LAYER.md).
 
 ## Platform status
 
@@ -360,9 +372,17 @@ The social example loads data from a mock REST API that runs in the app (JWT ref
 | --- | --- |
 | Android | Maestro end-to-end tests and frame traces on an Android 17 emulator (API 37). An earlier build was also tested on MEmu (Android 9) |
 | Web | Manual and scripted tests in desktop Chrome, at desktop and phone viewport sizes |
-| iOS | Not verified on a device yet. Edge swipe, Liquid Glass and blur are untested |
+| iOS | Manual tests on an iOS 27 simulator, including the Liquid Glass surface and drag-down dismiss. Not yet tested on a physical device |
 
-Issue reports for iOS are welcome.
+Reports from physical iOS devices are welcome.
+
+## Contributing and bug reports
+
+- Bugs: open an issue with the [bug report form](https://github.com/anhtuank7c/expo-morph-menu/issues/new?template=bug_report.yml). Include the package, Expo SDK and Reanimated versions, the platform, and a recording if the problem is visual.
+- Feature ideas and questions: [feature request](https://github.com/anhtuank7c/expo-morph-menu/issues/new?template=feature_request.yml) or [Discussions](https://github.com/anhtuank7c/expo-morph-menu/discussions).
+- Pull requests: see [CONTRIBUTING.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/CONTRIBUTING.md).
+- Security issues: do not open a public issue, see [SECURITY.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/SECURITY.md).
+- Release notes: [CHANGELOG.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/CHANGELOG.md).
 
 ## License
 
