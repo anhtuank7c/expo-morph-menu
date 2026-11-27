@@ -5,6 +5,6 @@ ios/
 android/
 *.log
 .DS_Store
-lib/
+/lib/
 docs/diagrams/preview.*.html
 example-social/test/.build/
