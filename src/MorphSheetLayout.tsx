@@ -35,6 +35,7 @@ import Animated, {
   interpolateColor,
   runOnJS,
   useAnimatedStyle,
+  useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
 import { useSafeAreaFrame, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -49,16 +50,13 @@ import { resolveSurface } from './Surface';
 import { shellOpacity } from './visibility';
 import { useWebKey } from './web';
 
-/** Quãng kéo xuống để vỏ co từ 1 về sàn. */
-const DRAG_DISTANCE = 260;
 /** Bề rộng dải cạnh trái nhận cử chỉ vuốt (giống back gesture của iOS). */
 const EDGE_WIDTH = 24;
 /**
- * Sàn của cử chỉ: kéo/vuốt dài tới đâu vỏ cũng không co hẳn về card. Không có
- * sàn, `sheet` chạm 0 khi handoff còn ROUTE, lúc nhả tay vỏ và overlay đổi chỗ
- * trong một frame khi vỏ chưa trùng card.
+ * Quãng kéo ngắn nhất để vỏ co hết về card. Hành trình bình thường là từ chỗ
+ * đặt tay tới mép màn; sàn này chỉ để chạm sát mép dưới không quá nhạy.
  */
-const GESTURE_FLOOR = 0.35;
+const MIN_TRAVEL = 200;
 /** Nhả tay dưới ngưỡng này (hoặc vuốt nhanh) thì đóng, không thì bật lại. */
 const DISMISS_AT = 0.78;
 const FLING_VELOCITY = 900;
@@ -113,6 +111,12 @@ export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutPr
   const repeatRef = useRef<(() => void) | null>(null);
   /** Đã bắt đầu rời đi: chặn chạy morph ngược hai lần và chặn onLayout muộn. */
   const leavingRef = useRef(false);
+  /** Cử chỉ đã tự chạy spring đóng trên UI thread (xem `release`). */
+  const gestureClosing = useSharedValue(false);
+  /** translation lúc cử chỉ kích hoạt (đã vượt activeOffset). */
+  const dragStart = useSharedValue(0);
+  /** Quãng ngón tay đi từ lúc kích hoạt tới mép màn = co từ 1 về 0. */
+  const dragTravel = useSharedValue(MIN_TRAVEL);
 
   /* --- giao ca card → vỏ trên web ------------------------------------------
      Native dựa vào onLayout của vỏ (view native có thể chưa lên màn khi
@@ -162,6 +166,9 @@ export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutPr
     // frame đầu của animation đóng — chính là cú khựng. Nội dung đang mờ dần
     // theo `contentStyle`, cứ để nguyên cho tới lúc pop.
     handoff.value = HANDOFF.RETURNING;
+    // Nhả tay từ cử chỉ: spring đóng đã chạy sẵn trên UI thread, mang theo
+    // vận tốc ngón tay. Chạy lại ở đây sẽ reset vận tốc về 0 → khựng.
+    if (gestureClosing.value) return;
     sheet.value = withSpring(0, spring, (finished) => {
       'worklet';
       if (!finished) return;
@@ -240,22 +247,50 @@ export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutPr
   useWebKey('Escape', atStackRoot, goBack);
 
   /* --- cử chỉ đóng (config.dismiss, mặc định theo platform) ---------------
-     Cả hai cử chỉ chỉ lái `sheet` theo ngón tay; nhả tay thì goBack() →
-     usePreventRemove ở trên, spring chạy tiếp từ giá trị hiện tại nên không
-     có cú giật nối giữa cử chỉ và animation.                               */
+     Cả hai cử chỉ chỉ lái `sheet` theo ngón tay. Nhả tay để đóng: spring
+     đóng chạy ngay trên UI thread từ đúng giá trị và vận tốc lúc nhả, rồi
+     mới goBack() → usePreventRemove ở trên (chỉ ghi nhận, không chạy lại
+     spring). Spring xong thì cho điều hướng đi tiếp.                       */
   const { edgeSwipe, dragDown } = config.dismiss;
+  const finishGestureClose = useCallback(() => setAllowLeave(true), []);
 
   // useMemo: không có nó, mỗi lần layout re-render lại tạo gesture mới và
   // GestureDetector phải gắn lại handler.
   const gesture = useMemo(() => {
+    // Co tuyến tính theo ngón tay trên CẢ hành trình: từ chỗ đặt tay tới mép
+    // màn, vỏ đi từ full screen về đúng rect card, không có điểm dừng nào.
+    // Vỏ chạm card (sheet = 0) lúc nhả tay thì đó cũng là điểm cắt sang
+    // overlay của đường đóng thường, nên không có frame lệch.
+    const begin = (position: number, translation: number, extent: number) => {
+      'worklet';
+      dragStart.value = translation; // trừ quãng activeOffset: không nhảy cóc
+      dragTravel.value = Math.max(extent - position, MIN_TRAVEL);
+    };
+    const follow = (translation: number) => {
+      'worklet';
+      if (gestureClosing.value) return;
+      const d = Math.max(translation - dragStart.value, 0);
+      sheet.value = Math.max(1 - d / dragTravel.value, 0);
+    };
     const release = (velocity: number) => {
       'worklet';
-      if (sheet.value < DISMISS_AT || velocity > FLING_VELOCITY) runOnJS(goBack)();
-      else sheet.value = withSpring(1, spring);
-    };
-    const follow = (distance: number, span: number) => {
-      'worklet';
-      sheet.value = Math.max(1 - Math.max(distance, 0) / span, GESTURE_FLOOR);
+      if (gestureClosing.value) return;
+      // Vận tốc ngón tay (px/s) → vận tốc của `sheet` (đơn vị/s).
+      const v = -velocity / dragTravel.value;
+      if (sheet.value < DISMISS_AT || velocity > FLING_VELOCITY) {
+        // Chạy spring đóng NGAY trên UI thread, không đợi JS xử lý goBack
+        // (bản dev có thể trễ cả trăm ms — vỏ đứng im lúc vừa nhả tay).
+        gestureClosing.value = true;
+        handoff.value = HANDOFF.RETURNING;
+        sheet.value = withSpring(0, { ...spring, velocity: v }, (finished) => {
+          'worklet';
+          if (finished) runOnJS(finishGestureClose)();
+        });
+        // Xếp hàng trước callback trên: usePreventRemove nhận `repeat` trước.
+        runOnJS(goBack)();
+      } else {
+        sheet.value = withSpring(1, { ...spring, velocity: v });
+      }
     };
 
     const edge = Gesture.Pan()
@@ -263,7 +298,8 @@ export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutPr
       .hitSlop({ left: 0, width: EDGE_WIDTH })
       .activeOffsetX(12)
       .failOffsetY([-16, 16])
-      .onUpdate((e) => follow(e.translationX, W * 0.6))
+      .onStart((e) => begin(e.absoluteX, e.translationX, W))
+      .onUpdate((e) => follow(e.translationX))
       .onEnd((e) => release(e.velocityX));
 
     // Kéo xuống: vẫn chạy cả khi đã drill vào màn con, giống sheet của iOS.
@@ -271,11 +307,26 @@ export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutPr
       .enabled(dragDown)
       .activeOffsetY(12)
       .failOffsetY(-12)
-      .onUpdate((e) => follow(e.translationY, DRAG_DISTANCE))
+      .onStart((e) => begin(e.absoluteY, e.translationY, H))
+      .onUpdate((e) => follow(e.translationY))
       .onEnd((e) => release(e.velocityY));
 
     return Gesture.Race(edge, drag);
-  }, [sheet, goBack, edgeSwipe, dragDown, atStackRoot, W, spring]);
+  }, [
+    sheet,
+    handoff,
+    gestureClosing,
+    dragStart,
+    dragTravel,
+    goBack,
+    finishGestureClose,
+    edgeSwipe,
+    dragDown,
+    atStackRoot,
+    W,
+    H,
+    spring,
+  ]);
 
   /* --- vỏ morph: rect card ↔ full screen ---------------------------------- */
   const cardRadius = config.radius.card;
