@@ -8,6 +8,10 @@ Nút nổi mở rộng thành card menu. Khi chọn một dòng, card mở rộn
 
 <table>
   <tr>
+    <td align="center"><img src="docs/demo/basic-ios.gif" width="280" alt="Ví dụ cơ bản trên iOS: menu Liquid Glass, các dòng mở rộng thành route full screen và màn con, đóng thì về lại card"></td>
+    <td align="center"><img src="docs/demo/social-ios.gif" width="280" alt="Ví dụ mạng xã hội trên iOS: menu soạn bài mở Photo và Go live thành route full screen, kéo xuống thì thu về card"></td>
+  </tr>
+  <tr>
     <td align="center"><img src="docs/demo/basic.gif" width="280" alt="Ví dụ cơ bản: menu mở, một dòng mở rộng thành route full screen, đóng thì về lại card"></td>
     <td align="center"><img src="docs/demo/social.gif" width="280" alt="Ví dụ mạng xã hội: nút soạn bài mở menu, Post, Poll và Go live mở rộng thành route full screen"></td>
   </tr>
@@ -17,7 +21,7 @@ Nút nổi mở rộng thành card menu. Khi chọn một dòng, card mở rộn
   </tr>
 </table>
 
-Quay trên Android emulator.
+Hàng trên: iOS 27 simulator. Hàng dưới: Android emulator.
 
 ![Nút nổi, card menu, route full screen và màn hình con, cùng đường đóng](docs/diagrams/svg/vi/0-overview.svg)
 

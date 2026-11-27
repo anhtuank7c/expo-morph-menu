@@ -8,6 +8,10 @@ The floating button expands into a card menu. Selecting a row expands the card i
 
 <table>
   <tr>
+    <td align="center"><img src="docs/demo/basic-ios.gif" width="280" alt="Basic example on iOS: Liquid Glass menu, rows expand into full-screen routes and nested screens, closing returns to the card"></td>
+    <td align="center"><img src="docs/demo/social-ios.gif" width="280" alt="Social example on iOS: the compose menu opens Photo and Go live as full-screen routes, dragging down collapses them back into the card"></td>
+  </tr>
+  <tr>
     <td align="center"><img src="docs/demo/basic.gif" width="280" alt="Basic example: the menu opens, a row expands into a full-screen route, closing it returns to the card"></td>
     <td align="center"><img src="docs/demo/social.gif" width="280" alt="Social example: the compose button opens a menu, Post, Poll and Go live expand into full-screen routes"></td>
   </tr>
@@ -17,7 +21,7 @@ The floating button expands into a card menu. Selecting a row expands the card i
   </tr>
 </table>
 
-Recorded on an Android emulator.
+Top row: iOS 27 simulator. Bottom row: Android emulator.
 
 ![Floating button, card menu, full-screen route and child screen, with the dismiss path](docs/diagrams/svg/en/0-overview.svg)
 
