@@ -182,7 +182,9 @@ export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutPr
      luôn chạy trước mọi useEffect. Trang đằng nào cũng đang rời đi, nên bỏ
      chặn lúc đó là vô hại. */
   const disableRef = useRef(disablePrevention);
-  disableRef.current = disablePrevention;
+  useLayoutEffect(() => {
+    disableRef.current = disablePrevention;
+  });
   useLayoutEffect(() => {
     if (Platform.OS !== 'web') return;
     const w = globalThis as any;
@@ -223,18 +225,18 @@ export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutPr
      Vuốt cạnh trái chỉ đóng sheet khi đang ở màn GỐC. Ở màn con, cạnh trái
      là của back gesture native của stack đó (pop về màn gốc). Màn gốc = màn
      đầu tiên được focus trong vòng đời của layout này.                     */
-  const rootKeyRef = useRef<string | null>(null);
+  const [rootKey, setRootKey] = useState<string | null>(null);
   const [focusedKey, setFocusedKey] = useState<string | null>(null);
   const screenListeners = useCallback(
     ({ route }: { route: { key: string } }) => ({
       focus: () => {
-        if (rootKeyRef.current === null) rootKeyRef.current = route.key;
+        setRootKey((key) => key ?? route.key);
         setFocusedKey(route.key);
       },
     }),
     [],
   );
-  const atStackRoot = focusedKey === null || focusedKey === rootKeyRef.current;
+  const atStackRoot = focusedKey === null || focusedKey === rootKey;
   useWebKey('Escape', atStackRoot, goBack);
 
   /* --- cử chỉ đóng (config.dismiss, mặc định theo platform) ---------------

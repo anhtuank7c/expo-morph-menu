@@ -85,6 +85,8 @@ export function MorphTrace({ enabled = true }: MorphTraceProps) {
     // overlay = 1 khi vỏ đã rời rect card (s > 0.02) chỉ có thể là handoff
     // còn MENU — tức giao ca sang vỏ bị trễ. iOS: overlay nằm dưới, bỏ qua.
     const overlap = !OVERLAY_BELOW_ROUTE && ov > 0.95 && sh > 0.95 && s > 0.02 ? ' OVERLAP' : '';
+    // Printing frames is the purpose of this component; it renders only when enabled.
+    // eslint-disable-next-line no-console
     console.log(
       `[morph] f=${p.f} m=${m.toFixed(3)} s=${s.toFixed(3)} h=${h} ov=${ov.toFixed(2)} sh=${sh.toFixed(2)}${jump}${hole}${ghost}${overlap}${drop}`,
     );

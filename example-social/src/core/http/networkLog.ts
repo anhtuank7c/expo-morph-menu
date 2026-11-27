@@ -22,6 +22,8 @@ export type NetworkEntry = {
 
 type NetworkState = { entries: NetworkEntry[] };
 
+const initialState: NetworkState = { entries: [] };
+
 const LIMIT = 80;
 
 /** Entry ids are assigned in prepare(), so the base query knows the id of the entry it started. */
@@ -29,7 +31,7 @@ let nextEntryId = 1;
 
 export const networkSlice = createSlice({
   name: 'network',
-  initialState: { entries: [] } as NetworkState,
+  initialState,
   reducers: {
     requestStarted: {
       reducer(state, action: PayloadAction<Omit<NetworkEntry, 'id'> & { id: number }>) {

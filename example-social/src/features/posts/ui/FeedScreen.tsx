@@ -34,7 +34,7 @@ export function FeedScreen() {
   const refreshing = isFetching && !isLoading && !isFetchingNextPage;
 
   const loadMore = useCallback(() => {
-    if (hasNextPage && !isFetchingNextPage && !error) fetchNextPage();
+    if (hasNextPage && !isFetchingNextPage && !error) void fetchNextPage();
   }, [hasNextPage, isFetchingNextPage, error, fetchNextPage]);
   const refresh = useCallback(() => void refetch(), [refetch]);
   const retryNextPage = useCallback(() => void fetchNextPage(), [fetchNextPage]);

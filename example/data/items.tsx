@@ -14,9 +14,10 @@ type Demo = {
 };
 
 /** Function form: receives `size` and `color` from the theme and config. */
-const ion =
-  (name: keyof typeof Ionicons.glyphMap): MorphIcon =>
-  ({ size, color }) => <Ionicons name={name} size={size} color={color} />;
+const ion = (name: keyof typeof Ionicons.glyphMap): MorphIcon =>
+  function IonIcon({ size, color }) {
+    return <Ionicons name={name} size={size} color={color} />;
+  };
 
 const DEMO: Demo[] = [
   {

@@ -6,7 +6,6 @@
  * khác. Nhờ vậy người dùng chỉ cài thứ họ cần.
  */
 
-/* eslint-disable @typescript-eslint/no-var-requires */
 declare const require: (id: string) => any;
 
 let Haptics: any = null;

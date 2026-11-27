@@ -104,7 +104,7 @@ function SessionCard() {
 /** The only part of the screen that renders every second. */
 function TokenCountdown() {
   const expiresAt = useAppSelector((s) => s.auth.accessExpiresAt);
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (!expiresAt) return;
     const timer = setInterval(() => setNow(Date.now()), 1000);

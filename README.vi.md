@@ -322,8 +322,24 @@ npm run example        # ví dụ cơ bản (example/) trong Expo Go
 npm run example:social # ví dụ mạng xã hội có tab (example-social/)
 npm run typecheck      # package và cả hai ứng dụng ví dụ
 npm run test:api       # lớp dữ liệu của các ví dụ: refresh token, thử lại, idempotency
+npm run lint           # ESLint cho package và cả hai ví dụ
+npm run format         # Prettier (code và file cấu hình; không format Markdown)
+npm run check          # typecheck, lint và kiểm tra format cùng lúc
 npm run build          # biên dịch ra lib/
 ```
+
+Cấu hình ESLint (`eslint.config.js`) kế thừa `eslint-config-expo` và thêm các rule có dùng thông tin kiểu, nhắm vào những lỗi chỉ lộ ra lúc chạy:
+
+| Rule | Bắt lỗi gì |
+| --- | --- |
+| `@typescript-eslint/no-floating-promises` | Promise không được await cũng không được catch, nên lỗi reject bị mất. Lời gọi cố ý không chờ thì đánh dấu bằng `void` |
+| `@typescript-eslint/no-misused-promises` | Hàm async được truyền vào chỗ callback không được trả về gì, ví dụ `useEffect` |
+| `@typescript-eslint/switch-exhaustiveness-check` | `switch` trên một union bỏ sót case được thêm về sau |
+| `react-hooks/rules-of-hooks`, `react-hooks/exhaustive-deps` | Hook gọi có điều kiện, effect và callback đọc phải giá trị cũ |
+| `react-hooks/refs`, `react-hooks/purity` | Ref bị đọc hoặc ghi trong lúc render, lời gọi không thuần như `Date.now()` trong lúc render |
+| `import/no-cycle` | Import vòng, có thể khiến một module là `undefined` lúc được đọc lần đầu |
+
+`react-hooks/immutability` bị tắt: rule này báo mọi lần ghi vào shared value của Reanimated (`sv.value = x`), trong khi đó chính là cách API của Reanimated hoạt động.
 
 | Ví dụ | Nội dung |
 | --- | --- |

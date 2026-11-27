@@ -42,7 +42,7 @@ export function useSheetData(key: string) {
     let alive = true;
     prefetchSheet(key);
     const mountedAt = Date.now();
-    cache.get(key)!.then((payload) => {
+    void cache.get(key)!.then((payload) => {
       if (!alive) return;
       setData(payload);
       setWaitedMs(Date.now() - mountedAt);

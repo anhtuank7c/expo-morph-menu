@@ -61,11 +61,12 @@ export function ChatThread({ conversationId }: { conversationId: string }) {
 
   // Mark as read whenever messages arrive while the conversation is open.
   useEffect(() => {
-    if (unread > 0) markRead(conversationId);
+    if (unread > 0) void markRead(conversationId);
   }, [unread, conversationId, markRead]);
 
   // Inverted list: newest message at the bottom, next to the input.
-  const messages = useMemo(() => (data ? [...data.messages].reverse() : []), [data?.messages]);
+  const list = data?.messages;
+  const messages = useMemo(() => (list ? [...list].reverse() : []), [list]);
 
   const sendText = useCallback(
     (text: string) => send({ conversationId, text, clientId: clientId('msg') }),

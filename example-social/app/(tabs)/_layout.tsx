@@ -19,11 +19,10 @@ import { useUnreadMessageCount } from '../../src/features/messages';
 import { useUnreadNoticeCount } from '../../src/features/notifications';
 import { TAB_BAR_HEIGHT, theme } from '../../src/shared/theme';
 
-const icon =
-  (active: IconName, inactive: IconName) =>
-  ({ focused, color }: { focused: boolean; color: ColorValue }) => (
-    <Ionicons name={focused ? active : inactive} size={24} color={color as string} />
-  );
+const icon = (active: IconName, inactive: IconName) =>
+  function TabIcon({ focused, color }: { focused: boolean; color: ColorValue }) {
+    return <Ionicons name={focused ? active : inactive} size={24} color={color as string} />;
+  };
 
 const ICONS = {
   index: icon('home', 'home-outline'),

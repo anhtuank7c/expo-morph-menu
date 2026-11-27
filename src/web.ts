@@ -2,7 +2,7 @@
  * Phần riêng cho Expo web. Trên native mọi hàm ở đây là no-op.
  */
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 
 /**
@@ -11,7 +11,9 @@ import { Platform } from 'react-native';
  */
 export function useWebKey(key: string, active: boolean, handler: () => void) {
   const ref = useRef(handler);
-  ref.current = handler;
+  useLayoutEffect(() => {
+    ref.current = handler;
+  });
   useEffect(() => {
     if (Platform.OS !== 'web' || !active) return;
     const target = (globalThis as any).document;

@@ -322,8 +322,24 @@ npm run example        # basic example (example/) in Expo Go
 npm run example:social # social example with tabs (example-social/)
 npm run typecheck      # package and both example apps
 npm run test:api       # data layer of the examples: token refresh, retries, idempotency
+npm run lint           # ESLint on the package and both examples
+npm run format         # Prettier (code and config files; Markdown is not formatted)
+npm run check          # typecheck, lint and format check together
 npm run build          # compile to lib/
 ```
+
+The ESLint config (`eslint.config.js`) extends `eslint-config-expo` and adds type-aware rules for errors that only show up at runtime:
+
+| Rule | Catches |
+| --- | --- |
+| `@typescript-eslint/no-floating-promises` | A promise that is neither awaited nor caught, so its rejection is lost. Mark intentional fire-and-forget calls with `void` |
+| `@typescript-eslint/no-misused-promises` | An async function passed where a callback must return nothing, such as `useEffect` |
+| `@typescript-eslint/switch-exhaustiveness-check` | A `switch` over a union that misses a case added later |
+| `react-hooks/rules-of-hooks`, `react-hooks/exhaustive-deps` | Hooks called conditionally, effects and callbacks that read stale values |
+| `react-hooks/refs`, `react-hooks/purity` | Refs read or written during render, impure calls such as `Date.now()` during render |
+| `import/no-cycle` | Import cycles, which can leave a module `undefined` when it is first read |
+
+`react-hooks/immutability` is off: it reports every write to a Reanimated shared value (`sv.value = x`), which is how the Reanimated API works.
 
 | Example | Shows |
 | --- | --- |

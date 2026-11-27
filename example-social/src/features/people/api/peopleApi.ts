@@ -28,7 +28,7 @@ export const peopleApi = api.injectEndpoints({
         );
         try {
           const { data } = await queryFulfilled;
-          dispatch(peopleApi.util.upsertQueryData('getUser', handle, data));
+          void dispatch(peopleApi.util.upsertQueryData('getUser', handle, data));
         } catch {
           patch.undo();
         }

@@ -12,7 +12,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useMorphDismiss } from 'expo-morph-menu';
 import { StatusBar } from 'expo-status-bar';
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -31,7 +31,9 @@ export function GoLiveScreen() {
 
   // End the broadcast when the screen goes away for any reason.
   const liveRef = useRef<string | undefined>(undefined);
-  liveRef.current = live?.id;
+  useLayoutEffect(() => {
+    liveRef.current = live?.id;
+  });
   useEffect(() => () => void (liveRef.current && endLive(liveRef.current)), [endLive]);
 
   const finish = async () => {
@@ -95,7 +97,7 @@ export function GoLiveScreen() {
 
 /** Elapsed time. The only component that renders every second. */
 const LiveClock = memo(function LiveClock({ startedAt }: { startedAt: number }) {
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(timer);

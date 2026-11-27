@@ -108,16 +108,15 @@ export function createBaseQuery({
 
   /** One logged attempt. */
   async function attempt(args: FetchArgs, api: BaseQueryApi, attemptNo: number) {
-    const id = (
-      api.dispatch(
-        networkActions.requestStarted({
-          method: (args.method ?? 'GET').toUpperCase(),
-          url: args.url,
-          attempt: attemptNo,
-          startedAt: Date.now(),
-        }),
-      ) as ReturnType<typeof networkActions.requestStarted>
-    ).payload.id;
+    // prepare() assigns the id when the action is created.
+    const started = networkActions.requestStarted({
+      method: (args.method ?? 'GET').toUpperCase(),
+      url: args.url,
+      attempt: attemptNo,
+      startedAt: Date.now(),
+    });
+    api.dispatch(started);
+    const id = started.payload.id;
     const result = await raw(args, api, {});
     const replayed = result.meta?.response?.headers.get('Idempotent-Replay') === 'true';
     api.dispatch(

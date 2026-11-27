@@ -7,7 +7,7 @@
 
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
-import { memo, useCallback, useRef } from 'react';
+import { memo, useCallback, useLayoutEffect, useRef } from 'react';
 import {
   FlatList,
   Pressable,
@@ -44,12 +44,14 @@ export function NotificationsScreen() {
   const [markRead] = useMarkNotificationsReadMutation();
   // Read in the blur cleanup; a ref avoids re-subscribing the focus effect on every data change.
   const hasUnread = useRef(false);
-  hasUnread.current = data.some((n) => !n.read);
+  useLayoutEffect(() => {
+    hasUnread.current = data.some((n) => !n.read);
+  });
 
   useFocusEffect(
     useCallback(
       () => () => {
-        if (hasUnread.current) markRead();
+        if (hasUnread.current) void markRead();
       },
       [markRead],
     ),

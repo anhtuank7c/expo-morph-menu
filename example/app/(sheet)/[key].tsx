@@ -72,7 +72,7 @@ export default function SheetRoot() {
 
           <Text style={styles.heading}>What happened</Text>
           <Text style={styles.para}>
-            1. The row's href was pushed with expo-router. This screen is a regular route, so a deep link
+            1. The row&apos;s href was pushed with expo-router. This screen is a regular route, so a deep link
             opens it as well.
           </Text>
           <Text style={styles.para}>

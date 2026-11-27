@@ -29,7 +29,7 @@ export type RenderIconOptions = MorphIconRenderProps & {
 function isImageSource(icon: unknown): icon is ImageSourcePropType {
   if (typeof icon === 'number') return true; // require('./x.png')
   if (Array.isArray(icon)) return icon.every((s) => s && typeof s === 'object' && 'uri' in s);
-  return !!icon && typeof icon === 'object' && 'uri' in (icon as object);
+  return !!icon && typeof icon === 'object' && 'uri' in icon;
 }
 
 /** Vẽ một `MorphIcon`. Trả `null` khi không có icon. */

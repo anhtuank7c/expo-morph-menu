@@ -96,7 +96,6 @@ export function MorphMenu({
   const sh = config.shadow;
   const shadowSpecValue = useMemo(() => shadowSpec(sh), [sh]);
   const { cardWidth, padding, fabSize } = config.layout;
-  const count = items.length;
   const { offsets, heights } = list;
 
   /**
@@ -208,6 +207,8 @@ export function MorphMenu({
   const concealed = hidden && mode === 'closed';
   useEffect(() => {
     if (hidden && mode === 'open') {
+      // Closing first is the point: the FAB may only hide once the menu is closed.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       close();
       return;
     }
@@ -314,6 +315,9 @@ export function MorphMenu({
           const moved = Math.hypot(e.translationX, e.translationY) > 8;
           hovered.value = moved ? hitTest(e.absoluteX, e.absoluteY) : -1;
         })
+        // The callback runs when the gesture ends, not during render. The rule
+        // cannot tell, because the gesture is built inside useMemo.
+        // eslint-disable-next-line react-hooks/refs
         .onFinalize((e) => {
           runOnJS(onPressEnd)();
           hovered.value = -1;

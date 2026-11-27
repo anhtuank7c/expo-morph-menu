@@ -11,7 +11,7 @@
  * CÙNG một mặt menu.
  */
 
-import React, { createContext, useCallback, useContext, useMemo, useRef } from 'react';
+import React, { createContext, useCallback, useContext, useLayoutEffect, useMemo, useRef } from 'react';
 import { useColorScheme } from 'react-native';
 import {
   ReduceMotion,
@@ -153,7 +153,9 @@ export function MorphProvider({
 
   // Callback để trong ref: đổi callback không làm gesture/worklet dựng lại.
   const cbRef = useRef<MorphCallbacks>({});
-  cbRef.current = { onHover, onSelect, onOpen, onClose, onSheetDismissed };
+  useLayoutEffect(() => {
+    cbRef.current = { onHover, onSelect, onOpen, onClose, onSheetDismissed };
+  });
   const callbacks = useMemo<MorphCallbacks>(
     () => ({
       onHover: (i) => cbRef.current.onHover?.(i),

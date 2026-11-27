@@ -251,13 +251,12 @@ export function createMockServer(options: MockServerOptions) {
 
   async function readRequest(input: RequestInfo | URL, init?: RequestInit) {
     const isRequest = typeof input === 'object' && input !== null && 'url' in input && 'method' in input;
-    const request = isRequest ? (input as Request) : null;
+    const request = isRequest ? input : null;
     const url = request ? request.url : String(input);
     const method = (init?.method ?? request?.method ?? 'GET').toUpperCase();
     const headers: Record<string, string> = {};
     const source = init?.headers ?? request?.headers;
-    if (source)
-      new Headers(source as HeadersInit).forEach((value, key) => (headers[key.toLowerCase()] = value));
+    if (source) new Headers(source).forEach((value, key) => (headers[key.toLowerCase()] = value));
     let text = '';
     if (init?.body != null) text = String(init.body);
     else if (request && method !== 'GET' && method !== 'HEAD') text = await request.text();
@@ -383,7 +382,7 @@ export function createMockServer(options: MockServerOptions) {
     },
   };
 
-  return { fetch: mockFetch as typeof fetch, control };
+  return { fetch: mockFetch, control };
 }
 
 /** Reads the initial chaos level from EXPO_PUBLIC_API_CHAOS (off, low, high). */
