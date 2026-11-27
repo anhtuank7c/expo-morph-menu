@@ -6,6 +6,19 @@ Menu nổi có thể mở rộng dành cho expo-router, dùng animation của Re
 
 Nút nổi mở rộng thành card menu. Khi chọn một dòng, card mở rộng thành một route full screen. Khi route được đóng, nó thu gọn về card và menu vẫn mở. Vì màn hình full screen là một route expo-router thông thường, nó hỗ trợ deep link, điều hướng back và native stack lồng nhau.
 
+<table>
+  <tr>
+    <td align="center"><img src="docs/demo/basic.gif" width="280" alt="Ví dụ cơ bản: menu mở, một dòng mở rộng thành route full screen, đóng thì về lại card"></td>
+    <td align="center"><img src="docs/demo/social.gif" width="280" alt="Ví dụ mạng xã hội: nút soạn bài mở menu, Post, Poll và Go live mở rộng thành route full screen"></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="example">Ví dụ cơ bản</a>: chạm một dòng, đóng, nhấn giữ rồi trượt</td>
+    <td align="center"><a href="example-social">Ví dụ mạng xã hội</a>: màn đăng bài, poll và live từ cùng một menu</td>
+  </tr>
+</table>
+
+Quay trên Android emulator.
+
 ![Nút nổi, card menu, route full screen và màn hình con, cùng đường đóng](docs/diagrams/svg/vi/0-overview.svg)
 
 ## Tính năng

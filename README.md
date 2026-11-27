@@ -6,6 +6,19 @@ An expandable floating action menu for expo-router, animated with Reanimated 4.
 
 The floating button expands into a card menu. Selecting a row expands the card into a full-screen route. When the route is dismissed, it collapses back into the card and the menu stays open. Because the full screen is a regular expo-router route, it supports deep links, back navigation and a nested native stack.
 
+<table>
+  <tr>
+    <td align="center"><img src="docs/demo/basic.gif" width="280" alt="Basic example: the menu opens, a row expands into a full-screen route, closing it returns to the card"></td>
+    <td align="center"><img src="docs/demo/social.gif" width="280" alt="Social example: the compose button opens a menu, Post, Poll and Go live expand into full-screen routes"></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="example">Basic example</a>: tap a row, close, press and hold then slide</td>
+    <td align="center"><a href="example-social">Social example</a>: post, poll and live screens from one menu</td>
+  </tr>
+</table>
+
+Recorded on an Android emulator.
+
 ![Floating button, card menu, full-screen route and child screen, with the dismiss path](docs/diagrams/svg/en/0-overview.svg)
 
 ## Features
