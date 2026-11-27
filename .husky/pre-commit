@@ -1,0 +1,8 @@
+# Runs on every `git commit`. Skip once with `git commit --no-verify`.
+
+# ESLint and Prettier on the staged files only (config: "lint-staged" in package.json).
+npx lint-staged
+
+# Type errors can come from files that were not staged (a changed type used
+# elsewhere), so the whole package and both examples are checked.
+npm run typecheck

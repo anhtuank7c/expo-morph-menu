@@ -328,6 +328,8 @@ npm run check          # typecheck, lint and format check together
 npm run build          # compile to lib/
 ```
 
+`npm install` also sets up a pre-commit hook (husky). On each commit it runs ESLint with `--fix` and Prettier on the staged files (lint-staged), then `npm run typecheck`. A commit with a lint error, a lint warning or a type error is rejected. `git commit --no-verify` skips the hook.
+
 The ESLint config (`eslint.config.js`) extends `eslint-config-expo` and adds type-aware rules for errors that only show up at runtime:
 
 | Rule | Catches |

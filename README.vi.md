@@ -328,6 +328,8 @@ npm run check          # typecheck, lint và kiểm tra format cùng lúc
 npm run build          # biên dịch ra lib/
 ```
 
+`npm install` cũng cài một pre-commit hook (husky). Mỗi lần commit, hook chạy ESLint với `--fix` và Prettier trên các file đã stage (lint-staged), rồi chạy `npm run typecheck`. Commit có lỗi lint, cảnh báo lint hoặc lỗi kiểu sẽ bị từ chối. `git commit --no-verify` bỏ qua hook.
+
 Cấu hình ESLint (`eslint.config.js`) kế thừa `eslint-config-expo` và thêm các rule có dùng thông tin kiểu, nhắm vào những lỗi chỉ lộ ra lúc chạy:
 
 | Rule | Bắt lỗi gì |
