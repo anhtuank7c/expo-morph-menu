@@ -88,6 +88,38 @@ export function restShadow(p: number) {
   return Math.max(nearStart, nearEnd);
 }
 
+type Insets = { top: number; bottom: number; left: number; right: number };
+
+/**
+ * Rect của sheet khi đã mở hẳn: full screen, hoặc thẻ nổi ở giữa vùng an toàn
+ * khi màn đủ rộng và đủ cao (`config.floatingSheet`).
+ */
+export function sheetRect(
+  W: number,
+  H: number,
+  insets: Insets,
+  config: Pick<MorphConfig, 'floatingSheet' | 'radius'>,
+): Rect & { floating: boolean } {
+  const f = config.floatingSheet;
+  if (!f.enabled || W < f.minWidth || H < f.minHeight) {
+    return { x: 0, y: 0, w: W, h: H, r: config.radius.sheet, floating: false };
+  }
+  const left = insets.left + f.margin;
+  const top = insets.top + f.margin;
+  const availW = W - left - insets.right - f.margin;
+  const availH = H - top - insets.bottom - f.margin;
+  const w = Math.round(Math.min(f.maxWidth, availW));
+  const h = Math.round(Math.min(f.maxHeight, availH));
+  return {
+    x: Math.round(left + (availW - w) / 2),
+    y: Math.round(top + (availH - h) / 2),
+    w,
+    h,
+    r: f.radius,
+    floating: true,
+  };
+}
+
 /** Rect dự phòng khi mở thẳng route bằng deep link: nở nhẹ từ giữa màn. */
 export function fallbackOrigin(W: number, H: number, r: number): Rect {
   'worklet';

@@ -97,6 +97,29 @@ export type MorphConfig = {
   colorScheme: MorphColorScheme;
   /** Độ tối tối đa của backdrop phía sau sheet. */
   backdropOpacity: number;
+  /**
+   * Màn hình rộng (iPad, điện thoại gập khi mở, web desktop): sheet nở thành
+   * một thẻ nổi ở giữa màn thay vì phủ kín, như form sheet của iPadOS. Bên
+   * trong thẻ, `useSafeAreaInsets()` trả về 0 và `useSafeAreaFrame()` trả về
+   * khung của thẻ, nên màn hình viết cho điện thoại dùng lại được nguyên vẹn.
+   */
+  floatingSheet: {
+    /** false: luôn full screen. */
+    enabled: boolean;
+    /** Chỉ nổi khi màn rộng ít nhất chừng này (pt)… */
+    minWidth: number;
+    /** …và cao ít nhất chừng này, để điện thoại xoay ngang vẫn full screen. */
+    minHeight: number;
+    /** Kích thước tối đa của thẻ. */
+    maxWidth: number;
+    maxHeight: number;
+    /** Khoảng hở tối thiểu tới mép màn (cộng thêm safe area). */
+    margin: number;
+    /** Bo góc của thẻ. */
+    radius: number;
+    /** Chạm vào backdrop quanh thẻ thì đóng. */
+    dismissOnBackdropPress: boolean;
+  };
 };
 
 type DeepPartial<T> = { [K in keyof T]?: T[K] extends object ? Partial<T[K]> : T[K] };
@@ -133,6 +156,16 @@ export const DEFAULT_CONFIG: MorphConfig = {
   surface: 'auto',
   colorScheme: 'auto',
   backdropOpacity: 0.25,
+  floatingSheet: {
+    enabled: true,
+    minWidth: 700,
+    minHeight: 600,
+    maxWidth: 640,
+    maxHeight: 900,
+    margin: 40,
+    radius: 24,
+    dismissOnBackdropPress: true,
+  },
 };
 
 export const LIGHT_COLORS: MorphColors = {
@@ -175,6 +208,7 @@ export function resolveConfig(input?: MorphConfigInput): MorphConfig {
     surface: input?.surface ?? d.surface,
     colorScheme: input?.colorScheme ?? d.colorScheme,
     backdropOpacity: input?.backdropOpacity ?? d.backdropOpacity,
+    floatingSheet: { ...d.floatingSheet, ...input?.floatingSheet },
   };
 }
 

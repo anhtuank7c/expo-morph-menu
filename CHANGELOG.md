@@ -4,6 +4,14 @@ All notable changes to this package are listed here. The format follows [Keep a 
 
 ## [Unreleased]
 
+### Added
+
+- `config.floatingSheet`: on wide screens (iPad, unfolded phones, desktop web) the full screen opens as a floating card centered on the screen, like an iPadOS form sheet. Tapping outside the card closes it. Inside the card, `useSafeAreaInsets()` returns 0 and `useSafeAreaFrame()` returns the card, so phone screens work unchanged.
+
+### Changed
+
+- The floating card is on by default from 700 × 600 pt. Set `floatingSheet: { enabled: false }` to keep the full screen on every screen size.
+
 ## [0.1.0] - 2026-11-27
 
 First public release.

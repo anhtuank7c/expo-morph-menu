@@ -217,6 +217,7 @@ All options are optional. Pass only the values you want to override.
     surface: 'auto',                   // 'glass' | 'blur' | 'solid'
     colorScheme: 'auto',               // 'light' | 'dark'
     backdropOpacity: 0.25,
+    floatingSheet: { minWidth: 700, maxWidth: 640 }, // wide screens: a centered floating card
     colors: { dark: { surface: '#202022' } },
   }}
 />
@@ -235,6 +236,7 @@ All options are optional. Pass only the values you want to override.
 | `haptics` | `true` | Requires `expo-haptics` |
 | `surface` | `'auto'` | Resolution order: Liquid Glass (iOS 26+), blur (iOS), solid |
 | `colorScheme` | `'auto'` | Follows the system setting |
+| `floatingSheet` | on from `700` × `600` pt, at most `640` × `900`, margin `40`, radius `24` | On wide screens (iPad, unfolded phones, desktop web) the full screen becomes a floating card centered on the screen, like an iPadOS form sheet. Tapping outside closes it (`dismissOnBackdropPress`). Inside, `useSafeAreaInsets()` returns 0 and `useSafeAreaFrame()` returns the card. `enabled: false` keeps the full screen everywhere |
 | `colors.light` / `colors.dark` | `LIGHT_COLORS` / `DARK_COLORS` | `surface`, `sheetBackground`, `text`, `scrim`, `backdrop`, `highlight`, `fabIcon`, `closeBackground`, `closeIcon`, `iconForeground` |
 
 ### Icons

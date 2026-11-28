@@ -217,6 +217,7 @@ Mọi tùy chọn đều không bắt buộc. Chỉ truyền những giá trị 
     surface: 'auto',                   // 'glass' | 'blur' | 'solid'
     colorScheme: 'auto',               // 'light' | 'dark'
     backdropOpacity: 0.25,
+    floatingSheet: { minWidth: 700, maxWidth: 640 }, // màn rộng: thẻ nổi ở giữa
     colors: { dark: { surface: '#202022' } },
   }}
 />
@@ -235,6 +236,7 @@ Mọi tùy chọn đều không bắt buộc. Chỉ truyền những giá trị 
 | `haptics` | `true` | Cần `expo-haptics` |
 | `surface` | `'auto'` | Thứ tự chọn: Liquid Glass (iOS 26+), blur (iOS), solid |
 | `colorScheme` | `'auto'` | Theo cài đặt hệ thống |
+| `floatingSheet` | bật từ `700` × `600` pt, tối đa `640` × `900`, lề `40`, bo góc `24` | Trên màn rộng (iPad, điện thoại gập khi mở, web desktop), full screen thành một thẻ nổi ở giữa màn, như form sheet của iPadOS. Chạm ra ngoài thẻ để đóng (`dismissOnBackdropPress`). Bên trong thẻ, `useSafeAreaInsets()` trả về 0 và `useSafeAreaFrame()` trả về khung thẻ. `enabled: false` để luôn full screen |
 | `colors.light` / `colors.dark` | `LIGHT_COLORS` / `DARK_COLORS` | `surface`, `sheetBackground`, `text`, `scrim`, `backdrop`, `highlight`, `fabIcon`, `closeBackground`, `closeIcon`, `iconForeground` |
 
 ### Icon

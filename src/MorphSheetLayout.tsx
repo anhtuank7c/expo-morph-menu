@@ -27,7 +27,7 @@
 
 import { Stack, useNavigation, usePreventRemove } from 'expo-router';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   Extrapolation,
@@ -38,10 +38,15 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated';
-import { useSafeAreaFrame, useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  SafeAreaFrameContext,
+  SafeAreaInsetsContext,
+  useSafeAreaFrame,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 
 import { HANDOFF } from './constants';
-import { fallbackOrigin, restShadow } from './geometry';
+import { fallbackOrigin, restShadow, sheetRect } from './geometry';
 import { MenuFace } from './MenuFace';
 import { useMorph } from './MorphProvider';
 import { SettledContext } from './settled';
@@ -101,8 +106,16 @@ export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutPr
   } = useMorph();
   const { Background, Backdrop } = components;
   const insets = useSafeAreaInsets();
-  const topInset = insets.top;
   const navigation = useNavigation();
+
+  /* --- rect đích khi mở hẳn: full screen, hoặc thẻ nổi trên màn rộng ------ */
+  const target = sheetRect(W, H, insets, config);
+  const { floating, x: TX, y: TY, w: TW, h: TH, r: TR } = target;
+  // Thẻ nổi nằm trọn trong vùng an toàn: nội dung bên trong không cần chừa
+  // status bar hay home indicator.
+  const topInset = floating ? 0 : insets.top;
+  const innerInsets = useMemo(() => ({ top: 0, bottom: 0, left: 0, right: 0 }), []);
+  const innerFrame = useMemo(() => ({ x: TX, y: TY, width: TW, height: TH }), [TX, TY, TW, TH]);
 
   /** Khi true, thôi chặn và cho điều hướng đi tiếp. */
   const [allowLeave, setAllowLeave] = useState(false);
@@ -298,7 +311,7 @@ export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutPr
       .hitSlop({ left: 0, width: EDGE_WIDTH })
       .activeOffsetX(12)
       .failOffsetY([-16, 16])
-      .onStart((e) => begin(e.absoluteX, e.translationX, W))
+      .onStart((e) => begin(e.absoluteX, e.translationX, TX + TW))
       .onUpdate((e) => follow(e.translationX))
       .onEnd((e) => release(e.velocityX));
 
@@ -307,7 +320,7 @@ export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutPr
       .enabled(dragDown)
       .activeOffsetY(12)
       .failOffsetY(-12)
-      .onStart((e) => begin(e.absoluteY, e.translationY, H))
+      .onStart((e) => begin(e.absoluteY, e.translationY, TY + TH))
       .onUpdate((e) => follow(e.translationY))
       .onEnd((e) => release(e.velocityY));
 
@@ -323,14 +336,15 @@ export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutPr
     edgeSwipe,
     dragDown,
     atStackRoot,
-    W,
-    H,
+    TX,
+    TY,
+    TW,
+    TH,
     spring,
   ]);
 
   /* --- vỏ morph: rect card ↔ full screen ---------------------------------- */
   const cardRadius = config.radius.card;
-  const sheetRadius = config.radius.sheet;
   const sh = config.shadow;
   const shadowSpecValue = useMemo(() => shadowSpec(sh), [sh]);
   // Nền vỏ ở p ≈ 0 phải trùng nền card (bề mặt đặc), nếu không lúc cắt sang
@@ -354,10 +368,10 @@ export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutPr
     // không đổi. Giữa chừng tắt (bounds đổi mỗi frame).
     const shadow = restShadow(p);
     return {
-      width: i(o.w, W),
-      height: i(o.h, H),
-      borderRadius: i(o.r, sheetRadius),
-      transform: [{ translateX: i(o.x, 0) }, { translateY: i(o.y, 0) }],
+      width: i(o.w, TW),
+      height: i(o.h, TH),
+      borderRadius: i(o.r, TR),
+      transform: [{ translateX: i(o.x, TX) }, { translateY: i(o.y, TY) }],
       backgroundColor: interpolateColor(p, [0, 0.4], [cardColor, sheetColor]),
       ...animatedShadow(shadowSpecValue, shadow),
       // Chiều về: đục hoàn toàn tới khi trùng card rồi cắt sang overlay.
@@ -404,6 +418,17 @@ export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutPr
         )}
       </Animated.View>
 
+      {/* Thẻ nổi: chạm ra ngoài thẻ để đóng, như form sheet của iPadOS. */}
+      {floating && config.floatingSheet.dismissOnBackdropPress && (
+        <Pressable
+          style={StyleSheet.absoluteFill}
+          onPress={goBack}
+          accessibilityRole="button"
+          accessibilityLabel="Close"
+          testID="morph-backdrop"
+        />
+      )}
+
       <GestureDetector gesture={gesture}>
         <Animated.View
           accessibilityViewIsModal
@@ -431,18 +456,20 @@ export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutPr
           )}
 
           {/* Kích thước CỐ ĐỊNH — navigator không bị đo lại mỗi frame. */}
-          <Animated.View style={[styles.fixed, { width: W, height: H }, contentStyle]}>
+          <Animated.View style={[styles.fixed, { width: TW, height: TH }, contentStyle]}>
             <SettledContext.Provider value={settled}>
-              <Stack
-                screenListeners={screenListeners}
-                screenOptions={{
-                  contentStyle: { backgroundColor: sheetColor },
-                  headerBackButtonDisplayMode: 'minimal',
-                  ...(screenOptions as object),
-                }}
-              >
-                {children}
-              </Stack>
+              <SafeArea floating={floating} insets={innerInsets} frame={innerFrame}>
+                <Stack
+                  screenListeners={screenListeners}
+                  screenOptions={{
+                    contentStyle: { backgroundColor: sheetColor },
+                    headerBackButtonDisplayMode: 'minimal',
+                    ...(screenOptions as object),
+                  }}
+                >
+                  {children}
+                </Stack>
+              </SafeArea>
             </SettledContext.Provider>
           </Animated.View>
 
@@ -454,6 +481,26 @@ export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutPr
         </Animated.View>
       </GestureDetector>
     </View>
+  );
+}
+
+/** Trong thẻ nổi: insets 0 và frame là khung thẻ cho mọi màn bên trong. */
+function SafeArea({
+  floating,
+  insets,
+  frame,
+  children,
+}: {
+  floating: boolean;
+  insets: { top: number; bottom: number; left: number; right: number };
+  frame: { x: number; y: number; width: number; height: number };
+  children: React.ReactNode;
+}) {
+  if (!floating) return <>{children}</>;
+  return (
+    <SafeAreaFrameContext.Provider value={frame}>
+      <SafeAreaInsetsContext.Provider value={insets}>{children}</SafeAreaInsetsContext.Provider>
+    </SafeAreaFrameContext.Provider>
   );
 }
 
