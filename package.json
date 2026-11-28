@@ -134,5 +134,10 @@
       "prettier --write --ignore-unknown"
     ],
     "*.{json,yaml,yml,html,css}": "prettier --write --ignore-unknown"
+  },
+  "overrides": {
+    "@expo/fingerprint": {
+      "minimatch": "^11.0.1"
+    }
   }
 }
