@@ -90,7 +90,8 @@ export type MorphSheetLayoutProps = {
 export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutProps) {
   // KHÔNG dùng useWindowDimensions: trên Android edge-to-edge, "window" không
   // tính thanh điều hướng, vỏ nở thiếu và hở một dải dưới đáy.
-  const { width: W, height: H } = useSafeAreaFrame();
+  const screenFrame = useSafeAreaFrame();
+  const { width: W, height: H } = screenFrame;
   const {
     sheet,
     origin,
@@ -114,8 +115,9 @@ export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutPr
   // Thẻ nổi nằm trọn trong vùng an toàn: nội dung bên trong không cần chừa
   // status bar hay home indicator.
   const topInset = floating ? 0 : insets.top;
-  const innerInsets = useMemo(() => ({ top: 0, bottom: 0, left: 0, right: 0 }), []);
-  const innerFrame = useMemo(() => ({ x: TX, y: TY, width: TW, height: TH }), [TX, TY, TW, TH]);
+  const cardFrame = useMemo(() => ({ x: TX, y: TY, width: TW, height: TH }), [TX, TY, TW, TH]);
+  const innerInsets = floating ? NO_INSETS : insets;
+  const innerFrame = floating ? cardFrame : screenFrame;
 
   /** Khi true, thôi chặn và cho điều hướng đi tiếp. */
   const [allowLeave, setAllowLeave] = useState(false);
@@ -458,7 +460,7 @@ export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutPr
           {/* Kích thước CỐ ĐỊNH — navigator không bị đo lại mỗi frame. */}
           <Animated.View style={[styles.fixed, { width: TW, height: TH }, contentStyle]}>
             <SettledContext.Provider value={settled}>
-              <SafeArea floating={floating} insets={innerInsets} frame={innerFrame}>
+              <SafeArea insets={innerInsets} frame={innerFrame}>
                 <Stack
                   screenListeners={screenListeners}
                   screenOptions={{
@@ -484,19 +486,23 @@ export function MorphSheetLayout({ children, screenOptions }: MorphSheetLayoutPr
   );
 }
 
-/** Trong thẻ nổi: insets 0 và frame là khung thẻ cho mọi màn bên trong. */
+const NO_INSETS = { top: 0, bottom: 0, left: 0, right: 0 };
+
+/**
+ * Safe area cho mọi màn bên trong: trong thẻ nổi là insets 0 và khung thẻ,
+ * full screen thì chuyển tiếp giá trị của màn hình. Provider LUÔN có mặt:
+ * đổi giữa có và không có provider (xoay màn, gập/mở máy lúc sheet đang mở)
+ * sẽ đổi cấu trúc cây, React mount lại cả Stack và mất màn con lẫn state.
+ */
 function SafeArea({
-  floating,
   insets,
   frame,
   children,
 }: {
-  floating: boolean;
   insets: { top: number; bottom: number; left: number; right: number };
   frame: { x: number; y: number; width: number; height: number };
   children: React.ReactNode;
 }) {
-  if (!floating) return <>{children}</>;
   return (
     <SafeAreaFrameContext.Provider value={frame}>
       <SafeAreaInsetsContext.Provider value={insets}>{children}</SafeAreaInsetsContext.Provider>

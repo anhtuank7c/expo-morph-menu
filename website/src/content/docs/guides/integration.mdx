@@ -217,6 +217,12 @@ Pass only the values to override. Other values use platform defaults.
 | `surface` | `'auto'` | `'glass'`, `'blur'` or `'solid'`. `'auto'` resolves to Liquid Glass (iOS 26+), then blur (iOS), then solid |
 | `colorScheme` | `'auto'` | `'light'` or `'dark'` |
 | `backdropOpacity` | `0.25` | Opacity of the backdrop behind the full screen |
+| `floatingSheet.enabled` | `true` | `false` keeps the full screen on every screen size |
+| `floatingSheet.minWidth` / `minHeight` | `700` / `600` | The sheet floats only when the screen is at least this wide and this tall, so a phone in landscape keeps the full screen |
+| `floatingSheet.maxWidth` / `maxHeight` | `640` / `900` | Largest size of the floating card |
+| `floatingSheet.margin` | `40` | Smallest gap to the screen edges, added to the safe area insets |
+| `floatingSheet.radius` | `24` | Corner radius of the floating card |
+| `floatingSheet.dismissOnBackdropPress` | `true` | Tapping outside the card closes it |
 | `colors.light` / `colors.dark` | `LIGHT_COLORS` / `DARK_COLORS` | `surface`, `sheetBackground`, `text`, `scrim`, `backdrop`, `highlight`, `fabIcon`, `closeBackground`, `closeIcon`, `iconForeground` |
 
 If your screens support only a light theme, set `colorScheme: 'light'`. Otherwise, with a dark system theme, the close button uses a light icon on a light screen.

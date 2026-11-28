@@ -217,6 +217,12 @@ Chỉ truyền các giá trị cần ghi đè. Các giá trị khác dùng mặc
 | `surface` | `'auto'` | `'glass'`, `'blur'` hoặc `'solid'`. `'auto'` chọn lần lượt Liquid Glass (iOS 26+), rồi blur (iOS), rồi solid |
 | `colorScheme` | `'auto'` | `'light'` hoặc `'dark'` |
 | `backdropOpacity` | `0.25` | Độ mờ đục của backdrop phía sau full screen |
+| `floatingSheet.enabled` | `true` | `false` để luôn full screen ở mọi khổ màn hình |
+| `floatingSheet.minWidth` / `minHeight` | `700` / `600` | Sheet chỉ nổi khi màn rộng và cao ít nhất chừng này, nên điện thoại xoay ngang vẫn full screen |
+| `floatingSheet.maxWidth` / `maxHeight` | `640` / `900` | Kích thước lớn nhất của thẻ nổi |
+| `floatingSheet.margin` | `40` | Khoảng hở nhỏ nhất tới mép màn, cộng thêm safe area |
+| `floatingSheet.radius` | `24` | Bo góc của thẻ nổi |
+| `floatingSheet.dismissOnBackdropPress` | `true` | Chạm ra ngoài thẻ để đóng |
 | `colors.light` / `colors.dark` | `LIGHT_COLORS` / `DARK_COLORS` | `surface`, `sheetBackground`, `text`, `scrim`, `backdrop`, `highlight`, `fabIcon`, `closeBackground`, `closeIcon`, `iconForeground` |
 
 Nếu các màn hình của bạn chỉ hỗ trợ theme sáng, hãy đặt `colorScheme: 'light'`. Nếu không, khi hệ thống dùng theme tối, nút đóng sẽ dùng icon sáng trên màn hình sáng.

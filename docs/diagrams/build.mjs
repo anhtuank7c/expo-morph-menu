@@ -182,8 +182,8 @@ function pageArchitecture(lang) {
     250,
     125,
     t(
-      '<b>Fixed W × H content</b> (never re-laid out)<br>inner &lt;Stack&gt; → your screens ([key], child…)<br>MorphCloseButton · useMorphSettled()',
-      '<b>Nội dung cố định W × H</b> (không bao giờ đo lại)<br>&lt;Stack&gt; lồng → màn của bạn ([key], child…)<br>MorphCloseButton · useMorphSettled()',
+      '<b>Fixed-size content</b> (never re-laid out)<br>inner &lt;Stack&gt; → your screens ([key], child…)<br>MorphCloseButton · useMorphSettled()',
+      '<b>Nội dung cỡ cố định</b> (không bao giờ đo lại)<br>&lt;Stack&gt; lồng → màn của bạn ([key], child…)<br>MorphCloseButton · useMorphSettled()',
     ),
     S.app,
   );
@@ -493,7 +493,7 @@ function pageShell(lang) {
     [t('Backdrop (slot): opacity 0 → backdropOpacity', 'Backdrop (slot): opacity 0 → backdropOpacity'), S.slot],
     [t('Container: animated rect, corner radius, overflow hidden, background color card → sheet', 'Container: rect animate, bo góc, overflow hidden, màu nền card → sheet'), S.pkg],
     [t('Background (slot, "sheet"): fades out as the container grows', 'Background (slot, "sheet"): mờ đi khi container lớn lên'), S.slot],
-    [t('Fixed W × H content (your inner Stack): fades in, slides from −insets.top to 0', 'Nội dung cố định W × H (Stack lồng của bạn): hiện dần, trượt từ −insets.top về 0'), S.app],
+    [t('Fixed-size content (your inner Stack): fades in, slides from −insets.top to 0', 'Nội dung cỡ cố định (Stack lồng của bạn): hiện dần, trượt từ −insets.top về 0'), S.app],
     [t('MenuFace: the menu rows, anchored to the card corner; fades out', 'MenuFace: các dòng menu, neo góc card; mờ đi'), S.pkg],
   ];
   layers.forEach(([label, style], i) => {

@@ -4,7 +4,7 @@
 
 Liên quan: [Hướng dẫn tích hợp](INTEGRATION.md), [Tùy biến UI](CUSTOM-UI.md), [Hiệu năng](PERFORMANCE.md)
 
-Nguồn sơ đồ: [`expo-morph-menu.vi.drawio`](../diagrams/expo-morph-menu.vi.drawio), 7 trang. Số trang trong tài liệu này tương ứng với file đó.
+Nguồn sơ đồ: [`expo-morph-menu.vi.drawio`](../diagrams/expo-morph-menu.vi.drawio), 7 trang (0 tới 6). Số trang trong tài liệu này tương ứng với file đó. Trang 7 được [`floating-sheet.mjs`](../diagrams/floating-sheet.mjs) sinh thẳng ra SVG, có nhúng mô hình draw.io, nên draw.io vẫn mở được.
 
 `expo-morph-menu` mở rộng một nút nổi thành card menu, và mở rộng một dòng menu thành một route expo-router dạng full screen. Khi route bị đóng, nó thu gọn trở lại thành card. Tài liệu này mô tả cấu trúc của package và lý do của các quyết định thiết kế chính.
 
@@ -158,6 +158,26 @@ Các lớp bên trong container và khoảng animation của chúng (tiến trì
 Nội dung được neo vào góc trên bên trái của container. Ở kích thước card, phần nhìn thấy được sẽ là vùng status bar trống, nên nội dung được dịch lên trên một khoảng `insets.top` khi container còn nhỏ.
 
 Kích thước lấy từ `useSafeAreaFrame()`, không phải `useWindowDimensions()`. Với chế độ edge-to-edge trên Android, kích thước cửa sổ không bao gồm thanh điều hướng, và container sẽ không chạm tới mép dưới.
+
+### Thẻ nổi trên màn hình rộng
+
+Trang 7.
+
+![Sheet: full screen hay thẻ nổi](../diagrams/svg/vi/7-floating-sheet.svg)
+
+Container không phải lúc nào cũng dừng ở full screen. Mỗi lần render, `sheetRect()` trong `geometry.ts` tính rect đích từ khung màn hình, safe area insets và `config.floatingSheet`:
+
+- Khi `floatingSheet.enabled` là true và màn hình rộng ít nhất `minWidth` (700), cao ít nhất `minHeight` (600), đích là một thẻ căn giữa vùng an toàn: tối đa `maxWidth` × `maxHeight` (640 × 900), cách mép ít nhất `margin` (40), bo góc `floatingSheet.radius` (24). Trên iPad dọc là 640 × 900, iPad ngang là 640 × 740.
+- Còn lại là full screen với `radius.sheet`. Điện thoại, điện thoại xoay ngang và máy gập khi gập vẫn full screen.
+
+Container animate từ card tới rect đích, và khung nội dung bên trong có đúng kích thước của đích. Mọi thứ khác giống nhau ở cả hai chế độ: giao ca, các đường đóng và `Stack` lồng kích thước cố định. Thẻ nổi khác ở bốn điểm:
+
+| Phần | Hành vi |
+| --- | --- |
+| Safe area | Các màn bên trong nhận `SafeAreaInsetsContext` với mọi inset bằng 0 và `SafeAreaFrameContext` là khung của thẻ. Vì vậy `useSafeAreaInsets()` và header của native stack đọc ra 0, màn viết cho điện thoại dùng được mà không phải sửa. Độ đẩy nội dung `-insets.top` cũng bằng 0 |
+| Backdrop | `colors.backdrop` với `backdropOpacity` vẫn hiện quanh thẻ. Với `dismissOnBackdropPress` (mặc định), một `Pressable` phía sau thẻ gọi `goBack()`, đi qua `usePreventRemove` như mọi đường đóng khác |
+| Cử chỉ | Kéo xuống tính quãng từ ngón tay tới đáy thẻ (`TY + TH`), vuốt cạnh tính tới mép phải thẻ (`TX + TW`) |
+| Đổi kích thước | Xoay màn hoặc mở máy gập lúc sheet đang mở sẽ chuyển giữa thẻ và full screen. Provider safe area luôn được render, mang giá trị của màn hình khi full screen, nên cây giữ nguyên cấu trúc và `Stack` lồng giữ nguyên màn con và state |
 
 ## 8. Thao tác nhập và cử chỉ
 
