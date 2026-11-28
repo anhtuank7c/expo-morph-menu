@@ -4,6 +4,14 @@ All notable changes to this package are listed here. The format follows [Keep a 
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-29
+
+### Changed
+
+- The README links to the sister package, [expo-morph-carousel](https://github.com/anhtuank7c/expo-morph-carousel), and the package has more npm keywords. No code changes.
+
+## [0.2.0] - 2026-11-28
+
 ### Added
 
 - `config.floatingSheet`: on wide screens (iPad, unfolded phones, desktop web) the full screen opens as a floating card centered on the screen, like an iPadOS form sheet. Tapping outside the card closes it. Inside the card, `useSafeAreaInsets()` returns 0 and `useSafeAreaFrame()` returns the card, so phone screens work unchanged.
@@ -30,5 +38,7 @@ First public release.
 - Web support through React Native Web.
 - Light and dark color sets (`LIGHT_COLORS`, `DARK_COLORS`) and `DEFAULT_CONFIG`.
 
-[Unreleased]: https://github.com/anhtuank7c/expo-morph-menu/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/anhtuank7c/expo-morph-menu/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/anhtuank7c/expo-morph-menu/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/anhtuank7c/expo-morph-menu/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/anhtuank7c/expo-morph-menu/releases/tag/v0.1.0
