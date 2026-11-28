@@ -1,0 +1,178 @@
+---
+title: "Hiệu năng"
+description: "Chi phí nằm ở đâu, và đã đo những gì."
+editUrl: https://github.com/anhtuank7c/expo-morph-menu/edit/main/docs/vi/PERFORMANCE.md
+---
+
+{/* Generated from docs/vi/PERFORMANCE.md by website/scripts/sections.mjs: edit that file, then run npm run sections. */}
+
+Liên quan: [Kiến trúc](/expo-morph-menu/vi/guides/architecture/), trang 2 đến 5 của [`expo-morph-menu.vi.drawio`](https://github.com/anhtuank7c/expo-morph-menu/blob/main/docs/diagrams/expo-morph-menu.vi.drawio)
+
+Tài liệu này liệt kê các tối ưu trong package, các lỗi được phát hiện bằng trace theo frame, kết quả kiểm thử, và các phương án đã được đánh giá nhưng chưa triển khai.
+
+## Mục lục
+
+1. [Chi phí nằm ở đâu](#1-chi-phí-nằm-ở-đâu)
+2. [Chi phí mount màn hình đích](#2-chi-phí-mount-màn-hình-đích)
+3. [Bóng đổ trên view thay đổi kích thước](#3-bóng-đổ-trên-view-thay-đổi-kích-thước)
+4. [Chuyển giao](#4-chuyển-giao)
+5. [Lỗi phát hiện bằng trace theo frame](#5-lỗi-phát-hiện-bằng-trace-theo-frame)
+6. [Kết quả kiểm thử](#6-kết-quả-kiểm-thử)
+7. [Thuộc tính layout so với transform](#7-thuộc-tính-layout-so-với-transform)
+8. [Bề mặt card](#8-bề-mặt-card)
+9. [Đo lường](#9-đo-lường)
+
+## 1. Chi phí nằm ở đâu
+
+Một lần push trên native stack chạy code điều hướng của platform: `react-native-screens` dùng `UINavigationController` trên iOS và Fragment trên Android. Bản thân transition không chạy trong JavaScript hay trong Reanimated.
+
+Animation của overlay có vẻ nhanh hơn push màn hình chủ yếu vì nó không mount một màn hình mới. Mount cùng nội dung đó trong một overlay cũng tốn chi phí như vậy. Trong hầu hết trường hợp, chi phí cần tối ưu là việc render nội dung đích, không phải cơ chế điều hướng.
+
+## 2. Chi phí mount màn hình đích
+
+Một triệu chứng thường gặp: animation chạy đủ frame rate, nhưng màn hình đích trống trong một hoặc hai frame trước khi nội dung xuất hiện. Người dùng báo đây là hiện tượng giật, trong khi profiler không ghi nhận frame bị rớt (dropped frame) nào.
+
+### 2.1 Prefetch khi hover (đã triển khai)
+
+Package biết người dùng sắp chọn dòng nào trước khi con trỏ được thả. `MorphMenu` theo dõi chỉ số của dòng đang hover bằng `useAnimatedReaction`, kích hoạt phản hồi haptic, và gọi `onHover(item)`:
+
+```tsx
+// src/MorphMenu.tsx (rút gọn)
+const onHover = useCallback(
+  (index: number) => {
+    const item = items[index];
+    if (!item) return;
+    if (config.haptics) haptics.selection();
+    callbacks.onHover?.(item);
+  },
+  [items, config.haptics, callbacks],
+);
+
+useAnimatedReaction(
+  () => hovered.value,
+  (cur, prev) => { if (cur !== prev && cur >= 0) runOnJS(onHover)(cur); },
+);
+```
+
+Hãy bắt đầu tải dữ liệu trong `onHover` (React Query, SWR hoặc cache tự viết). Trong ứng dụng ví dụ, màn hình chi tiết hiển thị một badge với thời gian chờ thực tế, để có thể so sánh hiệu quả giữa nhấn giữ và kéo với một lần chạm nhanh.
+
+### 2.2 Render trì hoãn (đã triển khai)
+
+Trong lúc animation mở rộng, màn hình chỉ cần một header và một placeholder. `useMorphSettled()` trả về `true` khi spring kết thúc:
+
+```tsx
+// src/MorphSheetLayout.tsx
+sheet.value = withSpring(1, spring, (finished) => {
+  'worklet';
+  if (finished) runOnJS(setSettled)(true);
+});
+```
+
+`InteractionManager.runAfterInteractions` không phù hợp cho việc này, vì nó không theo dõi animation của Reanimated.
+
+## 3. Bóng đổ trên view thay đổi kích thước
+
+Bóng đổ không được animate, nhưng khung bao của view thì có, nên bóng đổ được tính lại cho khung bao mới ở mỗi frame. Kết hợp với `overflow: hidden` và `borderRadius` cắt các view con, điều này gây ra offscreen rendering trên iOS.
+
+```tsx
+const shadow = restShadow(p); // src/geometry.ts: 1 ở hai đầu, 0 ở giữa
+```
+
+`restShadow` làm mờ dần bóng đổ trong 10% đầu và 10% cuối của tiến trình (progress), nơi khung bao gần như không đổi. Một phiên bản trước đây dùng công tắc (`flying ? 0 : 0.18`), gây ra một bước nhảy thấy được khi đóng: card xuất hiện lại với bóng đổ đầy đủ, và bóng đổ tắt ở frame tiếp theo khi card bắt đầu thu gọn.
+
+Trên iOS, opacity của overlay không bao giờ được animate (`OVERLAY_BELOW_ROUTE`). Modal đã che overlay, và `UIVisualEffectView` không render đúng khi opacity nhỏ hơn 1.
+
+Nếu bóng đổ phải hiển thị trong suốt animation, hãy render nó trên một view anh em giữ kích thước cố định và chỉ di chuyển bằng `transform`.
+
+Không dùng `shouldRasterizeIOS` trên view thay đổi kích thước. Layer sẽ bị rasterize lại ở mỗi frame.
+
+Cách đo: Instruments, Core Animation, "Color Offscreen-Rendered Yellow". Trên Android, dùng Perfetto và xem thời gian của `saveLayer`.
+
+## 4. Chuyển giao
+
+### 4.1 Chuyển giao dựa trên frame render đầu tiên
+
+Route được mount bất đồng bộ. Nếu overlay mờ dần dựa theo tiến trình `sheet`, một lần commit đầu tiên bị trễ của route sẽ tạo ra một frame trống. Overlay chỉ bị ẩn sau khi route đặt `handoff` thành `ROUTE`: trên native trong `onLayout` của container, trên web trong `useLayoutEffect`.
+
+### 4.2 Đóng trên UI thread
+
+Phiên bản đầu tiên hiển thị một card trống rồi một bước nhảy khi đóng, thấy rõ nhất trong development build. Nguyên nhân:
+
+- `setSettled(false)` ở đầu animation đóng khiến React unmount nội dung và mount placeholder ngay trong frame animation đầu tiên.
+- Nội dung trong suốt hoàn toàn ở tiến trình 0.6, nên nửa sau của animation hiển thị một container trống.
+- Việc hoán đổi giữa container và card chạy trong một `useEffect` sau lời gọi `runOnJS`, nên card xuất hiện chậm hơn một lần render JavaScript.
+
+Cách triển khai hiện tại:
+
+- `handoff` có ba trạng thái: `MENU`, `ROUTE` và `RETURNING`.
+- Container render các dòng menu (`src/MenuFace.tsx`) ở góc của card. Opacity của nội dung thay đổi trong khoảng tiến trình từ 0.4 đến 0.75, và của các dòng menu từ 0.15 đến 0.5, nên container luôn hiển thị nội dung hoặc các dòng menu.
+- Khi container còn nhỏ, nội dung được dịch lên trên một khoảng `insets.top` (chỉ dùng transform), nên phần nhìn thấy không phải là vùng status bar trống.
+- Việc hoán đổi diễn ra trên UI thread trong một frame. Xem [Kiến trúc, mục 6](/expo-morph-menu/vi/guides/architecture/#6-chuyển-giao-hoán-đổi-trong-một-frame).
+
+## 5. Lỗi phát hiện bằng trace theo frame
+
+`src/MorphTrace.tsx` ghi log `menu`, `sheet`, `handoff`, và opacity được render của overlay và container ở mỗi frame, tính bằng cùng các hàm dùng cho style (`src/visibility.ts`). Mỗi lỗi dưới đây đã được tái hiện trên Android trước khi sửa:
+
+| Triệu chứng | Nguyên nhân | Cách sửa |
+| --- | --- | --- |
+| Card cũ nháy lên khi đóng | Callback `finished` của spring đặt `handoff = MENU` trong khi route vẫn đang chờ lệnh pop từ JavaScript, nên opacity của container trở lại 1 | Giữ `RETURNING` cho đến sau khi unmount. Lần chọn tiếp theo reset về `MENU` |
+| Card dừng khoảng 115 ms trước khi thu gọn về nút | Spring vượt quá 0 và dao động khoảng 7 frame trước khi `finished` | `useAnimatedReaction` bắt đầu thu gọn ngay khi `sheet <= 0.005` |
+| Chạm vào nút đóng không có tác dụng, và sheet chuyển xám trong chốc lát | Overlay vẫn ở chế độ `open` trong khi route đang hiển thị. Trên Android, scrim nằm trên route và chặn lần chạm | Chế độ menu `closed`, `open` hoặc `route`. `scrimGate` ẩn scrim khi route đang hiển thị |
+| Nút back phần cứng đóng menu đang ẩn thay vì sheet | `BackHandler` của menu vẫn được đăng ký khi route đang hiển thị | Cách sửa giống như trên |
+| Kéo xuống một đoạn dài làm hoán đổi container và card trong một frame | `sheet` về tới 0 trong khi `handoff` vẫn là `ROUTE` | Cử chỉ kéo có giới hạn dưới là 0.35 |
+| Một lần chạm hơi lâu vào nút mở dòng cuối cùng | Nút nằm bên trong vùng của dòng cuối cùng trong card, và hit testing chọn dòng đó khi thả | Một lần chạm được thả tại chỗ không bao giờ chọn dòng |
+| Kéo nhanh rồi thả: container bắt đầu từ khung bao đầy đủ của card trong khi card mới ở 79% | Route được push trước khi card mở rộng xong | Việc chọn chờ đến khi `menu >= 0.995` |
+| Bóng đổ xuất hiện và tắt đột ngột tại lúc chuyển giao | Công tắc `flying ? 0 : 0.18` | `restShadow` làm mờ dần trong 10% ở hai đầu |
+| (iOS) Card kính nháy khi xuất hiện lại | Opacity được animate trên `UIVisualEffectView` | `OVERLAY_BELOW_ROUTE`: opacity của overlay không thay đổi trên iOS |
+| Chữ trên card bị nhân đôi và nhòe khi đóng (ảnh chụp màn hình giữa lúc đóng trên emulator) | Crossfade giữa container và overlay trong khoảng tiến trình từ 0 đến 0.12: hai lớp trong suốt một phần trong khi container vẫn lớn hơn card vài dp. Một frame bị rớt biến crossfade thành một lần cắt bị lệch | Bỏ crossfade. Việc hoán đổi diễn ra ở frame mà `sheet <= ARRIVED` (0.005, độ lệch dưới 1 dp). Cả hai lớp đọc cùng một giá trị `sheet` trên UI thread. Trace đánh dấu `GHOST` nếu lỗi này xảy ra lại |
+
+## 6. Kết quả kiểm thử
+
+Các flow kiểm thử end-to-end (E2E) bằng Maestro, ngày 2026-11-26:
+
+| Thiết bị | Bundle | Số frame | Frame bị rớt | FLICKER / HOLE / GHOST |
+| --- | --- | --- | --- | --- |
+| Android emulator, API 37 (Android 17) | `--no-dev --minify` | 468 | 0 | 0 |
+| Android emulator, API 37 (Android 17) | Development, khởi động nguội cho mỗi flow | 455 | 16 | 0 |
+| MEmu (Android 9) | Development, trước khi bỏ crossfade | 481 | Không ghi nhận | 0 |
+
+Trong các lần chạy này, frame bị rớt chỉ xảy ra với development bundle, ngay sau khi bundle được load. Production bundle ghi nhận 0 frame bị rớt.
+
+Để chạy lại kiểm thử: `npm run example:trace`, sau đó `npm run e2e`. Xem [example/README.vi.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/example/README.vi.md).
+
+## 7. Thuộc tính layout so với transform
+
+Trạng thái: chưa triển khai.
+
+Container animate `width` và `height`, nên mỗi frame cập nhật thuộc tính layout thông qua shadow tree. View bên trong có kích thước cố định tránh được lượt tính layout trên cây màn hình, nhưng node container vẫn được tính layout lại ở mỗi frame.
+
+Một phương án chỉ dùng transform tách hình dạng khỏi nội dung. Một lớp nền đơn giản được scale bằng `scaleX` và `scaleY`, việc này tốn ít chi phí trên GPU. Nội dung là một lớp anh em chỉ dùng `translate` và opacity, và không bao giờ bị scale.
+
+Đánh đổi: scale một hình chữ nhật bo góc làm méo các góc thành hình elip. Để bù lại cần animate `borderRadius` theo chiều ngược lại, việc này cũng là cập nhật thuộc tính ở mỗi frame và dựng lại mặt nạ cắt, nên phần lớn lợi ích bị mất. Với animation 460 ms và bán kính 28 pt, độ méo nhỏ, nên chấp nhận độ méo cũng là một lựa chọn.
+
+Lý do chưa triển khai: lợi ích dự kiến nhỏ hơn nhiều so với bản sửa bóng đổ ở [mục 3](#3-bóng-đổ-trên-view-thay-đổi-kích-thước). Trước khi viết lại animation, hãy kiểm tra xem phiên bản React Native và Reanimated đang dùng có thể animate thuộc tính layout mà không cần một vòng gọi qua JavaScript hay không.
+
+Để kiểm soát hoàn toàn hình dạng, container có thể được vẽ bằng Skia: một hình chữ nhật bo góc được nội suy trên canvas GPU, không cần layout view. Cách này thêm một dependency lớn, và nội dung vẫn phải là các view React Native xếp chồng lên trên.
+
+## 8. Bề mặt card
+
+`src/Surface.tsx` chọn bề mặt theo thứ tự: Liquid Glass trên iOS 26 trở lên (`expo-glass-effect`), sau đó `BlurView`, sau đó một view màu đặc.
+
+Blur tốn chi phí, đặc biệt trên Android. Mặc định nó chỉ được bật trên iOS. Để dùng blur trên Android, đặt `experimentalBlurMethod="dimezisBlurView"` trong một slot `Background` tùy biến và đo frame rate trên thiết bị cấu hình thấp trước.
+
+## 9. Đo lường
+
+Thứ tự khuyến nghị khi mở rộng package:
+
+1. Giữ prefetch khi hover ([2.1](#21-prefetch-khi-hover-đã-triển-khai)) và việc làm mờ dần bóng đổ ([mục 3](#3-bóng-đổ-trên-view-thay-đổi-kích-thước)).
+2. Đo trên thiết bị Android cấu hình thấp nhất mà bạn hỗ trợ, với release build. Profile animation từ debug build của React Native không mang tính đại diện.
+3. Chỉ cân nhắc transform hoặc Skia nếu vẫn còn frame bị rớt.
+
+Công cụ:
+
+| Platform | Công cụ |
+| --- | --- |
+| iOS | Instruments, Animation Hitches |
+| Android | `adb shell dumpsys gfxinfo <package> framestats`, Perfetto |
+
+Bộ đếm FPS trong dev menu của React Native không phải là cách đo đáng tin cậy.

@@ -18,6 +18,8 @@ module.exports = defineConfig([
     'lib/',
     'example-social/test/.build/',
     'docs/',
+    // The documentation site, with its own package and tooling.
+    'website/',
     '**/expo-env.d.ts',
   ]),
 

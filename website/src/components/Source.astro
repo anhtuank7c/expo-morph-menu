@@ -1,0 +1,63 @@
+---
+/**
+ * The full source of a demo, read from the repository at build time, so the
+ * code on the page is the code that runs in the phone. One tab per file.
+ */
+import { Code, TabItem, Tabs } from '@astrojs/starlight/components';
+
+interface Props {
+  /** Paths from the repository root, for example `example/app/_layout.tsx`. */
+  files: string[];
+}
+const sources = import.meta.glob(
+  [
+    '../../../example/{app,components,context,data}/**/*.{ts,tsx}',
+    '../../../example-social/{app,src}/**/*.{ts,tsx}',
+  ],
+  { query: '?raw', import: 'default', eager: true },
+) as Record<string, string>;
+const repo = 'https://github.com/anhtuank7c/expo-morph-menu/blob/main/';
+const files = Astro.props.files.map((path) => {
+  const code = sources[`../../../${path}`];
+  if (code === undefined) throw new Error(`Source: ${path} not found`);
+  return { path, code };
+});
+const vi = Astro.currentLocale === 'vi';
+const label = (path: string) => {
+  const parts = path.split('/');
+  // `_layout.tsx` and `index.ts` are clearer with their folder.
+  return /^(_layout|index)\./.test(parts[parts.length - 1]) ? parts.slice(-2).join('/') : parts[parts.length - 1];
+};
+---
+
+{
+  files.length === 1 ? (
+    <Code code={files[0].code} lang="tsx" title={files[0].path} />
+  ) : (
+    <Tabs>
+      {files.map((f) => (
+        <TabItem label={label(f.path)}>
+          <Code code={f.code} lang="tsx" title={f.path} />
+        </TabItem>
+      ))}
+    </Tabs>
+  )
+}
+<p class="source-links">
+  {
+    files.map((f) => (
+      <a href={repo + f.path} target="_blank" rel="noopener">
+        {vi ? 'Xem trên GitHub' : 'View on GitHub'}: {f.path}
+      </a>
+    ))
+  }
+</p>
+
+<style>
+  .source-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: var(--sl-text-sm);
+  }
+</style>

@@ -1,0 +1,99 @@
+---
+title: "Cách dùng"
+description: "Ba file: root layout, nhóm route sheet và một màn hình."
+editUrl: https://github.com/anhtuank7c/expo-morph-menu/edit/main/README.vi.md
+---
+
+{/* Generated from README.vi.md by website/scripts/sections.mjs: edit that file, then run npm run sections. */}
+
+import Demo from '~/components/Demo.astro';
+import Source from '~/components/Source.astro';
+
+<Demo route="">
+
+
+
+</Demo>
+
+### 1. Root layout
+
+Bọc ứng dụng trong `MorphProvider`, đăng ký nhóm route sheet và render `<MorphMenu />` sau root navigator.
+
+```tsx
+// app/_layout.tsx
+import { Stack } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { MorphMenu, MorphProvider, morphSheetScreenOptions, type MorphItem } from 'expo-morph-menu';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+const items: MorphItem[] = [
+  {
+    key: 'camera',
+    label: 'Camera',
+    tint: '#3a3a3c',
+    icon: <Ionicons name="camera" size={15} color="#fff" />,
+    href: { pathname: '/(sheet)/[key]', params: { key: 'camera' } },
+  },
+  // ...
+];
+
+export default function RootLayout() {
+  return (
+    <SafeAreaProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <MorphProvider items={items} onHover={(item) => prefetch(item.key)}>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="(sheet)" options={morphSheetScreenOptions} />
+          </Stack>
+          <MorphMenu />
+        </MorphProvider>
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
+  );
+}
+```
+
+### 2. Nhóm route sheet
+
+Mọi route trong nhóm này mở rộng từ card menu.
+
+```tsx
+// app/(sheet)/_layout.tsx
+import { Stack } from 'expo-router';
+import { MorphSheetLayout } from 'expo-morph-menu';
+
+export default function SheetLayout() {
+  return (
+    <MorphSheetLayout>
+      <Stack.Screen name="[key]" options={{ headerShown: false }} />
+    </MorphSheetLayout>
+  );
+}
+```
+
+### 3. Màn hình
+
+Đóng bằng `<MorphCloseButton />` hoặc bất kỳ lệnh gọi `router.back()` nào. Render nội dung nặng sau khi animation mở rộng đã kết thúc.
+
+```tsx
+// app/(sheet)/[key].tsx
+import { MorphCloseButton, useMorphSettled } from 'expo-morph-menu';
+
+export default function Screen() {
+  const settled = useMorphSettled();
+  return (
+    <View style={{ flex: 1 }}>
+      <MorphCloseButton />
+      {settled ? <HeavyContent /> : <Placeholder />}
+    </View>
+  );
+}
+```
+
+Mọi đường đóng đều chạy animation thu gọn: nút đóng, `router.back()`, nút back phần cứng trên Android, nút back của trình duyệt, Esc và các cử chỉ trên iOS.
+
+## Mã nguồn của demo
+
+<Source files={["example/app/_layout.tsx","example/app/(sheet)/_layout.tsx","example/app/(sheet)/[key].tsx","example/data/items.tsx"]} />

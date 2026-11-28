@@ -1,0 +1,62 @@
+---
+title: "Bắt đầu"
+description: "Cài menu và các thư viện đi kèm, kiểm tra tương thích."
+editUrl: https://github.com/anhtuank7c/expo-morph-menu/edit/main/README.vi.md
+---
+
+{/* Generated from README.vi.md by website/scripts/sections.mjs: edit that file, then run npm run sections. */}
+
+import Demo from '~/components/Demo.astro';
+import Source from '~/components/Source.astro';
+
+Cài package và các thư viện nền là bạn có ngay menu bên phải. Tiếp theo: [Cách dùng](/expo-morph-menu/vi/usage/) gắn nó vào app chỉ với ba file.
+
+<Demo route="">
+
+
+
+</Demo>
+
+## Cài đặt
+
+```bash
+npx expo install expo-morph-menu \
+  expo-router react-native-reanimated react-native-worklets \
+  react-native-gesture-handler react-native-safe-area-context react-native-screens
+```
+
+Các gói tùy chọn, được phát hiện khi chạy:
+
+| Gói | Tác dụng |
+| --- | --- |
+| `expo-haptics` | Phản hồi rung khi con trỏ di chuyển giữa các dòng và khi một dòng được chọn |
+| `expo-glass-effect` | Bề mặt card Liquid Glass trên iOS 26 trở lên |
+| `expo-blur` | Bề mặt card làm mờ trên iOS |
+
+Nếu bắt đầu từ template trống (`create-expo-app --template blank-typescript`), cần cài thêm:
+
+| Gói | Lý do |
+| --- | --- |
+| `react-dom` | expo-router phụ thuộc vào gói này. Nếu thiếu, npm cài một bản `react-dom` mới hơn, xung đột với `react` của project (`ERESOLVE`) |
+| `react-native-web` | Chạy trên web |
+| `@expo/vector-icons`, `expo-font` | Chỉ cần nếu dùng icon như các ví dụ bên dưới (`Ionicons`). Ngoài Expo Go bắt buộc phải có `expo-font` |
+
+```bash
+npx expo install react-dom react-native-web @expo/vector-icons expo-font
+```
+
+Template `default` đã có sẵn tất cả các gói này. Với project chưa từng dùng expo-router, cần đặt thêm `"main": "expo-router/entry"` trong `package.json` và một `scheme` trong `app.json`.
+
+## Tương thích
+
+| | Hỗ trợ |
+| --- | --- |
+| Expo SDK | 58 trở lên |
+| React Native | 0.80 trở lên (New Architecture) |
+| Reanimated | 4 trở lên, kèm `react-native-worklets` |
+| Nền tảng | iOS, Android, web |
+| Expo Go | Có. Package không có native code riêng |
+
+`babel.config.js` phải dùng `babel-preset-expo`, preset này bật Babel plugin cho worklets.
+
+**Jest:** package cung cấp mã nguồn TypeScript cho Metro (export condition `react-native`). Thêm package vào `transformIgnorePatterns` cùng với các package React Native khác, ví dụ `node_modules/(?!(...|expo-morph-menu)/)`.

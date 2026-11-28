@@ -1,0 +1,21 @@
+---
+title: "Cách hoạt động"
+description: "Thẻ menu, nhóm route và cú hoán đổi trong một khung hình."
+editUrl: https://github.com/anhtuank7c/expo-morph-menu/edit/main/README.vi.md
+---
+
+{/* Generated from README.vi.md by website/scripts/sections.mjs: edit that file, then run npm run sections. */}
+
+Card menu là một overlay, không phải route. Khi một dòng được chọn, package lưu khung của card và push route của item. Layout của nhóm route render một `Stack` có kích thước cố định bên trong một container có animation. Container mở rộng từ khung đã lưu ra toàn màn hình, trong khi navigator bên trong giữ kích thước không đổi và không phải tính layout lại.
+
+![Kiến trúc: MorphProvider kết nối overlay MorphMenu và nhóm route MorphSheetLayout](https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/diagrams/svg/vi/1-architecture.svg?sanitize=true)
+
+Mở: frame đầu tiên của container trùng với card và render cùng các dòng, nên overlay có thể được ẩn mà không có thay đổi nào nhìn thấy được. Sau đó container mở rộng.
+
+![Trình tự mở](https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/diagrams/svg/vi/2-opening.svg?sanitize=true)
+
+Đóng: mọi đường đóng đều bị chặn bởi `usePreventRemove`. Container thu gọn, và tại frame mà khung của nó trùng với card, card được hiện ra và container bị ẩn.
+
+![Trình tự đóng](https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/diagrams/svg/vi/3-closing.svg?sanitize=true)
+
+Máy trạng thái, các lớp của container và dòng thời gian animation được mô tả trong [Kiến trúc](/expo-morph-menu/vi/guides/architecture/).

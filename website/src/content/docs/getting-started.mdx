@@ -1,0 +1,62 @@
+---
+title: "Getting started"
+description: "Install the menu and its peers, and check compatibility."
+editUrl: https://github.com/anhtuank7c/expo-morph-menu/edit/main/README.md
+---
+
+{/* Generated from README.md by website/scripts/sections.mjs: edit that file, then run npm run sections. */}
+
+import Demo from '~/components/Demo.astro';
+import Source from '~/components/Source.astro';
+
+Install the package and the libraries it builds on, and the menu on the right is yours. Next: [Usage](/expo-morph-menu/usage/) wires it into your app in three files.
+
+<Demo route="">
+
+
+
+</Demo>
+
+## Installation
+
+```bash
+npx expo install expo-morph-menu \
+  expo-router react-native-reanimated react-native-worklets \
+  react-native-gesture-handler react-native-safe-area-context react-native-screens
+```
+
+Optional packages, detected at runtime:
+
+| Package | Effect |
+| --- | --- |
+| `expo-haptics` | Haptic feedback when the pointer moves between rows and when a row is selected |
+| `expo-glass-effect` | Liquid Glass card surface on iOS 26 and later |
+| `expo-blur` | Blurred card surface on iOS |
+
+Starting from a blank template (`create-expo-app --template blank-typescript`) also needs:
+
+| Package | Why |
+| --- | --- |
+| `react-dom` | expo-router depends on it. Without it, npm installs a newer `react-dom` that conflicts with the project's `react` (`ERESOLVE`) |
+| `react-native-web` | Running on web |
+| `@expo/vector-icons`, `expo-font` | Only if you use the icons from the examples below (`Ionicons`). `expo-font` is required outside Expo Go |
+
+```bash
+npx expo install react-dom react-native-web @expo/vector-icons expo-font
+```
+
+The `default` template already includes all of them. For a project that did not use expo-router before, also set `"main": "expo-router/entry"` in `package.json` and a `scheme` in `app.json`.
+
+## Compatibility
+
+| | Supported |
+| --- | --- |
+| Expo SDK | 58 or later |
+| React Native | 0.80 or later (New Architecture) |
+| Reanimated | 4 or later, with `react-native-worklets` |
+| Platforms | iOS, Android, web |
+| Expo Go | Yes. The package has no native code of its own |
+
+`babel.config.js` must use `babel-preset-expo`, which enables the worklets Babel plugin.
+
+**Jest:** the package ships TypeScript source for Metro (the `react-native` export condition). Add it to `transformIgnorePatterns` next to the other React Native packages, for example `node_modules/(?!(...|expo-morph-menu)/)`.

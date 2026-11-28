@@ -1,0 +1,21 @@
+---
+title: "How it works"
+description: "The card, the route group and the single-frame swap."
+editUrl: https://github.com/anhtuank7c/expo-morph-menu/edit/main/README.md
+---
+
+{/* Generated from README.md by website/scripts/sections.mjs: edit that file, then run npm run sections. */}
+
+The menu card is an overlay, not a route. When a row is selected, the package stores the card's bounds and pushes the item's route. The route group's layout renders a fixed-size `Stack` inside an animated container. The container expands from the stored bounds to the full screen, while the inner navigator keeps a constant size and is not laid out again.
+
+![Architecture: MorphProvider connects the MorphMenu overlay and the MorphSheetLayout route group](https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/diagrams/svg/en/1-architecture.svg?sanitize=true)
+
+Opening: the first frame of the container matches the card and renders the same rows, so the overlay can be hidden without a visible change. The container then expands.
+
+![Opening sequence](https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/diagrams/svg/en/2-opening.svg?sanitize=true)
+
+Closing: every dismiss path is intercepted by `usePreventRemove`. The container collapses, and on the frame where its bounds match the card, the card becomes visible and the container is hidden.
+
+![Closing sequence](https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/diagrams/svg/en/3-closing.svg?sanitize=true)
+
+State machines, container layers and the animation timeline are described in [Architecture](/expo-morph-menu/guides/architecture/).

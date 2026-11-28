@@ -1,0 +1,17 @@
+{
+  "name": "expo-morph-menu-website",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "gen": "node scripts/sections.mjs && node scripts/examples.mjs && node scripts/media.mjs",
+    "dev": "npm run gen && astro dev",
+    "build": "npm run gen && astro build",
+    "preview": "astro preview",
+    "sections": "node scripts/sections.mjs"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "0.43.2",
+    "astro": "7.4.13",
+    "sharp": "0.35.5"
+  }
+}

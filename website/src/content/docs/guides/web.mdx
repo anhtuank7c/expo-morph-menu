@@ -1,0 +1,26 @@
+---
+title: "Web"
+description: "The same code on Expo web."
+editUrl: https://github.com/anhtuank7c/expo-morph-menu/edit/main/README.md
+---
+
+{/* Generated from README.md by website/scripts/sections.mjs: edit that file, then run npm run sections. */}
+
+import Demo from '~/components/Demo.astro';
+import Source from '~/components/Source.astro';
+
+<Demo route="">
+
+This phone runs the web build: hover a row with the mouse, press Esc, use the browser back.
+
+</Demo>
+
+The same code runs on Expo web through React Native Web.
+
+- The URL reflects the route inside the full screen, for example `/camera`.
+- Hovering a row with the mouse highlights it and fires `onHover`.
+- Esc dismisses the full screen when its root screen is active, then closes the menu.
+- The browser back button runs the collapse animation.
+- Press-and-drag from the button to a row works with a mouse. Text selection is disabled during the drag.
+- Reloading or closing the tab while the full screen is open does not show the "Leave site?" dialog.
+- Haptics, Liquid Glass and hardware back are not available. Blur uses CSS `backdrop-filter` through `expo-blur`.

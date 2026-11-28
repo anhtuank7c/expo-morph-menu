@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Stack } from 'expo-router';
+import { Stack, useGlobalSearchParams } from 'expo-router';
 import { MorphMenu, MorphProvider, MorphTrace, morphSheetScreenOptions } from 'expo-morph-menu';
 import { StatusBar } from 'expo-status-bar';
 import { useMemo, useState } from 'react';
@@ -18,7 +18,15 @@ const TRACE = process.env.EXPO_PUBLIC_MORPH_TRACE === '1';
 export const unstable_settings = { anchor: 'index' };
 
 export default function RootLayout() {
-  const [variant, setVariant] = useState<UiVariant>('default');
+  // The documentation site opens the demo with a variant or a corner in the
+  // URL, for example /?variant=custom or /?anchor=left. Read once, at start.
+  const params = useGlobalSearchParams<{ variant?: string; anchor?: string }>();
+  const [variant, setVariant] = useState<UiVariant>(() =>
+    params.variant === 'custom' ? 'custom' : 'default',
+  );
+  const [anchor] = useState<'bottom-left' | 'bottom-right'>(() =>
+    params.anchor === 'left' ? 'bottom-left' : 'bottom-right',
+  );
   const demo = useMemo(() => ({ variant, setVariant }), [variant]);
   const custom = variant === 'custom';
 
@@ -36,7 +44,9 @@ export default function RootLayout() {
             components={custom ? CUSTOM_COMPONENTS : undefined}
             itemHeight={custom ? customItemHeight : undefined}
             // The screens of this app are light only, so the close button uses light colors too.
-            config={custom ? { ...CUSTOM_CONFIG, colorScheme: 'light' } : { colorScheme: 'light' }}
+            config={
+              custom ? { ...CUSTOM_CONFIG, colorScheme: 'light', anchor } : { colorScheme: 'light', anchor }
+            }
           >
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="index" />

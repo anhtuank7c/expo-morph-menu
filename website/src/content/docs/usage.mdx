@@ -1,0 +1,99 @@
+---
+title: "Usage"
+description: "Three files: the root layout, the sheet route group and a screen."
+editUrl: https://github.com/anhtuank7c/expo-morph-menu/edit/main/README.md
+---
+
+{/* Generated from README.md by website/scripts/sections.mjs: edit that file, then run npm run sections. */}
+
+import Demo from '~/components/Demo.astro';
+import Source from '~/components/Source.astro';
+
+<Demo route="">
+
+
+
+</Demo>
+
+### 1. Root layout
+
+Wrap the app in `MorphProvider`, register the sheet route group, and render `<MorphMenu />` after the root navigator.
+
+```tsx
+// app/_layout.tsx
+import { Stack } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { MorphMenu, MorphProvider, morphSheetScreenOptions, type MorphItem } from 'expo-morph-menu';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+const items: MorphItem[] = [
+  {
+    key: 'camera',
+    label: 'Camera',
+    tint: '#3a3a3c',
+    icon: <Ionicons name="camera" size={15} color="#fff" />,
+    href: { pathname: '/(sheet)/[key]', params: { key: 'camera' } },
+  },
+  // ...
+];
+
+export default function RootLayout() {
+  return (
+    <SafeAreaProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <MorphProvider items={items} onHover={(item) => prefetch(item.key)}>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="(sheet)" options={morphSheetScreenOptions} />
+          </Stack>
+          <MorphMenu />
+        </MorphProvider>
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
+  );
+}
+```
+
+### 2. Sheet route group
+
+Every route in this group expands from the menu card.
+
+```tsx
+// app/(sheet)/_layout.tsx
+import { Stack } from 'expo-router';
+import { MorphSheetLayout } from 'expo-morph-menu';
+
+export default function SheetLayout() {
+  return (
+    <MorphSheetLayout>
+      <Stack.Screen name="[key]" options={{ headerShown: false }} />
+    </MorphSheetLayout>
+  );
+}
+```
+
+### 3. Screens
+
+Dismiss with `<MorphCloseButton />` or any call to `router.back()`. Render expensive content after the expand animation has finished.
+
+```tsx
+// app/(sheet)/[key].tsx
+import { MorphCloseButton, useMorphSettled } from 'expo-morph-menu';
+
+export default function Screen() {
+  const settled = useMorphSettled();
+  return (
+    <View style={{ flex: 1 }}>
+      <MorphCloseButton />
+      {settled ? <HeavyContent /> : <Placeholder />}
+    </View>
+  );
+}
+```
+
+All dismiss paths run the collapse animation: the close button, `router.back()`, Android hardware back, browser back, Esc, and the iOS gestures.
+
+## Source of the demo
+
+<Source files={["example/app/_layout.tsx","example/app/(sheet)/_layout.tsx","example/app/(sheet)/[key].tsx","example/data/items.tsx"]} />

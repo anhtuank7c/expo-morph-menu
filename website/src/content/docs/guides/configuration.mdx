@@ -1,0 +1,97 @@
+---
+title: "Configuration"
+description: "Options, icons and callbacks."
+editUrl: https://github.com/anhtuank7c/expo-morph-menu/edit/main/README.md
+---
+
+{/* Generated from README.md by website/scripts/sections.mjs: edit that file, then run npm run sections. */}
+
+import Demo from '~/components/Demo.astro';
+import Source from '~/components/Source.astro';
+
+<Demo route="?anchor=left">
+
+The same app with `anchor: 'bottom-left'`. Every option of the table below is one line of `config`.
+
+</Demo>
+
+All options are optional. Pass only the values you want to override.
+
+```tsx
+<MorphProvider
+  items={items}
+  config={{
+    closeMenuOnDismiss: false,         // keep the menu open after the full screen is dismissed
+    anchor: 'bottom-right',            // or 'bottom-left'
+    layout: { fabSize: 56, cardWidth: 236, rowHeight: 46, padding: 10, margin: 20, iconSize: 15 },
+    radius: Platform.select({ ios: { card: 28 }, android: { card: 16 } }),
+    shadow: { elevation: 8 },          // Android: elevation. iOS and web: color, opacity, radius, offsetY
+    dismiss: { edgeSwipe: true, dragDown: false },
+    spring: { duration: 460, dampingRatio: 0.85 },
+    haptics: true,
+    surface: 'auto',                   // 'glass' | 'blur' | 'solid'
+    colorScheme: 'auto',               // 'light' | 'dark'
+    backdropOpacity: 0.25,
+    colors: { dark: { surface: '#202022' } },
+  }}
+/>
+```
+
+| Option | Default (iOS / Android) | Description |
+| --- | --- | --- |
+| `closeMenuOnDismiss` | `false` | `true` collapses the card into the button after the full screen is dismissed |
+| `anchor` | `'bottom-right'` | Screen corner of the button |
+| `layout.*` | `56 / 236 / 46 / 10 / 20 / 15 / 1` | Button size, card width, row height, list padding, screen margin (added to the bottom safe area inset), row icon size, separator height |
+| `radius.card` / `radius.sheet` / `radius.fab` | `28` / `0` / `null` | Corner radius of the card, of the full screen, and of the button (`null` renders a circle) |
+| `shadow` | opacity `0.18`, radius `18`, offsetY `8` / elevation `10` | Shadow at rest. Disabled while the bounds are animating |
+| `dismiss.edgeSwipe` | `true` / `false` | Left-edge swipe. Active only on the root screen of the sheet group, so nested screens keep the native back swipe |
+| `dismiss.dragDown` | `true` / `false` | Drag down to dismiss |
+| `spring` | `460` ms, `0.85` | Spring duration and damping ratio. Reduce Motion is respected |
+| `haptics` | `true` | Requires `expo-haptics` |
+| `surface` | `'auto'` | Resolution order: Liquid Glass (iOS 26+), blur (iOS), solid |
+| `colorScheme` | `'auto'` | Follows the system setting |
+| `colors.light` / `colors.dark` | `LIGHT_COLORS` / `DARK_COLORS` | `surface`, `sheetBackground`, `text`, `scrim`, `backdrop`, `highlight`, `fabIcon`, `closeBackground`, `closeIcon`, `iconForeground` |
+
+### Icons
+
+Row icons (`item.icon`), the button icon (`fabIcon`) and the close button icon (`closeIcon` or `<MorphCloseButton icon>`) accept a `MorphIcon`:
+
+```tsx
+icon: <Ionicons name="camera" size={15} color="#fff" />,   // React element (icon font, SVG)
+icon: <CameraSvg width={15} height={15} />,                 // SVG component (react-native-svg)
+icon: require('./camera.png'),                              // bundled image
+icon: { uri: 'https://example.com/camera.png' },            // remote image
+icon: ({ size, color }) => <Ionicons name="camera" size={size} color={color} />,
+```
+
+The function form receives the size and theme color for its position:
+
+| Position | `size` | `color` |
+| --- | --- | --- |
+| Row icon | `layout.iconSize` | `colors.iconForeground` |
+| Button | `26` | `colors.fabIcon` |
+| Close button | `size * 0.56` | `colors.closeIcon` |
+
+Single-color images are tinted with that color. For multi-color images, set `iconTint: false` on the item or `tintImage={false}` on the close button.
+
+```tsx
+<MorphProvider
+  items={items}
+  fabIcon={({ size, color }) => <Ionicons name="add" size={size} color={color} />}
+  closeIcon={require('./close.png')}   // default icon for every MorphCloseButton
+/>
+
+<MorphCloseButton />
+<MorphCloseButton icon={<CloseSvg />} size={40} backgroundColor="transparent" />
+```
+
+`MorphCloseButton` props: `icon`, `size` (default `32`), `iconSize`, `color`, `backgroundColor`, `tintImage`, `style`, and any `Pressable` prop. It calls `router.back()` unless `onPress` calls `e.preventDefault()`.
+
+### Callbacks
+
+| Prop | Called when |
+| --- | --- |
+| `onHover(item)` | The pointer moves onto a row. Use it to prefetch data |
+| `onSelect(item)` | A row is selected, before navigation |
+| `onOpen()` / `onClose()` | The menu starts opening or closing |
+| `onSheetDismissed(item)` | The full screen has finished collapsing |

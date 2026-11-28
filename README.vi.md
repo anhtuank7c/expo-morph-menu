@@ -2,6 +2,8 @@
 
 [English](https://github.com/anhtuank7c/expo-morph-menu/blob/main/README.md) | **Tiếng Việt**
 
+**[Tài liệu kèm demo chạy thật và mã chép về dùng ngay →](https://anhtuank7c.github.io/expo-morph-menu/vi/)**
+
 Menu nổi có thể mở rộng dành cho expo-router, dùng animation của Reanimated 4.
 
 Nút nổi mở rộng thành card menu. Khi chọn một dòng, card mở rộng thành một route full screen. Khi route được đóng, nó thu gọn về card và menu vẫn mở. Vì màn hình full screen là một route expo-router thông thường, nó hỗ trợ deep link, điều hướng back và native stack lồng nhau.

@@ -1,0 +1,25 @@
+---
+title: "API"
+description: "Toàn bộ export của expo-morph-menu."
+editUrl: https://github.com/anhtuank7c/expo-morph-menu/edit/main/README.vi.md
+---
+
+{/* Generated from README.vi.md by website/scripts/sections.mjs: edit that file, then run npm run sections. */}
+
+| Export | Mô tả |
+| --- | --- |
+| `MorphProvider` | Context provider. Props: `items`, `config`, `components`, `itemHeight`, `fabIcon`, `closeIcon`, các callback |
+| `MorphMenu` | Overlay (lớp phủ) gồm nút nổi và card. Render sau root navigator. Props: `hidden`, `bottomOffset`, `fabAccessibilityLabel` |
+| `MorphSheetLayout` | Layout cho nhóm route mở rộng từ card. Phần tử con là các `<Stack.Screen>`. `screenOptions` là tùy chọn |
+| `morphSheetScreenOptions` | Tùy chọn cho `<Stack.Screen>` của nhóm trong root navigator |
+| `MorphCloseButton` | Nút đóng cho các màn hình sheet |
+| `renderIcon(icon, { size, color })` | Render bất kỳ `MorphIcon` nào. Hữu ích bên trong một `Item` tùy chỉnh |
+| `DefaultItem` | Component dòng có sẵn |
+| `useMorphProgress()` | Các shared value chỉ đọc `{ menu, sheet }`, từ 0 đến 1 |
+| `useMorphSettled()` | `true` sau khi full screen đã mở rộng xong |
+| `useMorphDismiss()` | Trả về `dismiss({ closeMenu? })`, dùng để đóng toàn bộ sheet từ bất kỳ màn hình nào bên trong |
+| `useMorph()` | Truy cập mức thấp tới các shared value và cấu hình đã được xử lý |
+| `MorphTrace` | Component gỡ lỗi. Ghi log từng frame với tiền tố `[morph]` và đánh dấu các lỗi hiển thị |
+| `DEFAULT_CONFIG`, `LIGHT_COLORS`, `DARK_COLORS` | Giá trị mặc định |
+
+Test ID cho kiểm thử end-to-end (E2E): `morph-fab`, `morph-scrim`, `morph-item-<key>`, `morph-close`.

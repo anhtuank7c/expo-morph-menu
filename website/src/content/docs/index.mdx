@@ -1,0 +1,105 @@
+---
+title: Morph Menu
+description: A floating action menu for expo-router. The button grows into a card, a row grows into a full-screen route, and closing shrinks it back. Live demos, copyable code, slots.
+template: splash
+hero:
+  tagline: A floating action menu for expo-router, animated with Reanimated 4. The button grows into a card, a row grows into a full-screen route, and closing shrinks it back into the card. Every demo on this site runs live, with its full source one click away.
+  image:
+    html: '<img class="hero-gif" src="/expo-morph-menu/media/basic-ios.gif" alt="The menu opens from the + button, a row expands into a full-screen route, closing returns to the card" width="240" />'
+  actions:
+    - text: Get started
+      link: /expo-morph-menu/getting-started/
+      icon: right-arrow
+    - text: Browse examples
+      link: /expo-morph-menu/examples/
+      variant: secondary
+    - text: GitHub
+      link: https://github.com/anhtuank7c/expo-morph-menu
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard, Steps } from '@astrojs/starlight/components';
+import Demo from '~/components/Demo.astro';
+
+## In three files
+
+```bash
+npx expo install expo-morph-menu \
+  expo-router react-native-reanimated react-native-worklets \
+  react-native-gesture-handler react-native-safe-area-context react-native-screens
+```
+
+<Demo route="">
+
+<Steps>
+
+1. **app/\_layout.tsx**: the provider, the sheet group and the menu.
+
+   ```tsx
+   <MorphProvider items={items}>
+     <Stack>
+       <Stack.Screen name="index" />
+       <Stack.Screen name="(sheet)" options={morphSheetScreenOptions} />
+     </Stack>
+     <MorphMenu />
+   </MorphProvider>
+   ```
+
+2. **app/(sheet)/\_layout.tsx**: every route inside grows out of the card.
+
+   ```tsx
+   <MorphSheetLayout>
+     <Stack.Screen name="[key]" />
+   </MorphSheetLayout>
+   ```
+
+3. **app/(sheet)/[key].tsx**: a regular screen with a close button.
+
+   ```tsx
+   <MorphCloseButton />
+   ```
+
+</Steps>
+
+The phone on the left is exactly this. [Usage](/expo-morph-menu/usage/) has the whole files, ready to copy.
+
+</Demo>
+
+## What it does
+
+<CardGrid>
+  <Card title="Real routes" icon="seti:folder">
+    The full screen is an expo-router route group: deep links, Android back, browser back and nested screens use the normal navigation stack.
+  </Card>
+  <Card title="One continuous motion" icon="star">
+    The full screen starts from the card's bounds and returns to them; the card and the screen swap on the UI thread in a single frame.
+  </Card>
+  <Card title="Slots" icon="puzzle">
+    Background, rows, trigger, highlight, separator, scrim and backdrop are replaceable, so the menu fits any UI kit.
+  </Card>
+  <Card title="Gestures per platform" icon="random">
+    Edge swipe and drag down on iOS, close button and hardware back on Android, Esc and browser back on web. Press, slide and release to pick a row.
+  </Card>
+  <Card title="Prefetch on hover" icon="rocket">
+    `onHover` fires while the pointer is on a row, before it is selected, so the next screen's data is often ready when it opens.
+  </Card>
+  <Card title="iOS, Android, web" icon="laptop">
+    Liquid Glass on iOS 26, blur on older iOS, solid elsewhere; the same code on every platform.
+  </Card>
+</CardGrid>
+
+## Examples
+
+<CardGrid>
+  <LinkCard title="Basic menu" description="Rows that grow into full-screen routes" href="/expo-morph-menu/examples/basic/" />
+  <LinkCard title="Custom slots" description="Every visible part replaced" href="/expo-morph-menu/examples/custom-slots/" />
+  <LinkCard title="Left corner" description="One line of config" href="/expo-morph-menu/examples/left-corner/" />
+  <LinkCard title="Social app" description="Tabs, a compose menu, nested screens" href="/expo-morph-menu/examples/social/" />
+</CardGrid>
+
+## Make it yours
+
+Start from an example, then replace any part with your own components through [slots](/expo-morph-menu/guides/custom-ui/), with recipes for NativeWind, Tamagui, React Native Paper and Unistyles. Every option is in [Configuration](/expo-morph-menu/guides/configuration/).
+
+Also from the same author: [expo-morph-carousel](https://anhtuank7c.github.io/expo-morph-carousel/), a carousel whose images melt into each other like liquid.

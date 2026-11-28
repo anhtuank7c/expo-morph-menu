@@ -1,0 +1,25 @@
+---
+title: "API"
+description: "Every export of expo-morph-menu."
+editUrl: https://github.com/anhtuank7c/expo-morph-menu/edit/main/README.md
+---
+
+{/* Generated from README.md by website/scripts/sections.mjs: edit that file, then run npm run sections. */}
+
+| Export | Description |
+| --- | --- |
+| `MorphProvider` | Context provider. Props: `items`, `config`, `components`, `itemHeight`, `fabIcon`, `closeIcon`, callbacks |
+| `MorphMenu` | Floating button and card overlay. Render it after the root navigator. Props: `hidden`, `bottomOffset`, `fabAccessibilityLabel` |
+| `MorphSheetLayout` | Layout for the route group that expands from the card. Children are `<Stack.Screen>` elements. Optional `screenOptions` |
+| `morphSheetScreenOptions` | Options for the group's `<Stack.Screen>` in the root navigator |
+| `MorphCloseButton` | Close button for sheet screens |
+| `renderIcon(icon, { size, color })` | Renders any `MorphIcon`. Useful inside a custom `Item` |
+| `DefaultItem` | The built-in row component |
+| `useMorphProgress()` | Read-only shared values `{ menu, sheet }`, from 0 to 1 |
+| `useMorphSettled()` | `true` after the full screen has finished expanding |
+| `useMorphDismiss()` | Returns `dismiss({ closeMenu? })`, which closes the whole sheet from any screen inside it |
+| `useMorph()` | Low-level access to shared values and the resolved config |
+| `MorphTrace` | Debug component. Logs each frame with the `[morph]` prefix and flags visual defects |
+| `DEFAULT_CONFIG`, `LIGHT_COLORS`, `DARK_COLORS` | Default values |
+
+Test IDs for end-to-end tests: `morph-fab`, `morph-scrim`, `morph-item-<key>`, `morph-close`.

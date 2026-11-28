@@ -2,6 +2,8 @@
 
 **English** | [Tiếng Việt](https://github.com/anhtuank7c/expo-morph-menu/blob/main/README.vi.md)
 
+**[Documentation with live demos and copyable code →](https://anhtuank7c.github.io/expo-morph-menu/)**
+
 An expandable floating action menu for expo-router, animated with Reanimated 4.
 
 The floating button expands into a card menu. Selecting a row expands the card into a full-screen route. When the route is dismissed, it collapses back into the card and the menu stays open. Because the full screen is a regular expo-router route, it supports deep links, back navigation and a nested native stack.

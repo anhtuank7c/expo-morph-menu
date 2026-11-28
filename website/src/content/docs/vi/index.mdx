@@ -1,0 +1,105 @@
+---
+title: Morph Menu
+description: Menu nổi cho expo-router. Nút nở thành thẻ, một dòng nở thành route toàn màn hình, đóng lại thì thu về. Demo chạy thật, mã chép về dùng ngay, slot.
+template: splash
+hero:
+  tagline: Menu nổi (floating action menu) cho expo-router, animation bằng Reanimated 4. Nút nở thành thẻ menu, một dòng nở thành route toàn màn hình, đóng lại thì thu về thẻ. Mọi demo trên trang này đều chạy thật, và toàn bộ mã nguồn chỉ cách một cú bấm.
+  image:
+    html: '<img class="hero-gif" src="/expo-morph-menu/media/basic-ios.gif" alt="Menu mở ra từ nút +, một dòng nở thành route toàn màn hình, đóng lại thì về thẻ" width="240" />'
+  actions:
+    - text: Bắt đầu
+      link: /expo-morph-menu/vi/getting-started/
+      icon: right-arrow
+    - text: Xem ví dụ
+      link: /expo-morph-menu/vi/examples/
+      variant: secondary
+    - text: GitHub
+      link: https://github.com/anhtuank7c/expo-morph-menu
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard, Steps } from '@astrojs/starlight/components';
+import Demo from '~/components/Demo.astro';
+
+## Chỉ với ba file
+
+```bash
+npx expo install expo-morph-menu \
+  expo-router react-native-reanimated react-native-worklets \
+  react-native-gesture-handler react-native-safe-area-context react-native-screens
+```
+
+<Demo route="">
+
+<Steps>
+
+1. **app/\_layout.tsx**: provider, nhóm sheet và menu.
+
+   ```tsx
+   <MorphProvider items={items}>
+     <Stack>
+       <Stack.Screen name="index" />
+       <Stack.Screen name="(sheet)" options={morphSheetScreenOptions} />
+     </Stack>
+     <MorphMenu />
+   </MorphProvider>
+   ```
+
+2. **app/(sheet)/\_layout.tsx**: mọi route bên trong đều nở ra từ thẻ.
+
+   ```tsx
+   <MorphSheetLayout>
+     <Stack.Screen name="[key]" />
+   </MorphSheetLayout>
+   ```
+
+3. **app/(sheet)/[key].tsx**: một màn hình bình thường có nút đóng.
+
+   ```tsx
+   <MorphCloseButton />
+   ```
+
+</Steps>
+
+Khung điện thoại bên trái chính là chừng ấy. Trang [Cách dùng](/expo-morph-menu/vi/usage/) có nguyên các file, chép về là chạy.
+
+</Demo>
+
+## Làm được gì
+
+<CardGrid>
+  <Card title="Route thật" icon="seti:folder">
+    Màn hình toàn phần là một nhóm route của expo-router: deep link, back trên Android, back của trình duyệt và màn hình lồng nhau đều dùng navigation stack bình thường.
+  </Card>
+  <Card title="Một chuyển động liền mạch" icon="star">
+    Màn hình toàn phần bắt đầu từ khung của thẻ và trở về đó; thẻ và màn hình hoán đổi trên UI thread trong một khung hình.
+  </Card>
+  <Card title="Slot" icon="puzzle">
+    Nền, các dòng, trigger, highlight, separator, scrim và backdrop đều thay được, nên menu hợp với mọi UI kit.
+  </Card>
+  <Card title="Cử chỉ theo nền tảng" icon="random">
+    Vuốt cạnh và kéo xuống trên iOS, nút đóng và back cứng trên Android, Esc và back của trình duyệt trên web. Nhấn, trượt rồi thả để chọn một dòng.
+  </Card>
+  <Card title="Tải trước khi rê chuột" icon="rocket">
+    `onHover` được gọi khi con trỏ nằm trên một dòng, trước khi chọn, nên dữ liệu của màn hình kế tiếp thường đã sẵn khi nó mở.
+  </Card>
+  <Card title="iOS, Android, web" icon="laptop">
+    Liquid Glass trên iOS 26, blur trên iOS cũ hơn, màu đặc ở nơi khác; cùng một mã trên mọi nền tảng.
+  </Card>
+</CardGrid>
+
+## Ví dụ
+
+<CardGrid>
+  <LinkCard title="Menu cơ bản" description="Các dòng nở thành route toàn màn hình" href="/expo-morph-menu/vi/examples/basic/" />
+  <LinkCard title="Slot tuỳ biến" description="Thay mọi phần hiển thị" href="/expo-morph-menu/vi/examples/custom-slots/" />
+  <LinkCard title="Góc trái" description="Một dòng config" href="/expo-morph-menu/vi/examples/left-corner/" />
+  <LinkCard title="App mạng xã hội" description="Tab, menu soạn bài, màn hình lồng nhau" href="/expo-morph-menu/vi/examples/social/" />
+</CardGrid>
+
+## Tuỳ biến theo ý bạn
+
+Bắt đầu từ một ví dụ, rồi thay bất kỳ phần nào bằng component của bạn qua [slot](/expo-morph-menu/vi/guides/custom-ui/), có sẵn công thức cho NativeWind, Tamagui, React Native Paper và Unistyles. Mọi tuỳ chọn nằm trong [Cấu hình](/expo-morph-menu/vi/guides/configuration/).
+
+Cùng tác giả: [expo-morph-carousel](https://anhtuank7c.github.io/expo-morph-carousel/vi/), carousel có ảnh tan vào nhau như chất lỏng.

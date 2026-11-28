@@ -1,0 +1,26 @@
+---
+title: "Web"
+description: "Cùng một mã trên Expo web."
+editUrl: https://github.com/anhtuank7c/expo-morph-menu/edit/main/README.vi.md
+---
+
+{/* Generated from README.vi.md by website/scripts/sections.mjs: edit that file, then run npm run sections. */}
+
+import Demo from '~/components/Demo.astro';
+import Source from '~/components/Source.astro';
+
+<Demo route="">
+
+Khung điện thoại này chạy bản web: rê chuột lên một dòng, bấm Esc, dùng nút back của trình duyệt.
+
+</Demo>
+
+Cùng một mã chạy trên Expo web thông qua React Native Web.
+
+- URL phản ánh route bên trong full screen, ví dụ `/camera`.
+- Hover chuột lên một dòng sẽ làm nổi bật dòng đó và gọi `onHover`.
+- Esc đóng full screen khi màn hình gốc của nó đang hoạt động, sau đó đóng menu.
+- Nút back của trình duyệt chạy animation thu gọn.
+- Nhấn giữ và kéo từ nút tới một dòng hoạt động được với chuột. Việc chọn văn bản bị tắt trong lúc kéo.
+- Tải lại hoặc đóng tab khi full screen đang mở không hiện hộp thoại "Leave site?".
+- Không có haptics, Liquid Glass và nút back phần cứng. Blur dùng CSS `backdrop-filter` thông qua `expo-blur`.

@@ -1,0 +1,72 @@
+# Builds the documentation site (website/, Astro Starlight) with the web
+# builds of both example apps embedded for the live demos (/playground and
+# /playground-social), and publishes it to GitHub Pages:
+# https://anhtuank7c.github.io/expo-morph-menu/
+name: Docs
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deployment at a time; a newer push waits instead of cancelling a deploy.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false # nothing here pushes
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            website/package-lock.json
+
+      - run: npm ci
+
+      - name: Basic example for web, served from /expo-morph-menu/playground
+        working-directory: example
+        env:
+          EXPO_BASE_URL: /expo-morph-menu/playground
+        run: npx expo export --platform web --output-dir ../website/public/playground
+
+      - name: Social example for web, served from /expo-morph-menu/playground-social
+        working-directory: example-social
+        env:
+          EXPO_BASE_URL: /expo-morph-menu/playground-social
+        run: npx expo export --platform web --output-dir ../website/public/playground-social
+
+      - name: Site
+        working-directory: website
+        run: |
+          npm ci
+          node scripts/playground-routes.mjs
+          npm run build
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: website/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

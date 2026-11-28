@@ -1,0 +1,62 @@
+---
+/**
+ * The props, slots and APIs a demo uses, each linking to its documentation.
+ * Plain names link to the props table (`#prop-<name>`); give `name:page#anchor`
+ * to link elsewhere.
+ */
+interface Props {
+  items: string[];
+}
+const vi = Astro.currentLocale === 'vi';
+const base = import.meta.env.BASE_URL.replace(/\/$/, '') + (vi ? '/vi' : '');
+const links = Astro.props.items.map((item) => {
+  const [name, target] = item.split(':');
+  // mediaStyle, pageStyle and footerStyle share the style row of the table.
+  const id = /Style$/.test(name) ? 'style' : name.replace(/[^a-zA-Z]/g, '').toLowerCase();
+  const href = target ? `${base}/${target}` : `${base}/reference/api/`;
+  return { name, href };
+});
+---
+
+<p class="uses-title">{vi ? 'Dùng' : 'Uses'}</p>
+<ul class="uses not-content">
+  {
+    links.map((l) => (
+      <li>
+        <a href={l.href}>
+          <code>{l.name}</code>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .uses-title {
+    font-weight: 600;
+    margin-top: 1.25rem;
+  }
+  .uses {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0;
+    margin: 0.5rem 0 0;
+    list-style: none;
+  }
+  .uses a {
+    text-decoration: none;
+  }
+  .uses code {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 0.4rem;
+    border: 1px solid var(--sl-color-gray-5);
+    background: var(--sl-color-gray-6);
+    color: var(--sl-color-text-accent);
+    font-size: var(--sl-text-xs);
+  }
+  .uses a:hover code {
+    border-color: var(--sl-color-text-accent);
+  }
+</style>
