@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { sheetItem, type Scene } from './types';
 import { BackToDemos, Initials, SheetHeader } from './ui';
+import { column } from '../components/layout';
 
 /**
  * A messaging app. The rows have a title and a subtitle: an `Item` slot draws
@@ -89,7 +90,7 @@ function Home() {
   return (
     <ScrollView
       style={styles.page}
-      contentContainerStyle={{ paddingTop: insets.top + 10, paddingBottom: insets.bottom + 120 }}
+      contentContainerStyle={[column, { paddingTop: insets.top + 10, paddingBottom: insets.bottom + 120 }]}
     >
       <View style={styles.pad}>
         <BackToDemos />

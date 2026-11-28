@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { sheetItem, type Scene } from './types';
 import { BackToDemos, SheetHeader } from './ui';
+import { column } from '../components/layout';
 
 /**
  * A super app (rides, food, groceries, parcels). Tall rows with an ETA and a
@@ -78,6 +79,7 @@ function Home() {
     <ScrollView
       style={styles.page}
       contentContainerStyle={[
+        column,
         styles.home,
         { paddingTop: insets.top + 10, paddingBottom: insets.bottom + 120 },
       ]}
@@ -182,7 +184,7 @@ function Food() {
   return (
     <View style={styles.page}>
       <SheetHeader title="Food" />
-      <ScrollView contentContainerStyle={styles.home}>
+      <ScrollView contentContainerStyle={[column, styles.home]}>
         {places.map((p) => (
           <View key={p.name} style={styles.place}>
             <View style={[styles.placeImage, { backgroundColor: p.color }]}>
@@ -216,7 +218,7 @@ function Grocery() {
         title="Groceries"
         right={<Text style={styles.cartCount}>{count ? `${count} in cart` : ''}</Text>}
       />
-      <ScrollView contentContainerStyle={[styles.home, styles.gridWrap]}>
+      <ScrollView contentContainerStyle={[column, styles.home, styles.gridWrap]}>
         {products.map(([name, price, color]) => (
           <View key={name} style={styles.product}>
             <View style={[styles.productImage, { backgroundColor: color }]}>

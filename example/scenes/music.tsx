@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { sheetItem, type Scene } from './types';
 import { BackToDemos, SheetHeader } from './ui';
+import { column } from '../components/layout';
 
 /**
  * A music app in dark mode. The Trigger slot is a small equalizer that
@@ -89,6 +90,7 @@ function Home() {
     <ScrollView
       style={{ backgroundColor: BG }}
       contentContainerStyle={[
+        column,
         styles.home,
         { paddingTop: insets.top + 10, paddingBottom: insets.bottom + 120 },
       ]}
@@ -154,7 +156,7 @@ function Songs() {
   return (
     <View style={styles.sheet}>
       <SheetHeader title="Add songs" color="#fff" right={<Text style={styles.action}>{added.length}</Text>} />
-      <ScrollView contentContainerStyle={styles.home}>
+      <ScrollView contentContainerStyle={[column, styles.home]}>
         {SONGS.map((s, i) => {
           const on = added.includes(s);
           return (

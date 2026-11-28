@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { sheetItem, type Scene } from './types';
 import { BackToDemos, Initials, SheetHeader } from './ui';
+import { column } from '../components/layout';
 
 /**
  * A wallet app in dark mode. The button is lime and the card is graphite:
@@ -78,6 +79,7 @@ function Home() {
     <ScrollView
       style={{ backgroundColor: BG }}
       contentContainerStyle={[
+        column,
         styles.home,
         { paddingTop: insets.top + 10, paddingBottom: insets.bottom + 120 },
       ]}

@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { useDemo, type UiVariant } from '../context/demo';
 import { findScene, SCENES } from '../scenes';
+import { column } from '../components/layout';
 
 const VARIANTS: { key: UiVariant; label: string }[] = [
   { key: 'default', label: 'Default' },
@@ -70,12 +71,15 @@ function Home() {
   return (
     <ScrollView
       style={styles.root}
-      contentContainerStyle={{
-        padding: 20,
-        paddingTop: insets.top + 12,
-        paddingBottom: insets.bottom + 120,
-        gap: 14,
-      }}
+      contentContainerStyle={[
+        column,
+        {
+          padding: 20,
+          paddingTop: insets.top + 12,
+          paddingBottom: insets.bottom + 120,
+          gap: 14,
+        },
+      ]}
     >
       <Text style={styles.title} testID="home-title">
         expo-morph-menu

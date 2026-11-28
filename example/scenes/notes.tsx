@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { sheetItem, type Scene } from './types';
 import { BackToDemos, SheetHeader } from './ui';
+import { column } from '../components/layout';
 
 /**
  * A notes app on warm paper, with the button in the bottom-left corner. The
@@ -71,6 +72,7 @@ function Home() {
     <ScrollView
       style={styles.page}
       contentContainerStyle={[
+        column,
         styles.home,
         { paddingTop: insets.top + 10, paddingBottom: insets.bottom + 120 },
       ]}

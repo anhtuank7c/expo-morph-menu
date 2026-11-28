@@ -9,6 +9,7 @@ import { useDemo } from '../../context/demo';
 import { findScene } from '../../scenes';
 import { findDemo } from '../../data/items';
 import { useSheetData } from '../../data/sheetData';
+import { column } from '../../components/layout';
 
 /** Lists the ways to close this screen that are enabled in the config. */
 function closeHint(d: { edgeSwipe: boolean; dragDown: boolean }) {
@@ -27,8 +28,17 @@ const PREFETCHED_MS = 80;
 /** The screen of a row: the basic one below, or the running scene's own. */
 export default function SheetRoute() {
   const { key } = useLocalSearchParams<{ key: string }>();
-  const Scene = findScene(useDemo().scene)?.Screen;
-  return Scene ? <Scene itemKey={key} /> : <SheetRoot />;
+  const scene = findScene(useDemo().scene);
+  const { colors } = useMorph();
+  if (!scene) return <SheetRoot />;
+  // On a tablet the screen is a centered column on the sheet's background.
+  return (
+    <View style={[styles.fill, { backgroundColor: colors.sheetBackground }]}>
+      <View style={[styles.fill, column]}>
+        <scene.Screen itemKey={key} />
+      </View>
+    </View>
+  );
 }
 
 function SheetRoot() {
@@ -61,7 +71,7 @@ function SheetRoot() {
         <ScrollView
           testID="sheet-content"
           // The container reaches the bottom edge, so leave room for the home indicator.
-          contentContainerStyle={[styles.body, { paddingBottom: 24 + insets.bottom }]}
+          contentContainerStyle={[column, styles.body, { paddingBottom: 24 + insets.bottom }]}
         >
           <Text style={styles.route}>/(sheet)/[key]?key={item.key}</Text>
           <Text style={styles.para}>{data.summary}</Text>
@@ -109,6 +119,7 @@ function SheetRoot() {
 }
 
 const styles = StyleSheet.create({
+  fill: { flex: 1 },
   root: { flex: 1, backgroundColor: '#fff' },
   header: {
     flexDirection: 'row',

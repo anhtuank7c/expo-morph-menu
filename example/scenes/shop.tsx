@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { sheetItem, type Scene } from './types';
 import { BackToDemos, SheetHeader } from './ui';
+import { column } from '../components/layout';
 
 /**
  * A shop. The button is a bag with a live badge: the Trigger slot reads the
@@ -125,6 +126,7 @@ function Home() {
     <ScrollView
       style={styles.page}
       contentContainerStyle={[
+        column,
         styles.home,
         { paddingTop: insets.top + 10, paddingBottom: insets.bottom + 120 },
       ]}
@@ -164,7 +166,7 @@ function Cart() {
   return (
     <View style={styles.page}>
       <SheetHeader title={`Cart (${countOf(ls)})`} />
-      <ScrollView contentContainerStyle={styles.home}>
+      <ScrollView contentContainerStyle={[column, styles.home]}>
         {ls.length === 0 && <Text style={styles.hint}>Your cart is empty.</Text>}
         {ls.map((l) => (
           <View key={l.id} style={styles.line}>
@@ -200,7 +202,7 @@ function Wishlist() {
   return (
     <View style={styles.page}>
       <SheetHeader title="Wishlist" />
-      <ScrollView contentContainerStyle={[styles.home, styles.grid]}>
+      <ScrollView contentContainerStyle={[column, styles.home, styles.grid]}>
         {PRODUCTS.map((p) => (
           <View key={p.id} style={styles.product}>
             <View style={[styles.productImage, { backgroundColor: p.color }]}>
