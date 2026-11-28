@@ -39,7 +39,10 @@ jobs:
         working-directory: example
         env:
           EXPO_BASE_URL: /expo-morph-menu/playground
-        run: npx expo export --platform web --output-dir ../website/public/playground
+        # CanvasKit for the expo-morph-carousel banner in the shop scene.
+        run: |
+          npx setup-skia-web public
+          npx expo export --platform web --output-dir ../website/public/playground
 
       - name: Social example for web, served from /expo-morph-menu/playground-social
         working-directory: example-social

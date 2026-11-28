@@ -67,7 +67,10 @@
     "zoom-transition",
     "web",
     "headless",
-    "slots"
+    "slots",
+    "floating-action-button",
+    "action-menu",
+    "expo-morph"
   ],
   "author": "Tuan Nguyen",
   "license": "MIT",

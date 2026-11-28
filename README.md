@@ -2,7 +2,7 @@
 
 **English** | [Tiếng Việt](https://github.com/anhtuank7c/expo-morph-menu/blob/main/README.vi.md)
 
-**[Documentation with live demos and copyable code →](https://anhtuank7c.github.io/expo-morph-menu/)**
+**[Documentation with live demos and copyable code →](https://anhtuank7c.github.io/expo-morph-menu/)** · Sister package: [expo-morph-carousel](https://github.com/anhtuank7c/expo-morph-carousel), a carousel whose images melt into each other like liquid
 
 An expandable floating action menu for expo-router, animated with Reanimated 4.
 
@@ -46,7 +46,7 @@ Six more apps built on the same two routes and one `MorphProvider`, each with it
     <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/scenes/notes.gif" width="220" alt="Notes: Bottom-left corner, shortcuts and separators"></td>
   </tr>
   <tr>
-    <td align="center" width="240"><a href="https://anhtuank7c.github.io/expo-morph-menu/examples/shop/"><b>Shop</b></a><br>A bag button with a live cart badge (Trigger slot)</td>
+    <td align="center" width="240"><a href="https://anhtuank7c.github.io/expo-morph-menu/examples/shop/"><b>Shop</b></a><br>A bag button with a live cart badge (Trigger slot), a banner made with expo-morph-carousel</td>
     <td align="center" width="240"><a href="https://anhtuank7c.github.io/expo-morph-menu/examples/music/"><b>Music</b></a><br>An equalizer in the button, dark mode</td>
     <td align="center" width="240"><a href="https://anhtuank7c.github.io/expo-morph-menu/examples/notes/"><b>Notes</b></a><br>Bottom-left corner, shortcuts and separators</td>
   </tr>
@@ -428,6 +428,10 @@ Reports from physical iOS devices are welcome.
 - Pull requests: see [CONTRIBUTING.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/CONTRIBUTING.md).
 - Security issues: do not open a public issue, see [SECURITY.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/SECURITY.md).
 - Release notes: [CHANGELOG.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/CHANGELOG.md).
+
+## Sister package
+
+**[expo-morph-carousel](https://github.com/anhtuank7c/expo-morph-carousel)** ([docs](https://anhtuank7c.github.io/expo-morph-carousel/), [npm](https://www.npmjs.com/package/expo-morph-carousel)): a carousel for Expo and React Native whose images melt into each other like liquid while the pages slide, drawn with Skia. Same author and stack (Reanimated 4, iOS, Android, web). The two work together: the shop demo here opens on a banner made with expo-morph-carousel, and the shop product page in its example app has an info button made with this menu.
 
 ## License
 

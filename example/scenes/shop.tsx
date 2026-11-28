@@ -6,8 +6,10 @@ import {
   type MorphItemProps,
   type MorphTriggerProps,
 } from 'expo-morph-menu';
+import Constants from 'expo-constants';
+import { configureSkiaWeb, MorphCarousel } from 'expo-morph-carousel';
 import { useSyncExternalStore } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Extrapolation,
   interpolate,
@@ -24,6 +26,9 @@ import { column } from '../components/layout';
  * A shop. The button is a bag with a live badge: the Trigger slot reads the
  * cart, so adding a product on the home screen updates the button. The Item
  * slot draws its own hover state (Highlight is off) and a count per row.
+ *
+ * The banner on top is expo-morph-carousel, the sister package: its photos
+ * melt into each other like liquid (https://anhtuank7c.github.io/expo-morph-carousel/).
  */
 
 const ORANGE = '#ff5a1f';
@@ -111,6 +116,55 @@ const items: MorphItem[] = [
   sheetItem('help', 'Help', { icon: ion('chatbubbles-outline') }),
 ];
 
+/* Photos from Unsplash (https://unsplash.com/license), cropped by imgix. */
+const BANNERS = [
+  { id: '1483985988355-763728e1935b', title: 'Mid-season sale', subtitle: 'Up to 60% off', color: '#b0476c' },
+  {
+    id: '1520006403909-838d6b92c22e',
+    title: 'New arrivals',
+    subtitle: 'Fresh picks every morning',
+    color: '#7a5c3e',
+  },
+  { id: '1555529669-e69e7aa0ba9a', title: 'Free shipping', subtitle: 'On orders over $35', color: '#3e6b7a' },
+];
+const photo = (id: string, w: number, h: number) =>
+  `https://images.unsplash.com/photo-${id}?w=${Math.round(w)}&h=${Math.round(h)}&fit=crop&q=80&fm=jpg`;
+
+// On the documentation site the web build lives under a sub path, CanvasKit too.
+const base = Constants.expoConfig?.experiments?.baseUrl;
+if (Platform.OS === 'web' && base) configureSkiaWeb({ locateFile: (file) => `${base}/${file}` });
+
+function Banner() {
+  return (
+    <MorphCarousel
+      data={BANNERS}
+      keyExtractor={(b) => b.id}
+      getImage={(b, _i, t) => ({
+        uri: photo(b.id, t.layoutWidth * t.pixelRatio, t.layoutHeight * t.pixelRatio),
+      })}
+      getPlaceholderColor={(b) => b.color}
+      mediaPosition="background"
+      mediaFit="cover"
+      mediaPadding={0}
+      liquid={{ preserveShape: true }}
+      loop
+      autoplay={{ interval: 3500 }}
+      pagination={{ activeColor: '#fff', inactiveColor: '#ffffff80', size: 6, activeWidth: 18 }}
+      accessibilityLabel="Promotions"
+      getAccessibilityLabel={(b) => `${b.title}, ${b.subtitle}`}
+      style={styles.banner}
+      pageStyle={styles.bannerPage}
+      footerStyle={styles.bannerDots}
+      renderItem={({ item }) => (
+        <View style={styles.bannerText}>
+          <Text style={styles.bannerTitle}>{item.title}</Text>
+          <Text style={styles.bannerSubtitle}>{item.subtitle}</Text>
+        </View>
+      )}
+    />
+  );
+}
+
 const PRODUCTS = [
   { id: 'sneakers', name: 'Canvas sneakers', price: 68, color: '#dfe7f5' },
   { id: 'tote', name: 'Market tote', price: 32, color: '#efe3c8' },
@@ -132,6 +186,7 @@ function Home() {
       ]}
     >
       <BackToDemos />
+      <Banner />
       <Text style={styles.h1}>New in</Text>
       <View style={styles.grid}>
         {PRODUCTS.map((p) => (
@@ -297,6 +352,24 @@ const styles = StyleSheet.create({
   page: { flex: 1, backgroundColor: '#fff' },
   home: { paddingHorizontal: 16, gap: 12 },
   h1: { fontSize: 32, fontWeight: '800', color: '#1c1c1e' },
+  banner: { width: '100%', aspectRatio: 2, borderRadius: 18, overflow: 'hidden', backgroundColor: '#ddd' },
+  bannerPage: { justifyContent: 'flex-end' },
+  bannerDots: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingVertical: 10 },
+  bannerText: { padding: 18, paddingBottom: 30, gap: 2 },
+  bannerTitle: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: '800',
+    textShadowColor: '#0008',
+    textShadowRadius: 8,
+  },
+  bannerSubtitle: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+    textShadowColor: '#0008',
+    textShadowRadius: 6,
+  },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   product: { width: '47%', flexGrow: 1, gap: 4 },
   productImage: {

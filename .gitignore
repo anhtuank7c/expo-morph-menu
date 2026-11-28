@@ -8,3 +8,6 @@ android/
 /lib/
 docs/diagrams/preview.*.html
 example-social/test/.build/
+
+# CanvasKit for the web build (npx setup-skia-web public)
+example/public/canvaskit.wasm

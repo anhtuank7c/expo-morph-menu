@@ -2,7 +2,7 @@
 
 [English](https://github.com/anhtuank7c/expo-morph-menu/blob/main/README.md) | **Tiếng Việt**
 
-**[Tài liệu kèm demo chạy thật và mã chép về dùng ngay →](https://anhtuank7c.github.io/expo-morph-menu/vi/)**
+**[Tài liệu kèm demo chạy thật và mã chép về dùng ngay →](https://anhtuank7c.github.io/expo-morph-menu/vi/)** · Gói anh em: [expo-morph-carousel](https://github.com/anhtuank7c/expo-morph-carousel), carousel có ảnh tan vào nhau như chất lỏng
 
 Menu nổi có thể mở rộng dành cho expo-router, dùng animation của Reanimated 4.
 
@@ -46,7 +46,7 @@ Sáu app nữa dựng trên cùng hai route và một `MorphProvider`, mỗi app
     <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/scenes/notes.gif" width="220" alt="Ghi chú: Góc dưới trái, phím tắt và vạch ngăn"></td>
   </tr>
   <tr>
-    <td align="center" width="240"><a href="https://anhtuank7c.github.io/expo-morph-menu/vi/examples/shop/"><b>Cửa hàng</b></a><br>Nút túi có huy hiệu giỏ hàng trực tiếp (slot Trigger)</td>
+    <td align="center" width="240"><a href="https://anhtuank7c.github.io/expo-morph-menu/vi/examples/shop/"><b>Cửa hàng</b></a><br>Nút túi có huy hiệu giỏ hàng trực tiếp (slot Trigger), banner làm từ expo-morph-carousel</td>
     <td align="center" width="240"><a href="https://anhtuank7c.github.io/expo-morph-menu/vi/examples/music/"><b>Nghe nhạc</b></a><br>Equalizer trong nút, nền tối</td>
     <td align="center" width="240"><a href="https://anhtuank7c.github.io/expo-morph-menu/vi/examples/notes/"><b>Ghi chú</b></a><br>Góc dưới trái, phím tắt và vạch ngăn</td>
   </tr>
@@ -428,6 +428,10 @@ Hoan nghênh báo cáo từ thiết bị iOS thật.
 - Pull request: xem [CONTRIBUTING.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/CONTRIBUTING.md).
 - Lỗi bảo mật: không mở issue công khai, xem [SECURITY.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/SECURITY.md).
 - Ghi chú phát hành: [CHANGELOG.md](https://github.com/anhtuank7c/expo-morph-menu/blob/main/CHANGELOG.md).
+
+## Gói anh em
+
+**[expo-morph-carousel](https://github.com/anhtuank7c/expo-morph-carousel)** ([tài liệu](https://anhtuank7c.github.io/expo-morph-carousel/vi/), [npm](https://www.npmjs.com/package/expo-morph-carousel)): carousel cho Expo và React Native, ảnh tan vào nhau như chất lỏng khi trang trượt, vẽ bằng Skia. Cùng tác giả và nền tảng (Reanimated 4, iOS, Android, web). Hai gói dùng được cùng nhau: demo cửa hàng ở đây mở đầu bằng banner làm từ expo-morph-carousel, còn trang sản phẩm trong app ví dụ của nó có nút thông tin làm từ menu này.
 
 ## Giấy phép
 
