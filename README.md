@@ -25,6 +25,33 @@ The floating button expands into a card menu. Selecting a row expands the card i
 
 Top row: iOS 27 simulator. Bottom row: Android emulator.
 
+### Demo apps
+
+Six more apps built on the same two routes and one `MorphProvider`, each with its own items, config, slots and screens. They are in [`example/scenes/`](https://github.com/anhtuank7c/expo-morph-menu/tree/main/example/scenes), one file each, and run live on the [documentation site](https://anhtuank7c.github.io/expo-morph-menu/examples/).
+
+<table>
+  <tr>
+    <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/scenes/wallet.gif" width="220" alt="Wallet: A lime button grows into a graphite menu (Background slot)"></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/scenes/chat.gif" width="220" alt="Messaging: Rows with subtitles (Item slot, itemHeight)"></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/scenes/delivery.gif" width="220" alt="Super app: Tall rows with ETA and price, a banded card"></td>
+  </tr>
+  <tr>
+    <td align="center" width="240"><a href="https://anhtuank7c.github.io/expo-morph-menu/examples/wallet/"><b>Wallet</b></a><br>A lime button grows into a graphite menu (Background slot)</td>
+    <td align="center" width="240"><a href="https://anhtuank7c.github.io/expo-morph-menu/examples/chat/"><b>Messaging</b></a><br>Rows with subtitles (Item slot, itemHeight)</td>
+    <td align="center" width="240"><a href="https://anhtuank7c.github.io/expo-morph-menu/examples/delivery/"><b>Super app</b></a><br>Tall rows with ETA and price, a banded card</td>
+  </tr>
+  <tr>
+    <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/scenes/shop.gif" width="220" alt="Shop: A bag button with a live cart badge (Trigger slot)"></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/scenes/music.gif" width="220" alt="Music: An equalizer in the button, dark mode"></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/scenes/notes.gif" width="220" alt="Notes: Bottom-left corner, shortcuts and separators"></td>
+  </tr>
+  <tr>
+    <td align="center" width="240"><a href="https://anhtuank7c.github.io/expo-morph-menu/examples/shop/"><b>Shop</b></a><br>A bag button with a live cart badge (Trigger slot)</td>
+    <td align="center" width="240"><a href="https://anhtuank7c.github.io/expo-morph-menu/examples/music/"><b>Music</b></a><br>An equalizer in the button, dark mode</td>
+    <td align="center" width="240"><a href="https://anhtuank7c.github.io/expo-morph-menu/examples/notes/"><b>Notes</b></a><br>Bottom-left corner, shortcuts and separators</td>
+  </tr>
+</table>
+
 ![Floating button, card menu, full-screen route and child screen, with the dismiss path](https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/diagrams/svg/en/0-overview.svg?sanitize=true)
 
 ## Features

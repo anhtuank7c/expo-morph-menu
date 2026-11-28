@@ -42,6 +42,11 @@ export default defineConfig({
             { slug: 'examples/custom-slots' },
             { slug: 'examples/left-corner' },
             { slug: 'examples/social' },
+            {
+              label: 'Demo apps',
+              translations: { vi: 'App mẫu' },
+              items: ['wallet', 'chat', 'delivery', 'shop', 'music', 'notes'].map((id) => ({ slug: `examples/${id}` })),
+            },
           ],
         },
         {

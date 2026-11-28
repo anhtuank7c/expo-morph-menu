@@ -132,7 +132,158 @@ const EXAMPLES = [
       'example-social/src/features/compose/ui/ComposeMenu.tsx',
     ],
   },
+  ...scene({
+    id: 'wallet',
+    title: ['Wallet', 'Ví điện tử'],
+    summary: [
+      'A dark fintech app: a lime button grows into a graphite menu, the rows into send, request, top up and scan screens.',
+      'App tài chính nền tối: nút màu chanh nở thành menu màu than chì, các dòng nở thành màn chuyển tiền, yêu cầu, nạp tiền và quét mã.',
+    ],
+    steps: [
+      [
+        'The button and the card are one surface. The `Background` slot reads `progress` and blends lime (the button, 0) into graphite (the card, 0.5 and up) with `interpolateColor`.',
+        'Its `sheet` variant is plain graphite, so the card and the growing screen match on the frame they swap.',
+        'The `Trigger` slot draws a dark + that fades and turns as the card opens; `colorScheme: \'dark\'` and `colors.dark` set the text, highlight and screen background.',
+        'Send has a working keypad and a contact picker; Request shows a code and a link.',
+      ],
+      [
+        'Nút và thẻ là cùng một bề mặt. Slot `Background` đọc `progress` và chuyển màu chanh (nút, 0) sang than chì (thẻ, từ 0.5) bằng `interpolateColor`.',
+        'Biến thể `sheet` của nó là màu than chì, nên thẻ và màn hình đang nở khớp nhau đúng khung hình hoán đổi.',
+        'Slot `Trigger` vẽ dấu + màu tối, mờ dần và xoay khi thẻ mở; `colorScheme: \'dark\'` và `colors.dark` đặt màu chữ, highlight và nền màn hình.',
+        'Màn chuyển tiền có bàn phím số và chọn người nhận; màn yêu cầu có mã và đường dẫn.',
+      ],
+    ],
+    uses: [SLOT('Background'), SLOT('Trigger'), CONFIG('colorScheme'), CONFIG('colors'), CONFIG('radius'), CONFIG('layout')],
+  }),
+  ...scene({
+    id: 'chat',
+    title: ['Messaging', 'Nhắn tin'],
+    summary: [
+      'A chat list with a compose menu: rows with a title and a subtitle, screens to start a chat, a group or a channel.',
+      'Danh sách chat với menu soạn tin: các dòng có tiêu đề và phụ đề, màn bắt đầu chat, tạo nhóm hoặc kênh.',
+    ],
+    steps: [
+      [
+        'An `Item` slot draws an icon tile, the label and `item.data.subtitle`; the built-in Highlight still marks the row under the finger.',
+        '`itemHeight` returns 60 for rows with a subtitle: heights are known in advance, rows are never measured.',
+        '`fabIcon` replaces the + with a compose icon, colored by `colors.fabIcon`.',
+        'New message filters contacts as you type; New group toggles members; New channel has a public switch.',
+      ],
+      [
+        'Slot `Item` vẽ ô icon, nhãn và `item.data.subtitle`; Highlight mặc định vẫn đánh dấu dòng dưới ngón tay.',
+        '`itemHeight` trả về 60 cho dòng có phụ đề: chiều cao biết trước, các dòng không bao giờ được đo.',
+        '`fabIcon` thay dấu + bằng icon soạn tin, tô bằng `colors.fabIcon`.',
+        'Tin nhắn mới lọc danh bạ khi gõ; Nhóm mới chọn thành viên; Kênh mới có công tắc công khai.',
+      ],
+    ],
+    uses: [SLOT('Item'), 'itemHeight:guides/custom-ui/', API('renderIcon'), 'fabIcon:guides/configuration/#icons', CONFIG('colors')],
+  }),
+  ...scene({
+    id: 'delivery',
+    title: ['Super app', 'Siêu ứng dụng'],
+    summary: [
+      'Rides, food, groceries and parcels from one button: tall rows with an ETA and a price.',
+      'Gọi xe, đồ ăn, đi chợ và gửi hàng từ một nút: các dòng cao có thời gian và giá.',
+    ],
+    steps: [
+      [
+        'An `Item` slot lays out an icon tile, the service, its ETA and a price, all from `item.data`; `itemHeight` makes every row 64 high.',
+        'A `Background` slot draws a white card with a green band at the top, the same in the card and while it grows into the screen.',
+        'The Ride screen draws a map with plain views and lets you pick a car; Groceries counts what you add.',
+      ],
+      [
+        'Slot `Item` xếp ô icon, tên dịch vụ, thời gian và giá, tất cả lấy từ `item.data`; `itemHeight` cho mọi dòng cao 64.',
+        'Slot `Background` vẽ thẻ trắng có dải xanh ở trên, giống nhau trong thẻ và lúc nở thành màn hình.',
+        'Màn gọi xe vẽ bản đồ bằng các View thường và cho chọn loại xe; màn đi chợ đếm món bạn thêm.',
+      ],
+    ],
+    uses: [SLOT('Item'), SLOT('Background'), 'itemHeight:guides/custom-ui/', CONFIG('layout'), CONFIG('radius')],
+  }),
+  ...scene({
+    id: 'shop',
+    title: ['Shop', 'Cửa hàng'],
+    summary: [
+      'A bag button with a live badge: add a product and the button updates. Cart, wishlist, order tracking and help chat.',
+      'Nút túi xách có huy hiệu trực tiếp: thêm sản phẩm là nút cập nhật. Giỏ hàng, yêu thích, theo dõi đơn và chat hỗ trợ.',
+    ],
+    steps: [
+      [
+        'The `Trigger` slot reads a small cart store, so the badge on the button changes as you add products on the home screen.',
+        'The `Item` slot paints its own hover state from `hovered`, so `Highlight` is `null`, and shows a count per row.',
+        'A `Background` slot turns the orange button into a white card, like the wallet.',
+        'The cart screen edits quantities in the same store: close it and the badge follows.',
+      ],
+      [
+        'Slot `Trigger` đọc một store giỏ hàng nhỏ, nên huy hiệu trên nút đổi khi bạn thêm sản phẩm ở màn chính.',
+        'Slot `Item` tự vẽ trạng thái hover từ `hovered`, nên `Highlight` là `null`, và hiện số lượng ở mỗi dòng.',
+        'Slot `Background` biến nút cam thành thẻ trắng, như ví dụ ví điện tử.',
+        'Màn giỏ hàng sửa số lượng trong cùng store: đóng lại là huy hiệu cập nhật theo.',
+      ],
+    ],
+    uses: [SLOT('Trigger'), SLOT('Item'), SLOT('Background'), 'Highlight: null:guides/custom-ui/#slots', CONFIG('layout')],
+  }),
+  ...scene({
+    id: 'music',
+    title: ['Music', 'Nghe nhạc'],
+    summary: [
+      'A dark music app: a moving equalizer in the button, playlists, songs, radio and a listening party.',
+      'App nghe nhạc nền tối: equalizer chuyển động trong nút, playlist, bài hát, radio và nghe cùng bạn bè.',
+    ],
+    steps: [
+      [
+        'The `Trigger` slot is four bars that keep moving while the button is closed and shrink to nothing as `progress` rises.',
+        'The slot only animates its own content; the package animates the button growing into the card.',
+        '`surface: \'solid\'` with `colors.dark.surface` gives the card a deep tone on every platform.',
+      ],
+      [
+        'Slot `Trigger` là bốn thanh chuyển động khi nút đóng và co lại khi `progress` tăng.',
+        'Slot chỉ animate nội dung của chính nó; package lo việc nút nở thành thẻ.',
+        '`surface: \'solid\'` với `colors.dark.surface` cho thẻ một tông màu sâu trên mọi nền tảng.',
+      ],
+    ],
+    uses: [SLOT('Trigger'), CONFIG('surface'), CONFIG('colorScheme'), CONFIG('colors')],
+  }),
+  ...scene({
+    id: 'notes',
+    title: ['Notes', 'Ghi chú'],
+    summary: [
+      'A notes app on warm paper, with the button in the bottom-left corner and keyboard shortcuts on the rows.',
+      'App ghi chú trên nền giấy ấm, nút ở góc dưới bên trái và phím tắt trên các dòng.',
+    ],
+    steps: [
+      [
+        '`anchor: \'bottom-left\'` moves the button to the left corner; the card opens from there.',
+        'The `Item` slot shows a shortcut chip, and the `Separator` slot draws hairlines between rows (`layout.separatorHeight`).',
+        '`colors.light` sets the paper tones of the card, the text and the screens.',
+        'The voice memo animates a waveform with Reanimated; the checklist ticks items off.',
+      ],
+      [
+        '`anchor: \'bottom-left\'` dời nút sang góc trái; thẻ mở ra từ đó.',
+        'Slot `Item` hiện chip phím tắt, slot `Separator` vẽ vạch mảnh giữa các dòng (`layout.separatorHeight`).',
+        '`colors.light` đặt tông giấy cho thẻ, chữ và các màn hình.',
+        'Ghi âm có sóng âm animate bằng Reanimated; checklist đánh dấu từng việc.',
+      ],
+    ],
+    uses: [CONFIG('anchor'), SLOT('Item'), SLOT('Separator'), CONFIG('colors'), CONFIG('surface')],
+  }),
 ];
+
+/** A demo app of example/scenes: opened with ?scene=<id>, its source is one file. */
+function scene({ id, title, summary, steps, uses }) {
+  return [
+    {
+      slug: id,
+      app: 'example',
+      route: `?scene=${id}`,
+      gif: `scenes/${id}.gif`,
+      title,
+      summary,
+      steps,
+      uses,
+      files: [`example/scenes/${id}.tsx`, 'example/scenes/types.ts', 'example/scenes/ui.tsx'],
+    },
+  ];
+}
 
 const t = (pair, vi) => pair[vi ? 1 : 0];
 

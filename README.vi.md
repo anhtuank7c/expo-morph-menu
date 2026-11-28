@@ -25,6 +25,33 @@ Nút nổi mở rộng thành card menu. Khi chọn một dòng, card mở rộn
 
 Hàng trên: iOS 27 simulator. Hàng dưới: Android emulator.
 
+### App mẫu
+
+Sáu app nữa dựng trên cùng hai route và một `MorphProvider`, mỗi app có item, config, slot và màn hình riêng. Chúng nằm trong [`example/scenes/`](https://github.com/anhtuank7c/expo-morph-menu/tree/main/example/scenes), mỗi app một file, và chạy trực tiếp trên [trang tài liệu](https://anhtuank7c.github.io/expo-morph-menu/vi/examples/).
+
+<table>
+  <tr>
+    <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/scenes/wallet.gif" width="220" alt="Ví điện tử: Nút màu chanh nở thành menu màu than chì (slot Background)"></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/scenes/chat.gif" width="220" alt="Nhắn tin: Các dòng có phụ đề (slot Item, itemHeight)"></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/scenes/delivery.gif" width="220" alt="Siêu ứng dụng: Dòng cao có thời gian và giá, thẻ có dải màu"></td>
+  </tr>
+  <tr>
+    <td align="center" width="240"><a href="https://anhtuank7c.github.io/expo-morph-menu/vi/examples/wallet/"><b>Ví điện tử</b></a><br>Nút màu chanh nở thành menu màu than chì (slot Background)</td>
+    <td align="center" width="240"><a href="https://anhtuank7c.github.io/expo-morph-menu/vi/examples/chat/"><b>Nhắn tin</b></a><br>Các dòng có phụ đề (slot Item, itemHeight)</td>
+    <td align="center" width="240"><a href="https://anhtuank7c.github.io/expo-morph-menu/vi/examples/delivery/"><b>Siêu ứng dụng</b></a><br>Dòng cao có thời gian và giá, thẻ có dải màu</td>
+  </tr>
+  <tr>
+    <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/scenes/shop.gif" width="220" alt="Cửa hàng: Nút túi có huy hiệu giỏ hàng trực tiếp (slot Trigger)"></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/scenes/music.gif" width="220" alt="Nghe nhạc: Equalizer trong nút, nền tối"></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/demo/scenes/notes.gif" width="220" alt="Ghi chú: Góc dưới trái, phím tắt và vạch ngăn"></td>
+  </tr>
+  <tr>
+    <td align="center" width="240"><a href="https://anhtuank7c.github.io/expo-morph-menu/vi/examples/shop/"><b>Cửa hàng</b></a><br>Nút túi có huy hiệu giỏ hàng trực tiếp (slot Trigger)</td>
+    <td align="center" width="240"><a href="https://anhtuank7c.github.io/expo-morph-menu/vi/examples/music/"><b>Nghe nhạc</b></a><br>Equalizer trong nút, nền tối</td>
+    <td align="center" width="240"><a href="https://anhtuank7c.github.io/expo-morph-menu/vi/examples/notes/"><b>Ghi chú</b></a><br>Góc dưới trái, phím tắt và vạch ngăn</td>
+  </tr>
+</table>
+
 ![Nút nổi, card menu, route full screen và màn hình con, cùng đường đóng](https://raw.githubusercontent.com/anhtuank7c/expo-morph-menu/main/docs/diagrams/svg/vi/0-overview.svg?sanitize=true)
 
 ## Tính năng

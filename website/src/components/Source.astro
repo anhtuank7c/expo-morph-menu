@@ -11,7 +11,7 @@ interface Props {
 }
 const sources = import.meta.glob(
   [
-    '../../../example/{app,components,context,data}/**/*.{ts,tsx}',
+    '../../../example/{app,components,context,data,scenes}/**/*.{ts,tsx}',
     '../../../example-social/{app,src}/**/*.{ts,tsx}',
   ],
   { query: '?raw', import: 'default', eager: true },

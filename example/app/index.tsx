@@ -1,7 +1,10 @@
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Ionicons } from '@expo/vector-icons';
+
 import { useDemo, type UiVariant } from '../context/demo';
+import { findScene, SCENES } from '../scenes';
 
 const VARIANTS: { key: UiVariant; label: string }[] = [
   { key: 'default', label: 'Default' },
@@ -54,9 +57,16 @@ const STEPS: { title: string; file: string; code: string; note: string }[] = [
   },
 ];
 
-export default function Home() {
+/** The home screen of the running demo: the basic one below, or a scene's own. */
+export default function Index() {
+  const { scene } = useDemo();
+  const Scene = findScene(scene)?.Home;
+  return Scene ? <Scene /> : <Home />;
+}
+
+function Home() {
   const insets = useSafeAreaInsets();
-  const { variant, setVariant } = useDemo();
+  const { variant, setVariant, setScene } = useDemo();
   return (
     <ScrollView
       style={styles.root}
@@ -105,6 +115,27 @@ export default function Home() {
           ? `Built-in components. Card surface on this platform: ${SURFACE}.`
           : 'components/CustomSlots.tsx replaces the card background, rows, separators, button and scrim.'}
       </Text>
+
+      <Text style={styles.caption}>More demo apps</Text>
+      <Text style={styles.hint}>
+        The same two routes and one MorphProvider, each with its own items, config, slots and screens.
+      </Text>
+      {SCENES.map((sc) => (
+        <Pressable
+          key={sc.id}
+          testID={`scene-${sc.id}`}
+          onPress={() => setScene(sc.id)}
+          style={styles.scene}
+          accessibilityRole="button"
+        >
+          <View style={[styles.sceneDot, { backgroundColor: sc.accent }]} />
+          <View style={styles.sceneText}>
+            <Text style={styles.stepTitle}>{sc.title}</Text>
+            <Text style={styles.hint}>{sc.subtitle}</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={16} color="#c7c7cc" />
+        </Pressable>
+      ))}
 
       <Text style={styles.caption}>Add it to your app</Text>
       {STEPS.map((s, i) => (
@@ -156,6 +187,16 @@ const styles = StyleSheet.create({
   code: { fontFamily: MONO, fontSize: 11.5, lineHeight: 17, color: '#f2f2f7' },
   hint: { fontSize: 13, color: '#8e8e93', lineHeight: 19 },
   footer: { fontSize: 12, color: '#8e8e93', marginTop: 10, lineHeight: 18 },
+  scene: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: 'rgba(120,120,128,0.08)',
+    borderRadius: 16,
+    padding: 14,
+  },
+  sceneDot: { width: 14, height: 14, borderRadius: 7 },
+  sceneText: { flex: 1, gap: 2 },
   segment: {
     flexDirection: 'row',
     backgroundColor: 'rgba(120,120,128,0.12)',

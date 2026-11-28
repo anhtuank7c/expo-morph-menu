@@ -5,6 +5,8 @@ import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-n
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Skeleton } from '../../components/Skeleton';
+import { useDemo } from '../../context/demo';
+import { findScene } from '../../scenes';
 import { findDemo } from '../../data/items';
 import { useSheetData } from '../../data/sheetData';
 
@@ -22,7 +24,14 @@ function closeHint(d: { edgeSwipe: boolean; dragDown: boolean }) {
 
 const PREFETCHED_MS = 80;
 
-export default function SheetRoot() {
+/** The screen of a row: the basic one below, or the running scene's own. */
+export default function SheetRoute() {
+  const { key } = useLocalSearchParams<{ key: string }>();
+  const Scene = findScene(useDemo().scene)?.Screen;
+  return Scene ? <Scene itemKey={key} /> : <SheetRoot />;
+}
+
+function SheetRoot() {
   const { key } = useLocalSearchParams<{ key: string }>();
   const item = findDemo(key);
   const insets = useSafeAreaInsets();
